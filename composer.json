@@ -11,7 +11,7 @@
         }
     ],
     "require": {
-        "sensio/framework-extra-bundle": "2.1.x-dev"
+        "sensio/framework-extra-bundle": "2.1.x-dev",
         "snc/redis-bundle": "1.1.x-dev"
     },
     "autoload": {
