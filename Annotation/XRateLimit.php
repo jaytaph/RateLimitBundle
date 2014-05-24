@@ -46,7 +46,6 @@ class XRateLimit extends ConfigurationAnnotation
         return true;
     }
 
-
     /**
      * @return int
      */

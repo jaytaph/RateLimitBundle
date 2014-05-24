@@ -11,51 +11,46 @@ class RateLimitService
      */
     protected $storage;
 
-
-
     /**
      * @param StorageInterface $storage
      */
-    function setStorage(StorageInterface $storage)
+    public function setStorage(StorageInterface $storage)
     {
         $this->storage = $storage;
     }
 
-
     /**
      * @return StorageInterface
      */
-    function getStorage()
+    public function getStorage()
     {
         if (! $this->storage) {
             throw new \RuntimeException('Storage engine must be set prior to using the rate limit service');
         }
+
         return $this->storage;
     }
-
 
     /**
      *
      */
-    function limitRate($key)
+    public function limitRate($key)
     {
         return $this->storage->limitRate($key);
     }
 
-
     /**
      *
      */
-    function createRate($key, $limit, $period)
+    public function createRate($key, $limit, $period)
     {
         return $this->storage->createRate($key, $limit, $period);
     }
 
-
     /**
      *
      */
-    function resetRate($key)
+    public function resetRate($key)
     {
         return $this->storage->resetRate($key);
     }

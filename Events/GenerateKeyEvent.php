@@ -14,9 +14,7 @@ class GenerateKeyEvent extends Event
     /** @var string */
     protected $key;
 
-
-
-    function __construct(Request $request, $key)
+    public function __construct(Request $request, $key)
     {
         $this->request = $request;
         $this->key = $key;
@@ -49,7 +47,8 @@ class GenerateKeyEvent extends Event
     /**
      * @param $part
      */
-    public function addToKey($part) {
+    public function addToKey($part)
+    {
         $this->key .= ':' . $part;
     }
 

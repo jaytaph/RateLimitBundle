@@ -11,11 +11,10 @@ class HeaderModificationListener extends BaseListener
     /**
      * @param array $defaultParameters
      */
-    function __construct($defaultParameters = array())
+    public function __construct($defaultParameters = array())
     {
         $this->parameters = $defaultParameters;
     }
-
 
     /**
      * @param FilterResponseEvent $event

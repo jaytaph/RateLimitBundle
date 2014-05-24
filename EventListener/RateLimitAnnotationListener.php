@@ -19,7 +19,6 @@ class RateLimitAnnotationListener extends BaseListener
      */
     protected $reader;
 
-
     /**
      * @var eventDispatcherInterface
      */
@@ -30,18 +29,16 @@ class RateLimitAnnotationListener extends BaseListener
      */
     protected $rateLimitService;
 
-
     /**
      * @param \Doctrine\Common\Annotations\Reader $reader
-     * @param RateLimitService $rateLimitService
+     * @param RateLimitService                    $rateLimitService
      */
-    function __construct(\Doctrine\Common\Annotations\Reader $reader, EventDispatcherInterface $eventDispatcher, RateLimitService $rateLimitService)
+    public function __construct(\Doctrine\Common\Annotations\Reader $reader, EventDispatcherInterface $eventDispatcher, RateLimitService $rateLimitService)
     {
         $this->reader = $reader;
         $this->eventDispatcher = $eventDispatcher;
         $this->rateLimitService = $rateLimitService;
     }
-
 
     /**
      * @param FilterControllerEvent $event

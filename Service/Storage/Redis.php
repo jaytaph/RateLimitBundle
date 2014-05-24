@@ -5,7 +5,6 @@ namespace Noxlogic\RateLimitBundle\Service\Storage;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Predis\Client;
 
-
 class Redis implements StorageInterface
 {
     /**
@@ -13,11 +12,12 @@ class Redis implements StorageInterface
      */
     protected $client;
 
-    function __construct(Client $client) {
+    public function __construct(Client $client)
+    {
         $this->client = $client;
     }
 
-    function getRateInfo($key)
+    public function getRateInfo($key)
     {
         $info = $this->client->hgetall($key);
 
@@ -25,20 +25,22 @@ class Redis implements StorageInterface
         $rateLimitInfo->setLimit($info['limit']);
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
+
         return $rateLimitInfo;
     }
 
-    function limitRate($key)
+    public function limitRate($key)
     {
         if (! $this->client->hexists($key, 'limit')) {
             return false;
         }
 
         $this->client->hincrby($key, 'calls', 1);
+
         return $this->getRateInfo($key);
     }
 
-    function createRate($key, $limit, $period)
+    public function createRate($key, $limit, $period)
     {
         $this->client->hset($key, 'limit', $limit);
         $this->client->hset($key, 'calls', 1);
@@ -48,7 +50,7 @@ class Redis implements StorageInterface
         return $this->getRateInfo($key);
     }
 
-    function resetRate($key)
+    public function resetRate($key)
     {
         $this->client->hdel($key);
     }

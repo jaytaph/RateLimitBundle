@@ -10,7 +10,6 @@ abstract class BaseListener
      */
     protected $parameters;
 
-
     /**
      * @param $name
      * @param $value
@@ -20,10 +19,9 @@ abstract class BaseListener
         $this->parameters[$name] = $value;
     }
 
-
     /**
      * @param $name
-     * @param null $default
+     * @param  null $default
      * @return null
      */
     public function getParameter($name, $default = null)

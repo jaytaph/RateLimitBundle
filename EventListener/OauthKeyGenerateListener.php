@@ -12,15 +12,13 @@ class OauthKeyGenerateListener
      */
     protected $securityContext;
 
-
     /**
      * @param SecurityContextInterface $securityContext
      */
-    function __construct(SecurityContextInterface $securityContext)
+    public function __construct(SecurityContextInterface $securityContext)
     {
         $this->securityContext = $securityContext;
     }
-
 
     /**
      * @param GenerateKeyEvent $event
