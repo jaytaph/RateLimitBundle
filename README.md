@@ -112,7 +112,7 @@ limit for all actions, except the ones that actually defines a custom rate-limit
 
 ## TODO
 
-    * Add default x-rate limit to config (like: rate-limiting an /api directory for instance)
-    * Split backends in a better way (right now, it depends on redis too much)
-    * Add memcache storage
-    * Unittests
+  * Add default x-rate limit to config (like: rate-limiting an /api directory for instance)
+  * Split backends in a better way (right now, it depends on redis too much)
+  * Add memcache storage
+  * Unittests
