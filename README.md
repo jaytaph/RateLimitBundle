@@ -10,9 +10,9 @@ This bundle is partially inspired by a github gist from Ruud Kamphuis: https://g
 
 ## Features
 
-    * Simple usage through annotations
-    * Customize rates per controller, action and even per HTTP method
-    * Multiple storage backends: redis, memcached etc
+ * Simple usage through annotations
+ * Customize rates per controller, action and even per HTTP method
+ * Multiple storage backends: redis, memcached etc
 
 
 ## Installation
@@ -112,6 +112,7 @@ limit for all actions, except the ones that actually defines a custom rate-limit
 
 ## TODO
 
+  * Better documentation
   * Add default x-rate limit to config (like: rate-limiting an /api directory for instance)
   * Split backends in a better way (right now, it depends on redis too much)
   * Add memcache storage
