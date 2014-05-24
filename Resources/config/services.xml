@@ -1,0 +1,80 @@
+<?xml version="1.0" ?>
+
+<container xmlns="http://symfony.com/schema/dic/services"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+
+    <parameters>
+        <parameter key="noxlogic_rate_limit.header_modification_listener.class">Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener</parameter>
+        <parameter key="noxlogic_rate_limit.rate_limit_annotation_listener.class">Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener</parameter>
+        <parameter key="noxlogic_rate_limit.rate_limit_service.class">Noxlogic\RateLimitBundle\Service\RateLimitService</parameter>
+        <parameter key="noxlogic_rate_limit.storage.redis.class">Noxlogic\RateLimitBundle\Service\Storage\Redis</parameter>
+        <parameter key="noxlogic_rate_limit.storage.memcache.class">Noxlogic\RateLimitBundle\Service\Storage\Memcache</parameter>
+        <parameter key="noxlogic_rate_limit.oauth_key_generate_listener.class">Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener</parameter>
+    </parameters>
+
+    <services>
+        <service id="noxlogic_rate_limit.storage.redis" class="%noxlogic_rate_limit.storage.redis.class%">
+            <argument type="service" id="snc_redis.default_client" />
+        </service>
+
+
+        <service id="noxlogic_rate_limit.rate_limit_service" class="%noxlogic_rate_limit.rate_limit_service.class%">
+            <argument type="service" id="security.context" />
+            <call method="setStorage">
+                <argument type="service" id="noxlogic_rate_limit.storage.redis" />
+            </call>
+        </service>
+
+        <service id="noxlogic_rate_limit.rate_limit_annotation_listener" class="%noxlogic_rate_limit.rate_limit_annotation_listener.class%">
+            <argument type="service" id="annotation_reader" />
+            <argument type="service" id="event_dispatcher" />
+            <argument type="service" id="noxlogic_rate_limit.rate_limit_service" />
+
+            <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController" priority="-10" />
+
+            <call method="setParameter">
+                <argument>rate_response_code</argument>
+                <argument>%noxlogic_rate_limit.rate_response_code%</argument>
+            </call>
+            <call method="setParameter">
+                <argument>rate_response_message</argument>
+                <argument>%noxlogic_rate_limit.rate_response_message%</argument>
+            </call>
+        </service>
+
+        <service id="noxlogic_rate_limit.header_modification_listener" class="%noxlogic_rate_limit.header_modification_listener.class%">
+            <tag name="kernel.event_listener" event="kernel.response" method="onKernelResponse" priority="0" />
+
+            <call method="setParameter">
+                <argument>rate_response_code</argument>
+                <argument>%noxlogic_rate_limit.rate_response_code%</argument>
+            </call>
+            <call method="setParameter">
+                <argument>display_headers</argument>
+                <argument>%noxlogic_rate_limit.display_headers%</argument>
+            </call>
+            <call method="setParameter">
+                <argument>header_limit_name</argument>
+                <argument>%noxlogic_rate_limit.headers.limit.name%</argument>
+            </call>
+            <call method="setParameter">
+                <argument>header_remaining_name</argument>
+                <argument>%noxlogic_rate_limit.headers.remaining.name%</argument>
+            </call>
+            <call method="setParameter">
+                <argument>header_reset_name</argument>
+                <argument>%noxlogic_rate_limit.headers.reset.name%</argument>
+            </call>
+        </service>
+
+
+        <service id="noxlogic_rate_limit.oauth_key_generate_listener" class="%noxlogic_rate_limit.oauth_key_generate_listener.class%">
+            <argument type="service" id="security.context" />
+
+            <tag name="kernel.event_listener" event="xratelimit.generate.key" method="onGenerateKey" />
+        </service>
+
+    </services>
+
+</container>

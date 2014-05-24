@@ -1,0 +1,21 @@
+{
+    "name": "noxlogic/ratelimit-bundle",
+    "description": "This bundle provides functionality to limit calls to actions based on rate limits",
+    "keywords": [ "x-rate-limit", "api", "rest" ],
+    "type": "symfony-bundle",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Joshua Thijssen",
+            "email": "jthijssen@noxlogic.nl"
+        }
+    ],
+    "require": {
+        "sensio/framework-extra-bundle": "2.1.x-dev"
+        "snc/redis-bundle": "1.1.x-dev"
+    },
+    "autoload": {
+        "psr-0": { "Noxlogic\\Bundle\\RateLimitBundle": "" }
+    },
+    "target-dir": "Noxlogic/Bundle/RateLimitBundle"
+}
