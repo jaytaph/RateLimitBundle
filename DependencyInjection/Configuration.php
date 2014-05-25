@@ -18,7 +18,7 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder()
     {
         $treeBuilder = new TreeBuilder();
-        $rootNode = $treeBuilder->root('noxlogic_rate_limit')
+        $treeBuilder->root('noxlogic_rate_limit')
             ->children()
                 ->enumNode('storage_engine')
                     ->values(array('redis','memcache'))

@@ -23,6 +23,15 @@ interface StorageInterface
     public function limitRate($key);
 
     /**
+     * Create a new rate entry
+     *
+     * @param  string        $key
+     * @param  integer       $limit
+     * @param  integer       $period
+     */
+    public function createRate($key, $limit, $period);
+
+    /**
      * Reset the rating
      *
      * @param $key

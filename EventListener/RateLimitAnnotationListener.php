@@ -74,6 +74,9 @@ class RateLimitAnnotationListener extends BaseListener
         if (! $rateLimitInfo) {
             // Create new rate limit entry for this call
             $rateLimitInfo = $this->rateLimitService->createRate($key, $annotation->getLimit(), $annotation->getPeriod());
+            if (! $rateLimitInfo) {
+                return;
+            }
         }
 
 
