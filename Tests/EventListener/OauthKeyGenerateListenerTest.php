@@ -7,7 +7,6 @@ use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-
 class OauthKeyGenerateListenerTest extends TestCase
 {
 
@@ -15,7 +14,7 @@ class OauthKeyGenerateListenerTest extends TestCase
     {
         $mockToken = $this->createMockToken();
 
-        $mockContext = $this->getMock('Symfony\Component\Security\Core\SecurityContextInterface', array(), array(), '', null);
+        $mockContext = $this->getMock('Symfony\\Component\\Security\\Core\\SecurityContextInterface');
         $mockContext
             ->expects($this->any())
             ->method('getToken')
@@ -32,7 +31,7 @@ class OauthKeyGenerateListenerTest extends TestCase
 
     private function createMockToken()
     {
-        $oauthToken = $this->getMock('FOS\OAuthServerBundle\Security\Authentication\Token\OAuthToken', array(), array(), '', null);
+        $oauthToken = $this->getMock('FOS\\OAuthServerBundle\\Security\\Authentication\\Token\\OAuthToken');
         $oauthToken
             ->expects($this->any())
             ->method('getToken')
@@ -41,6 +40,5 @@ class OauthKeyGenerateListenerTest extends TestCase
 
         return $oauthToken;
     }
-
 
 }

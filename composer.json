@@ -11,11 +11,13 @@
         }
     ],
     "require": {
-        "sensio/framework-extra-bundle": "2.1.x-dev",
-        "snc/redis-bundle": "1.1.x-dev"
+        "symfony/framework-bundle"      : "~2.2",
+        "sensio/framework-extra-bundle" : "~2.2",
+        "snc/redis-bundle"              : "1.1.x-dev",
+        "friendsofsymfony/oauth-server-bundle": "dev-master"
     },
     "autoload": {
-        "psr-0": { "Noxlogic\\Bundle\\RateLimitBundle": "" }
+        "psr-0": { "Noxlogic\\RateLimitBundle": "" }
     },
-    "target-dir": "Noxlogic/Bundle/RateLimitBundle"
+    "target-dir": "Noxlogic/RateLimitBundle"
 }
