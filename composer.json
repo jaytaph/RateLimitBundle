@@ -11,8 +11,8 @@
         }
     ],
     "require": {
-        "symfony/framework-bundle"      : "~2.2",
-        "sensio/framework-extra-bundle" : "~2.2",
+        "symfony/framework-bundle"      : ">=2.3",
+        "sensio/framework-extra-bundle" : ">=2.3",
         "snc/redis-bundle"              : "1.1.x-dev",
         "friendsofsymfony/oauth-server-bundle": "dev-master"
     },
