@@ -9,7 +9,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\ConfigurationAnnotation;
  * @Annotation
  * @Target({"METHOD", "CLASS"})
  */
-class XRateLimit extends ConfigurationAnnotation
+class RateLimit extends ConfigurationAnnotation
 {
     /**
      * @var array HTTP Methods protected by this annotation. Defaults to all method

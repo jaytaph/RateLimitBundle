@@ -20,9 +20,9 @@ abstract class BaseListener
     }
 
     /**
-     * @param $name
-     * @param  null $default
-     * @return null
+     * @param  $name
+     * @param  mixed $default
+     * @return mixed
      */
     public function getParameter($name, $default = null)
     {

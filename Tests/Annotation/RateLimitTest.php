@@ -3,14 +3,14 @@
 namespace Noxlogic\RateLimitBundle\Tests\Annotation;
 
 use Noxlogic\RateLimitBundle\Annotation;
-use Noxlogic\RateLimitBundle\Annotation\XRateLimit;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
-class XRateLimitTest extends TestCase
+class RateLimitTest extends TestCase
 {
     public function testConstruction()
     {
-        $annot = new XRateLimit(array());
+        $annot = new RateLimit(array());
 
         $this->assertEquals('x-rate-limit', $annot->getAliasName());
         $this->assertTrue($annot->allowArray());
@@ -22,12 +22,12 @@ class XRateLimitTest extends TestCase
 
     public function testConstructionWithValues()
     {
-        $annot = new XRateLimit(array('limit' => 1234, 'period' => 1000));
+        $annot = new RateLimit(array('limit' => 1234, 'period' => 1000));
         $this->assertEquals(1234, $annot->getLimit());
         $this->assertEquals(1000, $annot->getPeriod());
 
 
-        $annot = new XRateLimit(array('methods' => 'POST', 'limit' => 1234, 'period' => 1000));
+        $annot = new RateLimit(array('methods' => 'POST', 'limit' => 1234, 'period' => 1000));
         $this->assertEquals(1234, $annot->getLimit());
         $this->assertEquals(1000, $annot->getPeriod());
         $this->assertEquals('POST', $annot->getMethods());
@@ -35,7 +35,7 @@ class XRateLimitTest extends TestCase
 
     public function testConstructionWithMethods()
     {
-        $annot = new XRateLimit(array('limit' => 1234, 'period' => 1000, 'methods' => array('POST', 'GET')));
+        $annot = new RateLimit(array('limit' => 1234, 'period' => 1000, 'methods' => array('POST', 'GET')));
         $this->assertCount(2, $annot->getMethods());
 
         $annot->setMethods(array());

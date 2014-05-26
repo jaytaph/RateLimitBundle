@@ -72,7 +72,7 @@
         <service id="noxlogic_rate_limit.oauth_key_generate_listener" class="%noxlogic_rate_limit.oauth_key_generate_listener.class%">
             <argument type="service" id="security.context" />
 
-            <tag name="kernel.event_listener" event="xratelimit.generate.key" method="onGenerateKey" />
+            <tag name="kernel.event_listener" event="ratelimit.generate.key" method="onGenerateKey" />
         </service>
 
     </services>

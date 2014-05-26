@@ -2,7 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\EventListener;
 
-use Noxlogic\RateLimitBundle\Annotation\XRateLimit;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
@@ -97,7 +97,7 @@ class RateLimitAnnotationListener extends BaseListener
 
 
     /**
-     * @param XRateLimit[] $annotations
+     * @param RateLimit[] $annotations
      */
     protected function findBestMethodMatch(Request $request, array $annotations)
     {

@@ -2,7 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\EventListener\Tests;
 
-use Noxlogic\RateLimitBundle\Annotation\XRateLimit;
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
@@ -19,7 +19,7 @@ class MockController {
 class RateLimitAnnotationListenerTest extends TestCase
 {
 
-    function testReturnedWhenNotAMasterRequest()
+    public function testReturnedWhenNotAMasterRequest()
     {
         $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
         $mockDispatcher
@@ -38,7 +38,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
-    function testReturnedWhenNoControllerFound()
+    public function testReturnedWhenNoControllerFound()
     {
         $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
         $mockDispatcher
@@ -59,7 +59,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
-    function testReturnedWhenNoAnnotationsFound()
+    public function testReturnedWhenNoAnnotationsFound()
     {
         $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
         $mockDispatcher
@@ -76,7 +76,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
-    function testDispatchIsCalled()
+    public function testDispatchIsCalled()
     {
         $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
         $mockDispatcher
@@ -89,7 +89,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $event = $this->createEvent();
         $event->getRequest()->attributes->set('_x-rate-limit', array(
-            new XRateLimit(array('limit' => 100, 'period' => 3600)),
+            new RateLimit(array('limit' => 100, 'period' => 3600)),
         ));
 
         $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
@@ -99,7 +99,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
-    function testBestMethodMatch()
+    public function testBestMethodMatch()
     {
         $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
         $mockDispatcher

@@ -18,7 +18,7 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
     protected $configuration;
 
 
-    function setUp() {
+    public function setUp() {
         $configArray = array();
         $configuration = new Configuration($configArray, true);
 
