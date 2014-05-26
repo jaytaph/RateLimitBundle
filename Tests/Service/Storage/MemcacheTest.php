@@ -15,6 +15,7 @@ class MemcacheTest extends TestCase
     public function testSetStorage()
     {
         $storage = new Memcache();
+        $this->assertTrue($storage);
     }
 
     /**
@@ -23,7 +24,7 @@ class MemcacheTest extends TestCase
     public function testGetRateInfo()
     {
         $storage = new Memcache();
-        $storage->getRateInfo('testkey');
+        $this->assertTrue($storage->getRateInfo('testkey'));
     }
 
     /**
@@ -32,7 +33,7 @@ class MemcacheTest extends TestCase
     public function testLimitRate()
     {
         $storage = new Memcache();
-        $storage->limitRate('testkey');
+        $this->assertTrue($storage->limitRate('testkey'));
     }
 
     /**
@@ -41,7 +42,7 @@ class MemcacheTest extends TestCase
     public function testCreateRate()
     {
         $storage = new Memcache();
-        $storage->createRate('testkey', 10, 100);
+        $this->assertTrue($storage->createRate('testkey', 10, 100));
     }
 
     /**
@@ -50,7 +51,7 @@ class MemcacheTest extends TestCase
     public function testResetRate()
     {
         $storage = new Memcache();
-        $storage->resetRate('testkey');
+        $this->assertTrue($storage->resetRate('testkey'));
     }
 
 }

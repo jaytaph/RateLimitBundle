@@ -4,7 +4,8 @@ namespace Noxlogic\RateLimitBundle\EventListener\Tests;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
-use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
+use Noxlogic\RateLimitBundle\Service\RateLimitService;
+use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Request;
@@ -21,35 +22,16 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     public function testReturnedWhenNotAMasterRequest()
     {
-        $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
-        $mockDispatcher
-            ->expects($this->never())
-            ->method('dispatch');
-
-        $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
-        $rateLimitService = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\RateLimitService');
+        $listener = $this->createListener($this->never());
 
         $event = $this->createEvent(HttpKernelInterface::SUB_REQUEST);
-
-        $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
         $listener->onKernelController($event);
-
-        $this->assertTrue(true);
     }
 
 
     public function testReturnedWhenNoControllerFound()
     {
-        $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
-        $mockDispatcher
-            ->expects($this->never())
-            ->method('dispatch');
-
-        $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
-        $rateLimitService = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\RateLimitService');
-
-        $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
-
+        $listener = $this->createListener($this->never());
 
         $kernel = $this->getMock('Symfony\\Component\\HttpKernel\\HttpKernelInterface');
         $request = new Request();
@@ -61,65 +43,211 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     public function testReturnedWhenNoAnnotationsFound()
     {
-        $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
-        $mockDispatcher
-            ->expects($this->never())
-            ->method('dispatch');
-
-        $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
-        $rateLimitService = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\RateLimitService');
+        $listener = $this->createListener($this->never());
 
         $event = $this->createEvent();
-
-        $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
         $listener->onKernelController($event);
     }
 
 
     public function testDispatchIsCalled()
     {
-        $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
-        $mockDispatcher
-            ->expects($this->once())
-            ->method('dispatch')
-            ->with(RateLimitEvents::GENERATE_KEY);
-
-        $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
-        $rateLimitService = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\RateLimitService');
+        $listener = $this->createListener($this->once());
 
         $event = $this->createEvent();
         $event->getRequest()->attributes->set('_x-rate-limit', array(
             new RateLimit(array('limit' => 100, 'period' => 3600)),
         ));
 
-        $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
         $listener->onKernelController($event);
-
-        $this->assertTrue(true);
     }
+
+
+    public function testIsRateLimitSetInRequest()
+    {
+        $listener = $this->createListener($this->any());
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 10)),
+        ));
+
+
+        $this->assertNull($event->getRequest()->attributes->get('rate_limit_info'));
+
+        // Create initial ratelimit in storage
+        $listener->onKernelController($event);
+        $this->assertArrayHasKey('rate_limit_info', $event->getRequest()->attributes->all());
+
+        // Add second ratelimit in storage
+        $listener->onKernelController($event);
+        $this->assertArrayHasKey('rate_limit_info', $event->getRequest()->attributes->all());
+    }
+
+    public function testRateLimit()
+    {
+        $listener = $this->createListener($this->any());
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 5)),
+        ));
+
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+    }
+
+    public function testRateLimitThrottling()
+    {
+        $listener = $this->createListener($this->any());
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 3)),
+        ));
+
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+
+        sleep(1);
+
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+
+        sleep(3);
+
+        $listener->onKernelController($event);
+        $this->assertInternalType('array', $event->getController());
+    }
+
+
+
 
 
     public function testBestMethodMatch()
     {
-        $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
-        $mockDispatcher
-            ->expects($this->never())
-            ->method('dispatch');
-
-        $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
-        $rateLimitService = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\RateLimitService');
-
-        $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
-        $method = new ReflectionMethod(
-            get_class($listener), 'findBestMethodMatch'
-        );
+        $listener = $this->createListener($this->any());
+        $method = new ReflectionMethod(get_class($listener), 'findBestMethodMatch');
         $method->setAccessible(true);
 
         $request = new Request();
 
-//        $this->assertEquals(
-//            $annotations[1], $method->invoke($listener, $request, $annotations)
-//        );
+        $annotations = array(
+                new RateLimit(array('limit' => 100, 'period' => 3600)),
+                new RateLimit(array('methods' => 'GET', 'limit' => 100, 'period' => 3600)),
+                new RateLimit(array('methods' => array('POST', 'PUT'), 'limit' => 100, 'period' => 3600)),
+        );
+
+        // Find the method that matches the string
+        $request->setMethod('GET');
+        $this->assertEquals(
+                $annotations[1], $method->invoke($listener, $request, $annotations)
+        );
+
+        // Method not found, use the default one
+        $request->setMethod('DELETE');
+        $this->assertEquals(
+                $annotations[0], $method->invoke($listener, $request, $annotations)
+        );
+
+        // Find best match based in methods in array
+        $request->setMethod('PUT');
+        $this->assertEquals(
+                $annotations[2], $method->invoke($listener, $request, $annotations)
+        );
+    }
+
+
+    public function testFindNoAnnotations()
+    {
+        $listener = $this->createListener($this->any());
+        $method = new ReflectionMethod(get_class($listener), 'findBestMethodMatch');
+        $method->setAccessible(true);
+
+        $request = new Request();
+
+        $annotations = array();
+
+        $request->setMethod('PUT');
+        $this->assertNull($method->invoke($listener, $request, $annotations));
+
+        $request->setMethod('GET');
+        $this->assertNull($method->invoke($listener, $request, $annotations));
+    }
+
+
+    public function testFindBestMethodMatchNotMatchingAnnotations()
+    {
+        $listener = $this->createListener($this->any());
+        $method = new ReflectionMethod(get_class($listener), 'findBestMethodMatch');
+        $method->setAccessible(true);
+
+        $request = new Request();
+
+        $annotations = array(
+            new RateLimit(array('methods' => 'GET', 'limit' => 100, 'period' => 3600)),
+        );
+
+        $request->setMethod('PUT');
+        $this->assertNull($method->invoke($listener, $request, $annotations));
+
+        $request->setMethod('GET');
+        $this->assertEquals(
+            $annotations[0], $method->invoke($listener, $request, $annotations)
+        );
+    }
+
+
+    public function testFindBestMethodMatchMatchingMultipleAnnotations()
+    {
+        $listener = $this->createListener($this->any());
+        $method = new ReflectionMethod(get_class($listener), 'findBestMethodMatch');
+        $method->setAccessible(true);
+
+        $request = new Request();
+
+        $annotations = array(
+            new RateLimit(array('methods' => 'GET', 'limit' => 100, 'period' => 3600)),
+            new RateLimit(array('methods' => array('GET','PUT'), 'limit' => 200, 'period' => 7200)),
+        );
+
+        $request->setMethod('PUT');
+        $this->assertEquals(
+            $annotations[1], $method->invoke($listener, $request, $annotations)
+        );
+
+        $request->setMethod('GET');
+        $this->assertEquals(
+            $annotations[1], $method->invoke($listener, $request, $annotations)
+        );
     }
 
     /**
@@ -135,5 +263,21 @@ class RateLimitAnnotationListenerTest extends TestCase
         $request = new Request();
         $event = new FilterControllerEvent($kernel, array($controller, $action), $request, $type);
         return $event;
+    }
+
+
+    protected function createListener($expects)
+    {
+        $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
+        $mockDispatcher
+            ->expects($expects)
+            ->method('dispatch');
+        $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
+
+        $rateLimitService = new RateLimitService();
+        $rateLimitService->setStorage(new MockStorage());
+
+        $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
+        return $listener;
     }
 }

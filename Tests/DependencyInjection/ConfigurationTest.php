@@ -23,7 +23,7 @@ class ConfigurationTest extends WebTestCase
 
     private function getConfigs(array $configArray)
     {
-        $configuration = new Configuration($configArray, true);
+        $configuration = new Configuration();
 
         return $this->processor->processConfiguration($configuration, array($configArray));
     }

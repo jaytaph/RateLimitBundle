@@ -7,4 +7,9 @@ tools:
 
 filter:
     excluded_paths:
+        - 'vendor/*'
+        - 'tests/*'
+        - 'app/*'
+        - 'bin/*'
+        - 'library/*'
         - 'Tests/*'
