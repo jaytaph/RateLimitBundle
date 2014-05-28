@@ -281,12 +281,11 @@ class RateLimitAnnotationListenerTest extends TestCase
         $mockDispatcher
             ->expects($expects)
             ->method('dispatch');
-        $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
 
         $rateLimitService = new RateLimitService();
         $rateLimitService->setStorage($this->getMockStorage());
 
-        $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
+        $listener = new RateLimitAnnotationListener($mockDispatcher, $rateLimitService);
         return $listener;
     }
 }

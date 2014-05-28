@@ -14,10 +14,6 @@ use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class RateLimitAnnotationListener extends BaseListener
 {
-    /**
-     * @var \Doctrine\Common\Annotations\Reader
-     */
-    protected $reader;
 
     /**
      * @var eventDispatcherInterface
@@ -30,12 +26,10 @@ class RateLimitAnnotationListener extends BaseListener
     protected $rateLimitService;
 
     /**
-     * @param \Doctrine\Common\Annotations\Reader $reader
      * @param RateLimitService                    $rateLimitService
      */
-    public function __construct(\Doctrine\Common\Annotations\Reader $reader, EventDispatcherInterface $eventDispatcher, RateLimitService $rateLimitService)
+    public function __construct(EventDispatcherInterface $eventDispatcher, RateLimitService $rateLimitService)
     {
-        $this->reader = $reader;
         $this->eventDispatcher = $eventDispatcher;
         $this->rateLimitService = $rateLimitService;
     }

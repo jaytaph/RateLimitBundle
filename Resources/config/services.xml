@@ -27,7 +27,6 @@
         </service>
 
         <service id="noxlogic_rate_limit.rate_limit_annotation_listener" class="%noxlogic_rate_limit.rate_limit_annotation_listener.class%">
-            <argument type="service" id="annotation_reader" />
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="noxlogic_rate_limit.rate_limit_service" />
 
