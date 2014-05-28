@@ -20,6 +20,20 @@ class MockController {
 class RateLimitAnnotationListenerTest extends TestCase
 {
 
+    /**
+     * @var MockStorage
+     */
+    protected $mockStorage;
+
+    protected function setUp() {
+        $this->mockStorage = new MockStorage();
+    }
+
+    protected function getMockStorage() {
+        return $this->mockStorage;
+    }
+
+
     public function testReturnedWhenNotAMasterRequest()
     {
         $listener = $this->createListener($this->never());
@@ -117,33 +131,28 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $event = $this->createEvent();
         $event->getRequest()->attributes->set('_x-rate-limit', array(
+                new RateLimit(array('limit' => 5, 'period' => 3)),
+        ));
+
+        // Throttled
+        $storage = $this->getMockStorage();
+        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+        $listener->onKernelController($event);
+        $this->assertNotInternalType('array', $event->getController());
+    }
+
+    public function testRateLimitExpiring()
+    {
+        $listener = $this->createListener($this->any());
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
             new RateLimit(array('limit' => 5, 'period' => 3)),
         ));
 
-        $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
-        $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
-        $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
-        $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
-        $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
-        $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
-        $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
-        $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
-
-        sleep(1);
-
-        $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
-
-        sleep(3);
-
+        // Expired
+        $storage = $this->getMockStorage();
+        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, -10, 12);
         $listener->onKernelController($event);
         $this->assertInternalType('array', $event->getController());
     }
@@ -275,7 +284,7 @@ class RateLimitAnnotationListenerTest extends TestCase
         $reader = $this->getMock('Doctrine\\Common\\Annotations\\Reader');
 
         $rateLimitService = new RateLimitService();
-        $rateLimitService->setStorage(new MockStorage());
+        $rateLimitService->setStorage($this->getMockStorage());
 
         $listener = new RateLimitAnnotationListener($reader, $mockDispatcher, $rateLimitService);
         return $listener;

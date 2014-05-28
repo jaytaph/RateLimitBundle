@@ -34,21 +34,16 @@ class MockStorage implements StorageInterface
      */
     public function limitRate($key)
     {
-        print "LimitRate($key)\n";
         if (! isset($this->rates[$key])) {
-            print "Notfound\n";
             return null;
         }
 
-        print $this->rates[$key]['reset'] . " / ". time() . "\n";
         if ($this->rates[$key]['reset'] <= time()) {
-            print "Expired\n";
             unset($this->rates[$key]);
             return null;
         }
 
         $this->rates[$key]['calls']++;
-        print "Found: Calls: " . $this->rates[$key]['calls']."\n";
         return $this->getRateInfo($key);
     }
 
@@ -62,9 +57,7 @@ class MockStorage implements StorageInterface
      */
     public function createRate($key, $limit, $period)
     {
-        print "CreateRate($key)\n";
         $this->rates[$key] = array('calls' => 1, 'limit' => $limit, 'reset' => (time() + $period));
-        print_r($this->rates[$key]);
         return $this->getRateInfo($key);
     }
 
@@ -76,6 +69,11 @@ class MockStorage implements StorageInterface
     public function resetRate($key)
     {
         unset($this->rates[$key]);
+    }
+
+    public function createMockRate($key, $limit, $period, $calls) {
+        $this->rates[$key] = array('calls' => $calls, 'limit' => $limit, 'reset' => (time() + $period));
+        return $this->getRateInfo($key);
     }
 
 }

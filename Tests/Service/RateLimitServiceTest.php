@@ -24,7 +24,7 @@ class RateLimitServiceTest extends TestCase
     }
 
     /**
-     * @expectedException RuntimeException
+     * @expectedException \RuntimeException
      */
     public function testRuntimeExceptionWhenNoStorageIsSet()
     {
