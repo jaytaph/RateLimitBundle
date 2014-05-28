@@ -9,7 +9,7 @@ NoxlogicRateLimitBundle
 This bundle provides enables the @ratelimit annotation which allows you to limit the number of connections to actions.
 This is mostly useful in APIs. All information is currently only available to be stored in Redis, but adding other storage systems should be not difficult.
 
-Right now, the bundle will work in coorporation with the FOSOAuthServerBundle. It contains a listener that adds the oauth token to the cache-key, but it's easy to implement your own listener that will use your setup (like the user that has logged in for instance, when you don't use oauth). Look for the `ratelimit.generate.key` event.
+Right now, the bundle will work in corporation with the FOSOAuthServerBundle. It contains a listener that adds the oauth token to the cache-key, but it's easy to implement your own listener that will use your setup (like the user that has logged in for instance, when you don't use oauth). Look for the `ratelimit.generate.key` event.
 
 This bundle is partially inspired by a github gist from Ruud Kamphuis: https://gist.github.com/ruudk/3350405
 

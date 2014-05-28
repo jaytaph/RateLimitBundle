@@ -28,5 +28,4 @@ abstract class BaseListener
     {
         return isset($this->parameters[$name]) ? $this->parameters[$name] : $default;
     }
-
 }

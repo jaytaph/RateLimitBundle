@@ -51,5 +51,4 @@ class GenerateKeyEvent extends Event
     {
         $this->key .= ':' . $part;
     }
-
 }

@@ -44,5 +44,4 @@ class ConfigurationTest extends WebTestCase
             ),
         ), $configuration);
     }
-
 }

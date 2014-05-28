@@ -5,7 +5,6 @@ namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 use Noxlogic\RateLimitBundle\Service\Storage\Memcache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
-
 class MemcacheTest extends TestCase
 {
 
@@ -53,5 +52,4 @@ class MemcacheTest extends TestCase
         $storage = new Memcache();
         $this->assertTrue($storage->resetRate('testkey'));
     }
-
 }

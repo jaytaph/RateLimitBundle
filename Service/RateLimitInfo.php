@@ -55,5 +55,4 @@ class RateLimitInfo
     {
         $this->resetTimestamp = $resetTimestamp;
     }
-
 }

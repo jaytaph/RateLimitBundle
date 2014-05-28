@@ -8,7 +8,6 @@ use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-
 class RateLimitInfoTest extends TestCase
 {
 

@@ -14,11 +14,10 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
  */
 class NoxlogicRateLimitExtensionTest extends WebTestCase
 {
-
     protected $configuration;
 
-
-    public function setUp() {
+    public function setUp()
+    {
         $configuration = new Configuration();
 
         $processor = new Processor();

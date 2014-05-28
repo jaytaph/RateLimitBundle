@@ -40,7 +40,9 @@ class RateLimitAnnotationListener extends BaseListener
     public function onKernelController(FilterControllerEvent $event)
     {
         // Skip if we aren't the main request
-        if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) return;
+        if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
+            return;
+        }
 
         // Skip if we are a closure
         if (! is_array($controller = $event->getController())) {
@@ -52,7 +54,9 @@ class RateLimitAnnotationListener extends BaseListener
         $annotation = $this->findBestMethodMatch($event->getRequest(), $annotations);
 
         // No matching annotation found
-        if (! $annotation) return;
+        if (! $annotation) {
+            return;
+        }
 
         // Create an initial key by joining the methods, controller and action together
         $key = join("", $annotation->getMethods()) . ':' .  get_class($controller[0]) . ':' . $controller[1];
@@ -98,7 +102,9 @@ class RateLimitAnnotationListener extends BaseListener
     protected function findBestMethodMatch(Request $request, array $annotations)
     {
         // Empty array, nothing to match
-        if (count($annotations) == 0) return null;
+        if (count($annotations) == 0) {
+            return null;
+        }
 
         $best_match = null;
         foreach ($annotations as $annotation) {

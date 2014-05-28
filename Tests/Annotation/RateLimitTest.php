@@ -41,5 +41,4 @@ class RateLimitTest extends TestCase
         $annot->setMethods(array());
         $this->assertCount(0, $annot->getMethods());
     }
-
 }

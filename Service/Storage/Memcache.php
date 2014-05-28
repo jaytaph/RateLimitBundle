@@ -33,5 +33,4 @@ class Memcache implements StorageInterface
         // TODO: Implement resetRateLimit() method.
         // @codeCoverageIgnoreStart
     }
-
 }

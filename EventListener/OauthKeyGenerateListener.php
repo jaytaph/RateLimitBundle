@@ -26,9 +26,10 @@ class OauthKeyGenerateListener
     public function onGenerateKey(GenerateKeyEvent $event)
     {
         $token = $this->securityContext->getToken();
-        if (! $token instanceof \FOS\OAuthServerBundle\Security\Authentication\Token\OAuthToken) return;
+        if (! $token instanceof \FOS\OAuthServerBundle\Security\Authentication\Token\OAuthToken) {
+            return;
+        }
 
         $event->addToKey($token->getToken());
     }
-
 }

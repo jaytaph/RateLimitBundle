@@ -37,5 +37,4 @@ interface StorageInterface
      * @param $key
      */
     public function resetRate($key);
-
 }

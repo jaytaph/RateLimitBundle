@@ -5,10 +5,8 @@ namespace Noxlogic\RateLimitBundle\Tests\Annotation;
 use Noxlogic\RateLimitBundle\EventListener\BaseListener;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
-
 class MockListener extends BaseListener {
 }
-
 
 class BaseListenerTest extends TestCase
 {
@@ -32,6 +30,4 @@ class BaseListenerTest extends TestCase
 
         $this->assertEquals('bar', $base->getParameter('foo', 'baz'));
     }
-
-
 }
