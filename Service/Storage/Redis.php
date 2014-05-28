@@ -54,5 +54,4 @@ class Redis implements StorageInterface
     {
         $this->client->hdel($key);
     }
-
 }

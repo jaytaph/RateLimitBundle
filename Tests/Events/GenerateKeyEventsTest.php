@@ -52,5 +52,4 @@ class GenerateKeyEventsTest extends TestCase
         $event->setKey("bar");
         $this->assertEquals("bar", $event->getKey());
     }
-
 }

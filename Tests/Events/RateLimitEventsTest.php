@@ -9,10 +9,8 @@ use Symfony\Component\HttpFoundation\Request;
 
 class RateLimitEventsTest extends TestCase
 {
-
     public function testConstants()
     {
         $this->assertEquals('ratelimit.generate.key', RateLimitEvents::GENERATE_KEY);
     }
-
 }

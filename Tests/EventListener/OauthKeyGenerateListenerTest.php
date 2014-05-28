@@ -40,5 +40,4 @@ class OauthKeyGenerateListenerTest extends TestCase
 
         return $oauthToken;
     }
-
 }

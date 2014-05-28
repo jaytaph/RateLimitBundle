@@ -147,5 +147,4 @@ class HeaderModificationListenerTest extends TestCase
         $event = new FilterResponseEvent($kernel, $request, '', $response);
         return $event;
     }
-
 }

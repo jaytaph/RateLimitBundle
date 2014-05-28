@@ -9,7 +9,6 @@ use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 
-
 class RateLimitServiceTest extends TestCase
 {
 
@@ -71,6 +70,4 @@ class RateLimitServiceTest extends TestCase
         $service->setStorage($mockStorage);
         $service->resetRate('testkey');
     }
-
-
 }

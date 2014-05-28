@@ -25,11 +25,13 @@ class RateLimitAnnotationListenerTest extends TestCase
      */
     protected $mockStorage;
 
-    protected function setUp() {
+    protected function setUp()
+    {
         $this->mockStorage = new MockStorage();
     }
 
-    protected function getMockStorage() {
+    protected function getMockStorage()
+    {
         return $this->mockStorage;
     }
 
@@ -170,27 +172,30 @@ class RateLimitAnnotationListenerTest extends TestCase
         $request = new Request();
 
         $annotations = array(
-                new RateLimit(array('limit' => 100, 'period' => 3600)),
-                new RateLimit(array('methods' => 'GET', 'limit' => 100, 'period' => 3600)),
-                new RateLimit(array('methods' => array('POST', 'PUT'), 'limit' => 100, 'period' => 3600)),
+            new RateLimit(array('limit' => 100, 'period' => 3600)),
+            new RateLimit(array('methods' => 'GET', 'limit' => 100, 'period' => 3600)),
+            new RateLimit(array('methods' => array('POST', 'PUT'), 'limit' => 100, 'period' => 3600)),
         );
 
         // Find the method that matches the string
         $request->setMethod('GET');
         $this->assertEquals(
-                $annotations[1], $method->invoke($listener, $request, $annotations)
+            $annotations[1],
+            $method->invoke($listener, $request, $annotations)
         );
 
         // Method not found, use the default one
         $request->setMethod('DELETE');
         $this->assertEquals(
-                $annotations[0], $method->invoke($listener, $request, $annotations)
+            $annotations[0],
+            $method->invoke($listener, $request, $annotations)
         );
 
         // Find best match based in methods in array
         $request->setMethod('PUT');
         $this->assertEquals(
-                $annotations[2], $method->invoke($listener, $request, $annotations)
+            $annotations[2],
+            $method->invoke($listener, $request, $annotations)
         );
     }
 
@@ -230,7 +235,8 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $request->setMethod('GET');
         $this->assertEquals(
-            $annotations[0], $method->invoke($listener, $request, $annotations)
+            $annotations[0],
+            $method->invoke($listener, $request, $annotations)
         );
     }
 
@@ -249,14 +255,10 @@ class RateLimitAnnotationListenerTest extends TestCase
         );
 
         $request->setMethod('PUT');
-        $this->assertEquals(
-            $annotations[1], $method->invoke($listener, $request, $annotations)
-        );
+        $this->assertEquals($annotations[1], $method->invoke($listener, $request, $annotations));
 
         $request->setMethod('GET');
-        $this->assertEquals(
-            $annotations[1], $method->invoke($listener, $request, $annotations)
-        );
+        $this->assertEquals($annotations[1], $method->invoke($listener, $request, $annotations));
     }
 
     /**

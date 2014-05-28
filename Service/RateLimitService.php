@@ -54,5 +54,4 @@ class RateLimitService
     {
         return $this->storage->resetRate($key);
     }
-
 }

@@ -71,9 +71,9 @@ class MockStorage implements StorageInterface
         unset($this->rates[$key]);
     }
 
-    public function createMockRate($key, $limit, $period, $calls) {
+    public function createMockRate($key, $limit, $period, $calls)
+    {
         $this->rates[$key] = array('calls' => $calls, 'limit' => $limit, 'reset' => (time() + $period));
         return $this->getRateInfo($key);
     }
-
 }

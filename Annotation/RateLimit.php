@@ -93,5 +93,4 @@ class RateLimit extends ConfigurationAnnotation
     {
         $this->period = $period;
     }
-
 }
