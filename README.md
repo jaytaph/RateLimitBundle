@@ -102,8 +102,8 @@ limit for all actions, except the ones that actually defines a custom rate-limit
     /**
      * @ratelimit(method="POST", limit=100, period=10);        // 100 POST requests per 10 seconds
      */
-   class DefaultController extends Controller
-   {
+    class DefaultController extends Controller
+    {
 
         /**
          * @ratelimit(method="POST", limit=200, period=10);        // 200 POST requests to indexAction allowed.
@@ -111,7 +111,7 @@ limit for all actions, except the ones that actually defines a custom rate-limit
         function indexAction() {
         }
 
-   }
+    }
 
 
 
