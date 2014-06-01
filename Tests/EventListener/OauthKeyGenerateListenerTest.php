@@ -29,6 +29,22 @@ class OauthKeyGenerateListenerTest extends TestCase
     }
 
 
+    public function testListenerWithoutOAuthToken()
+    {
+        $mockContext = $this->getMock('Symfony\\Component\\Security\\Core\\SecurityContextInterface');
+        $mockContext
+            ->expects($this->any())
+            ->method('getToken')
+            ->will($this->returnValue(new \StdClass()));
+
+        $event = new GenerateKeyEvent(new Request(), 'foo');
+
+        $listener = new OauthKeyGenerateListener($mockContext);
+        $listener->onGenerateKey($event);
+
+        $this->assertEquals('foo', $event->getKey());
+    }
+
     private function createMockToken()
     {
         $oauthToken = $this->getMock('FOS\\OAuthServerBundle\\Security\\Authentication\\Token\\OAuthToken');
