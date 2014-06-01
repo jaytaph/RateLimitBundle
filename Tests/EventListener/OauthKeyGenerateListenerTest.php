@@ -10,6 +10,12 @@ use Symfony\Component\HttpFoundation\Request;
 class OauthKeyGenerateListenerTest extends TestCase
 {
 
+    public function setUp() {
+        if (! class_exists('FOS\\OAuthServerBundle\\Security\\Authentication\\Token\\OAuthToken')) {
+            $this->markTestSkipped('FOSOAuth bundle is not found');
+        }
+    }
+
     public function testListener()
     {
         $mockToken = $this->createMockToken();
