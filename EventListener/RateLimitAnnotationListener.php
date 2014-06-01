@@ -89,7 +89,9 @@ class RateLimitAnnotationListener extends BaseListener
             $message = $this->getParameter('rate_response_message');
             $code = $this->getParameter('rate_response_code');
             $event->setController(function () use ($message, $code) {
+                // @codeCoverageIgnoreStart
                 return new Response($message, $code);
+                // @codeCoverageIgnoreEnd
             });
         }
 
