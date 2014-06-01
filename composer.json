@@ -11,10 +11,12 @@
         }
     ],
     "require": {
-        "symfony/framework-bundle"      : ">=2.3",
-        "sensio/framework-extra-bundle" : ">=2.3",
-        "snc/redis-bundle"              : "1.1.x-dev",
-        "friendsofsymfony/oauth-server-bundle": "dev-master"
+        "symfony/framework-bundle": ">=2.3",
+        "sensio/framework-extra-bundle": ">=2.3"
+    },
+    "suggests": {
+        "predis/predis": "Use Redis as a storage engine.",
+        "friendsofsymfony/oauth-server-bundle": "Throttle using OAuth access tokens."
     },
     "autoload": {
         "psr-0": { "Noxlogic\\RateLimitBundle": "" }
