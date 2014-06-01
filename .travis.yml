@@ -27,6 +27,8 @@ before_script:
     - composer require symfony/browser-kit:${SYMFONY_VERSION} --dev --no-update
     - composer require symfony/yaml:${SYMFONY_VERSION} --dev --no-update
     - composer require symfony/form:${SYMFONY_VERSION} --dev --no-update
+    - composer require predis/predis:0.8.x --dev --no-update
+    - composer require friendsofsymfony/oauth-server-bundle:1.4.x --dev --no-update
     - composer update
 
 script: phpunit --coverage-text --coverage-clover=coverage.clover
