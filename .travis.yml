@@ -32,7 +32,7 @@ before_script:
     - composer require friendsofsymfony/oauth-server-bundle:1.4.x --dev --no-update
     - composer update
 
-script: php phpunit.phar --coverage-text --coverage-clover=coverage.clover
+script: php phpunit-4.1.1.phar --coverage-text --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
