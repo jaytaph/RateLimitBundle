@@ -17,6 +17,7 @@ matrix:
         - env: SYMFONY_VERSION=dev-master
 
 before_script:
+    - wget https://phar.phpunit.de/phpunit-4.1.1.phar
     - composer self-update
     - composer require symfony/twig-bundle:${SYMFONY_VERSION} --no-update
     - composer require symfony/twig-bridge:${SYMFONY_VERSION} --no-update
@@ -31,7 +32,7 @@ before_script:
     - composer require friendsofsymfony/oauth-server-bundle:1.4.x --dev --no-update
     - composer update
 
-script: phpunit --coverage-text --coverage-clover=coverage.clover
+script: php phpunit.phar --coverage-text --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
