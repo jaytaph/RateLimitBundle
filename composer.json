@@ -14,12 +14,16 @@
         "symfony/framework-bundle": ">=2.3",
         "sensio/framework-extra-bundle": ">=2.3"
     },
-    "suggests": {
+    "suggest": {
         "predis/predis": "Use Redis as a storage engine.",
         "friendsofsymfony/oauth-server-bundle": "Throttle using OAuth access tokens."
     },
     "autoload": {
         "psr-0": { "Noxlogic\\RateLimitBundle": "" }
     },
-    "target-dir": "Noxlogic/RateLimitBundle"
+    "target-dir": "Noxlogic/RateLimitBundle",
+    "require-dev": {
+        "predis/predis": "0.8.x",
+        "friendsofsymfony/oauth-server-bundle": "1.4.x"
+    }
 }
