@@ -22,9 +22,5 @@
     "autoload": {
         "psr-0": { "Noxlogic\\RateLimitBundle": "" }
     },
-    "target-dir": "Noxlogic/RateLimitBundle",
-    "require-dev": {
-        "predis/predis": "0.8.x",
-        "friendsofsymfony/oauth-server-bundle": "1.4.x"
-    }
+    "target-dir": "Noxlogic/RateLimitBundle"
 }
