@@ -8,48 +8,82 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 class MemcacheTest extends TestCase
 {
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testSetStorage()
-    {
-        $storage = new Memcache();
-        $this->assertTrue($storage);
+    function setUp() {
+        if (! class_exists('\\MemCached')) {
+            $this->markTestSkipped('MemCached extension not installed');
+        }
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testGetRateInfo()
+    public function testgetRateInfo()
     {
-        $storage = new Memcache();
-        $this->assertTrue($storage->getRateInfo('testkey'));
+        $client = @$this->getMock('\\Memcached', array('get'));
+        $client->expects($this->once())
+              ->method('get')
+              ->with('foo')
+              ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
+
+        $storage = new Memcache($client);
+        $rli = $storage->getRateInfo('foo');
+        $this->assertInstanceOf('Noxlogic\\RateLimitBundle\\Service\\RateLimitInfo', $rli);
+        $this->assertEquals(100, $rli->getLimit());
+        $this->assertEquals(50, $rli->getCalls());
+        $this->assertEquals(1234, $rli->getResetTimestamp());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testLimitRate()
+    public function testcreateRate()
     {
-        $storage = new Memcache();
-        $this->assertTrue($storage->limitRate('testkey'));
+        $client = @$this->getMock('\\Memcached', array('set', 'get'));
+        $client->expects($this->exactly(1))
+              ->method('set');
+
+        $storage = new Memcache($client);
+        $storage->createRate('foo', 100, 123);
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testCreateRate()
+
+    public function testLimitRateNoKey()
     {
-        $storage = new Memcache();
-        $this->assertTrue($storage->createRate('testkey', 10, 100));
+        $client = @$this->getMock('\\Memcached', array('get','cas','getResultCode'));
+        $client->expects($this->any())
+                ->method('getResultCode')
+                ->willReturn(\Memcached::RES_SUCCESS);
+        $client->expects($this->atLeastOnce())
+              ->method('get')
+              ->with('foo')
+              ->will($this->returnValue(array('limit' => 100, 'calls' => 1, 'reset' => 1234)));
+        $client->expects($this->atLeastOnce())
+              ->method('cas')
+              ->with(null, 'foo')
+              ->will($this->returnValue(true));
+
+        $storage = new Memcache($client);
+        $storage->limitRate('foo');
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
-    public function testResetRate()
+    public function testLimitRateWithKey()
     {
-        $storage = new Memcache();
-        $this->assertTrue($storage->resetRate('testkey'));
+        $client = @$this->getMock('\\Memcached', array('get','cas','getResultCode'));
+        $client->expects($this->any())
+                ->method('getResultCode')
+                ->willReturn(\Memcached::RES_SUCCESS);
+        $client->expects($this->atLeastOnce())
+              ->method('get')
+              ->with('foo')
+              ->willReturn(false);
+
+        $storage = new Memcache($client);
+        $storage->limitRate('foo');
     }
+
+    public function testresetRate()
+    {
+        $client = @$this->getMock('\\Memcached', array('delete'));
+        $client->expects($this->once())
+              ->method('delete')
+              ->with('foo');
+
+        $storage = new Memcache($client);
+        $this->assertTrue($storage->resetRate('foo'));
+    }
+
 }

@@ -15,7 +15,8 @@
         "sensio/framework-extra-bundle": ">=2.3"
     },
     "suggest": {
-        "predis/predis": "Use Redis as a storage engine.",
+        "snc/redis-bundle": "Use Redis as a storage engine.",
+        "leaseweb/memcache-bundle": "Use Memcache as a storage engine.",
         "friendsofsymfony/oauth-server-bundle": "Throttle using OAuth access tokens."
     },
     "autoload": {
