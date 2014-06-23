@@ -34,7 +34,7 @@ Add the NoxlogicRateLimitBundle in your composer.json:
 ```js
 {
     "require": {
-        "noxlogic/ratelimit-bundle": "@dev-master"
+        "noxlogic/ratelimit-bundle": "1.x"
     }
 }
 ```
