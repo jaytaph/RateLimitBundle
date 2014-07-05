@@ -23,6 +23,13 @@ class NoxlogicRateLimitExtension extends Extension
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
 
+        if ($config['enabled'] === true) {
+            $this->loadServices($container, $config);
+        }
+    }
+
+    private function loadServices(ContainerBuilder $container, array $config)
+    {
         $container->setParameter('noxlogic_rate_limit.rate_response_code', $config['rate_response_code']);
         $container->setParameter('noxlogic_rate_limit.rate_response_message', $config['rate_response_message']);
 

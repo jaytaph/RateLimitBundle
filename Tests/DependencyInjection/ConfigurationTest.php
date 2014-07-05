@@ -33,6 +33,7 @@ class ConfigurationTest extends WebTestCase
         $configuration = $this->getConfigs(array());
 
         $this->assertSame(array(
+            'enabled' => true,
             'storage_engine' => 'redis',
             'redis_client' => 'default_client',
             'rate_response_code' => 429,
@@ -44,5 +45,13 @@ class ConfigurationTest extends WebTestCase
                 'reset' => 'X-RateLimit-Reset',
             ),
         ), $configuration);
+    }
+
+    public function testDisabledConfiguration()
+    {
+        $configuration = $this->getConfigs(array('enabled' => false));
+
+        $this->assertArrayHasKey('enabled', $configuration);
+        $this->assertFalse($configuration['enabled']);
     }
 }

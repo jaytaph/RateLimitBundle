@@ -19,6 +19,7 @@ class Configuration implements ConfigurationInterface
     {
         $treeBuilder = new TreeBuilder();
         $treeBuilder->root('noxlogic_rate_limit')
+            ->canBeDisabled()
             ->children()
                 ->enumNode('storage_engine')
                     ->values(array('redis','memcache'))
