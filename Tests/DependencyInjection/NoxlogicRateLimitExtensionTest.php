@@ -34,4 +34,16 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.display_headers'), true);
         $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.headers.reset.name'), 'X-RateLimit-Reset');
     }
+
+    /**
+     * @expectedException \Symfony\Component\DependencyInjection\Exception\ParameterNotFoundException
+     */
+    public function testNoParametersWhenDisabled()
+    {
+        $extension = new NoxlogicRateLimitExtension();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+        $extension->load(array('enabled' => false), $containerBuilder);
+
+        $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code');
+    }
 }
