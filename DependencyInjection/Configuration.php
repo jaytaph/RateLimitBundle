@@ -4,7 +4,6 @@ namespace Noxlogic\RateLimitBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
-use Symfony\Component\HttpFoundation\Response;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
@@ -12,6 +11,8 @@ use Symfony\Component\HttpFoundation\Response;
  */
 class Configuration implements ConfigurationInterface
 {
+    const HTTP_TOO_MANY_REQUESTS = 429;
+
     /**
      * {@inheritDoc}
      */
@@ -33,7 +34,7 @@ class Configuration implements ConfigurationInterface
                 ->integerNode('rate_response_code')
                     ->min(400)
                     ->max(499)
-                    ->defaultValue(Response::HTTP_TOO_MANY_REQUESTS)
+                    ->defaultValue(static::HTTP_TOO_MANY_REQUESTS)
                     ->info('The HTTP status code to return when a client hits the rate limit')
                 ->end()
                 ->scalarNode('rate_response_message')
