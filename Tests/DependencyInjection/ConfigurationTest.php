@@ -44,6 +44,7 @@ class ConfigurationTest extends WebTestCase
                 'remaining' => 'X-RateLimit-Remaining',
                 'reset' => 'X-RateLimit-Reset',
             ),
+            'path_limits' => array()
         ), $configuration);
     }
 
@@ -53,5 +54,75 @@ class ConfigurationTest extends WebTestCase
 
         $this->assertArrayHasKey('enabled', $configuration);
         $this->assertFalse($configuration['enabled']);
+    }
+
+    public function testPathLimitConfiguration()
+    {
+        $pathLimits = array(
+            'api' => array(
+                'path' => 'api/',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        );
+
+        $configuration = $this->getConfigs(array(
+            'path_limits' => $pathLimits
+        ));
+
+        $this->assertArrayHasKey('path_limits', $configuration);
+        $this->assertEquals($pathLimits, $configuration['path_limits']);
+    }
+
+    public function testMultiplePathLimitConfiguration()
+    {
+        $pathLimits = array(
+            'api' => array(
+                'path' => 'api/',
+                'methods' => array('GET', 'POST'),
+                'limit' => 200,
+                'period' => 10
+            ),
+            'api2' => array(
+                'path' => 'api2/',
+                'methods' => array('*'),
+                'limit' => 1000,
+                'period' => 15
+            )
+        );
+
+        $configuration = $this->getConfigs(array(
+            'path_limits' => $pathLimits
+        ));
+
+        $this->assertArrayHasKey('path_limits', $configuration);
+        $this->assertEquals($pathLimits, $configuration['path_limits']);
+    }
+
+    public function testDefaultPathLimitMethods()
+    {
+        $pathLimits = array(
+            'api' => array(
+                'path' => 'api/',
+                'methods' => array('GET', 'POST'),
+                'limit' => 200,
+                'period' => 10
+            ),
+            'api2' => array(
+                'path' => 'api2/',
+                'limit' => 1000,
+                'period' => 15
+            )
+        );
+
+        $configuration = $this->getConfigs(array(
+            'path_limits' => $pathLimits
+        ));
+
+        $pathLimits['api2']['methods'] = array('*');
+
+        $this->assertArrayHasKey('path_limits', $configuration);
+        $this->assertEquals($pathLimits, $configuration['path_limits']);
     }
 }
