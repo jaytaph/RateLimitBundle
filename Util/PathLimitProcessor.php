@@ -22,11 +22,7 @@ class PathLimitProcessor
         // Order the configs so that the most specific paths
         // are matched first
         usort($this->pathLimits, function($a, $b) {
-
-            $pathPartsA = explode($a['path'], '/');
-            $pathPartsB = explode($b['path'], '/');
-
-            return sizeof($pathPartsA) - sizeof($pathPartsB);
+            return substr_count($b['path'], '/') - substr_count($a['path'], '/');
         });
     }
 
