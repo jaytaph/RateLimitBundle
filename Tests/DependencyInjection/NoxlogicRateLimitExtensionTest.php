@@ -14,16 +14,6 @@ use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
  */
 class NoxlogicRateLimitExtensionTest extends WebTestCase
 {
-    protected $configuration;
-
-    public function setUp()
-    {
-        $configuration = new Configuration();
-
-        $processor = new Processor();
-        $this->configuration = $processor->processConfiguration($configuration, array());
-    }
-
     public function testAreParametersSet()
     {
         $extension = new NoxlogicRateLimitExtension();
@@ -45,5 +35,23 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $extension->load(array('enabled' => false), $containerBuilder);
 
         $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code');
+    }
+
+    public function testPathLimitsParameter()
+    {
+        $pathLimits = array(
+            'api' => array(
+                'path' => 'api/',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        );
+
+        $extension = new NoxlogicRateLimitExtension();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+        $extension->load(array(array('path_limits' => $pathLimits)), $containerBuilder);
+
+        $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.path_limits'), $pathLimits);
     }
 }

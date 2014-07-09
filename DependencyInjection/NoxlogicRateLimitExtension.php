@@ -38,6 +38,8 @@ class NoxlogicRateLimitExtension extends Extension
         $container->setParameter('noxlogic_rate_limit.headers.remaining.name', $config['headers']['remaining']);
         $container->setParameter('noxlogic_rate_limit.headers.reset.name', $config['headers']['reset']);
 
+        $container->setParameter('noxlogic_rate_limit.path_limits', $config['path_limits']);
+
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
