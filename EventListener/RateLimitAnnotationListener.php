@@ -6,6 +6,7 @@ use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
+use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,12 +27,21 @@ class RateLimitAnnotationListener extends BaseListener
     protected $rateLimitService;
 
     /**
+     * @var \Noxlogic\RateLimitBundle\Util\PathLimitProcessor
+     */
+    protected $pathLimitProcessor;
+
+    /**
      * @param RateLimitService                    $rateLimitService
      */
-    public function __construct(EventDispatcherInterface $eventDispatcher, RateLimitService $rateLimitService)
-    {
+    public function __construct(
+        EventDispatcherInterface $eventDispatcher,
+        RateLimitService $rateLimitService,
+        PathLimitProcessor $pathLimitProcessor
+    ) {
         $this->eventDispatcher = $eventDispatcher;
         $this->rateLimitService = $rateLimitService;
+        $this->pathLimitProcessor = $pathLimitProcessor;
     }
 
     /**
@@ -51,15 +61,15 @@ class RateLimitAnnotationListener extends BaseListener
 
         // Find the best match
         $annotations = $event->getRequest()->attributes->get('_x-rate-limit', array());
-        $annotation = $this->findBestMethodMatch($event->getRequest(), $annotations);
+        $rateLimit = $this->findBestMethodMatch($event->getRequest(), $annotations);
 
         // No matching annotation found
-        if (! $annotation) {
+        if (! $rateLimit) {
             return;
         }
 
         // Create an initial key by joining the methods, controller and action together
-        $key = join("", $annotation->getMethods()) . ':' .  get_class($controller[0]) . ':' . $controller[1];
+        $key = join("", $rateLimit->getMethods()) . ':' .  get_class($controller[0]) . ':' . $controller[1];
 
         // Let listeners manipulate the key
         $keyEvent = new GenerateKeyEvent($event->getRequest(), $key);
@@ -71,7 +81,7 @@ class RateLimitAnnotationListener extends BaseListener
         $rateLimitInfo = $this->rateLimitService->limitRate($key);
         if (! $rateLimitInfo) {
             // Create new rate limit entry for this call
-            $rateLimitInfo = $this->rateLimitService->createRate($key, $annotation->getLimit(), $annotation->getPeriod());
+            $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
             if (! $rateLimitInfo) {
                 // @codeCoverageIgnoreStart
                 return;
@@ -103,9 +113,9 @@ class RateLimitAnnotationListener extends BaseListener
      */
     protected function findBestMethodMatch(Request $request, array $annotations)
     {
-        // Empty array, nothing to match
+        // Empty array, check the path limits
         if (count($annotations) == 0) {
-            return null;
+            return $this->pathLimitProcessor->getRateLimit($request);
         }
 
         $best_match = null;
