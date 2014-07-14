@@ -28,7 +28,7 @@ class PathLimitProcessor
 
     public function getRateLimit(Request $request)
     {
-        $path = trim($request->getRequestUri(), '/');
+        $path = trim($request->getPathInfo(), '/');
         $method = $request->getMethod();
 
         foreach ($this->pathLimits as $pathLimit) {
