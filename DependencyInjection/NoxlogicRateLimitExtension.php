@@ -43,9 +43,9 @@ class NoxlogicRateLimitExtension extends Extension
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $container->getDefinition('noxlogic_rate_limit.storage.redis')->replaceArgument(
-            0,
-            new Reference('snc_redis.' . $config['redis_client'])
-        );
+        // $container->getDefinition('noxlogic_rate_limit.storage.redis')->replaceArgument(
+        //     0,
+        //     new Reference('snc_redis.' . $config['redis_client'])
+        // );
     }
 }
