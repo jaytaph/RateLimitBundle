@@ -14,16 +14,15 @@
     </parameters>
 
     <services>
-        <!--<service id="noxlogic_rate_limit.storage.redis" class="%noxlogic_rate_limit.storage.redis.class%">-->
-        <!--    <argument type="service" id="snc_redis.default_client" />-->
-        <!--</service>-->
-
+        <service id="noxlogic_rate_limit.storage" class="%noxlogic_rate_limit.storage.class%">
+            <argument type="service" id="snc_redis.default_client" />
+        </service>
 
         <service id="noxlogic_rate_limit.rate_limit_service" class="%noxlogic_rate_limit.rate_limit_service.class%">
             <argument type="service" id="security.context" />
-            <!--<call method="setStorage">-->
-            <!--    <argument type="service" id="noxlogic_rate_limit.storage.redis" />-->
-            <!--</call>-->
+            <call method="setStorage">
+                <argument type="service" id="noxlogic_rate_limit.storage" />
+            </call>
         </service>
 
         <service id="noxlogic_rate_limit.path_limit_processor" class="%noxlogic_rate_limit.path_limit_processor.class%">
