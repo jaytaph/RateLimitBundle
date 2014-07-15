@@ -45,6 +45,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(100, $result->getLimit());
         $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('GET'), $result->getMethods());
     }
 
     /** @test */
@@ -65,6 +66,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(1000, $result->getLimit());
         $this->assertEquals(600, $result->getPeriod());
+        $this->assertEquals(array('GET', 'POST'), $result->getMethods());
     }
 
     /** @test */
@@ -91,6 +93,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(20, $result->getLimit());
         $this->assertEquals(15, $result->getPeriod());
+        $this->assertEquals(array('POST'), $result->getMethods());
     }
 
     /** @test */
@@ -117,6 +120,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(200, $result->getLimit());
         $this->assertEquals(150, $result->getPeriod());
+        $this->assertEquals(array('POST'), $result->getMethods());
     }
 
     /** @test */
@@ -137,6 +141,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(100, $result->getLimit());
         $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('*'), $result->getMethods());
 
         $result = $plp->getRateLimit(
             Request::create('/api/users/emails', 'PUT')
@@ -144,6 +149,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(100, $result->getLimit());
         $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('*'), $result->getMethods());
 
         $result = $plp->getRateLimit(
             Request::create('/api/users/emails', 'POST')
@@ -151,6 +157,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(100, $result->getLimit());
         $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('*'), $result->getMethods());
     }
 
     /** @test */
@@ -171,6 +178,7 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(100, $result->getLimit());
         $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('GET'), $result->getMethods());
     }
 
     /** @test */
@@ -216,6 +224,70 @@ class PathLimitProcessorTest extends TestCase
 
         $this->assertEquals(100, $result->getLimit());
         $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('GET'), $result->getMethods());
+    }
+
+    /** @test */
+    function itReturnsTheMatchedPath()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => 'api/',
+                'methods' => array('GET', 'POST'),
+                'limit' => 1000,
+                'period' => 600
+            )
+        ));
+
+        $path = $plp->getMatchedPath(
+            Request::create('/api/', 'POST')
+        );
+
+        $this->assertEquals('api', $path);
+    }
+
+    /** @test */
+    function itReturnsTheCorrectPathForADifferentSetup()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => 'api',
+                'methods' => array('GET'),
+                'limit' => 5,
+                'period' => 1
+            ),
+            'api_emails' => array(
+                'path' => 'api/users/emails',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        ));
+
+        $path = $plp->getMatchedPath(
+            Request::create('/api/users/emails', 'GET')
+        );
+
+        $this->assertEquals('api/users/emails', $path);
+    }
+
+    /** @test */
+    function itReturnsTheCorrectMatchedPathForSubPaths()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => 'api/',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        ));
+
+        $path = $plp->getMatchedPath(
+            Request::create('/api/users/emails', 'GET')
+        );
+
+        $this->assertEquals('api', $path);
     }
 }
  

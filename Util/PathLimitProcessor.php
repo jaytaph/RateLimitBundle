@@ -35,12 +35,27 @@ class PathLimitProcessor
             if ($this->requestMatched($pathLimit, $path, $method)) {
                 return new RateLimit(array(
                     'limit' => $pathLimit['limit'],
-                    'period' => $pathLimit['period']
+                    'period' => $pathLimit['period'],
+                    'methods' => $pathLimit['methods']
                 ));
             }
         }
 
         return null;
+    }
+
+    public function getMatchedPath(Request $request)
+    {
+        $path = trim($request->getPathInfo(), '/');
+        $method = $request->getMethod();
+
+        foreach ($this->pathLimits as $pathLimit) {
+            if ($this->requestMatched($pathLimit, $path, $method)) {
+                return $pathLimit['path'];
+            }
+        }
+
+        return '';
     }
 
     private function requestMatched($pathLimit, $path, $method)

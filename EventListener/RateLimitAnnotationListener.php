@@ -68,14 +68,7 @@ class RateLimitAnnotationListener extends BaseListener
             return;
         }
 
-        // Create an initial key by joining the methods, controller and action together
-        $key = join("", $rateLimit->getMethods()) . ':' .  get_class($controller[0]) . ':' . $controller[1];
-
-        // Let listeners manipulate the key
-        $keyEvent = new GenerateKeyEvent($event->getRequest(), $key);
-        $this->eventDispatcher->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
-        $key = $keyEvent->getKey();
-
+        $key = $this->getKey($event, $rateLimit, $annotations);
 
         // Ratelimit the call
         $rateLimitInfo = $this->rateLimitService->limitRate($key);
@@ -134,5 +127,25 @@ class RateLimitAnnotationListener extends BaseListener
         }
 
         return $best_match;
+    }
+
+    private function getKey(FilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
+    {
+        $request = $event->getRequest();
+        $controller = $event->getController();
+
+        $rateLimitMethods = join("", $rateLimit->getMethods());
+        $rateLimitAlias = count($annotations) === 0
+            ? $this->pathLimitProcessor->getMatchedPath($request)
+            : get_class($controller[0]) . ':' . $controller[1];
+
+        // Create an initial key by joining the methods and the alias
+        $key = $rateLimitMethods . ':' . $rateLimitAlias ;
+
+        // Let listeners manipulate the key
+        $keyEvent = new GenerateKeyEvent($event->getRequest(), $key);
+        $this->eventDispatcher->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
+
+        return $keyEvent->getKey();
     }
 }
