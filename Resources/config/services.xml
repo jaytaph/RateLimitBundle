@@ -10,9 +10,10 @@
         <parameter key="noxlogic_rate_limit.rate_limit_service.class">Noxlogic\RateLimitBundle\Service\RateLimitService</parameter>
 
     <!--Default the storage class to redis, this may be changed while loading via
-        NoxlogicRateLimitExtension depending on user configuration-->
+        "DependencyInjection\NoxlogicRateLimitExtension" depending on user configuration-->
         <parameter key="noxlogic_rate_limit.storage.class">Noxlogic\RateLimitBundle\Service\Storage\Redis</parameter>
         <parameter key="noxlogic_rate_limit.oauth_key_generate_listener.class">Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener</parameter>
+        <parameter key="noxlogic_rate_limit.rate_limit_service.class">Noxlogic\RateLimitBundle\Util\PathLimitProcessor</parameter>
     </parameters>
 
     <services>
