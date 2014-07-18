@@ -8,27 +8,30 @@
         <parameter key="noxlogic_rate_limit.header_modification_listener.class">Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener</parameter>
         <parameter key="noxlogic_rate_limit.rate_limit_annotation_listener.class">Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener</parameter>
         <parameter key="noxlogic_rate_limit.rate_limit_service.class">Noxlogic\RateLimitBundle\Service\RateLimitService</parameter>
-        <parameter key="noxlogic_rate_limit.storage.redis.class">Noxlogic\RateLimitBundle\Service\Storage\Redis</parameter>
-        <parameter key="noxlogic_rate_limit.storage.memcache.class">Noxlogic\RateLimitBundle\Service\Storage\Memcache</parameter>
         <parameter key="noxlogic_rate_limit.oauth_key_generate_listener.class">Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener</parameter>
+        <parameter key="noxlogic_rate_limit.path_limit_processor.class">Noxlogic\RateLimitBundle\Util\PathLimitProcessor</parameter>
     </parameters>
 
     <services>
-        <service id="noxlogic_rate_limit.storage.redis" class="%noxlogic_rate_limit.storage.redis.class%">
+        <service id="noxlogic_rate_limit.storage" class="%noxlogic_rate_limit.storage.class%">
             <argument type="service" id="snc_redis.default_client" />
         </service>
-
 
         <service id="noxlogic_rate_limit.rate_limit_service" class="%noxlogic_rate_limit.rate_limit_service.class%">
             <argument type="service" id="security.context" />
             <call method="setStorage">
-                <argument type="service" id="noxlogic_rate_limit.storage.redis" />
+                <argument type="service" id="noxlogic_rate_limit.storage" />
             </call>
+        </service>
+
+        <service id="noxlogic_rate_limit.path_limit_processor" class="%noxlogic_rate_limit.path_limit_processor.class%">
+            <argument>%noxlogic_rate_limit.path_limits%</argument>
         </service>
 
         <service id="noxlogic_rate_limit.rate_limit_annotation_listener" class="%noxlogic_rate_limit.rate_limit_annotation_listener.class%">
             <argument type="service" id="event_dispatcher" />
             <argument type="service" id="noxlogic_rate_limit.rate_limit_service" />
+            <argument type="service" id="noxlogic_rate_limit.path_limit_processor" />
 
             <tag name="kernel.event_listener" event="kernel.controller" method="onKernelController" priority="-10" />
 

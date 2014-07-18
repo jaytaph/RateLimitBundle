@@ -31,7 +31,7 @@ class Memcache implements StorageInterface
     {
         $cas = null;
         do {
-            $info = $this->client->get($key, $cas);
+            $info = $this->client->get($key, null, $cas);
             if (!$info) {
                 return false;
             }
