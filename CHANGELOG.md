@@ -1,3 +1,8 @@
+## 1.2
+2014-07-15  Dan Spencer  <danrspen@gmail.com>
+
+	Added global rate limits
+
 ## 1.1
 2014-07-08  Joshua Thijssen  <jthijssen@noxlogic.nl>
 
