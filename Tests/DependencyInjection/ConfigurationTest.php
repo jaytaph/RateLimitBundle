@@ -37,6 +37,7 @@ class ConfigurationTest extends WebTestCase
             'storage_engine' => 'redis',
             'redis_client' => 'default_client',
             'memcache_client' => 'default',
+            'rate_response_route' => '/',
             'rate_response_code' => 429,
             'rate_response_message' => 'You exceeded the rate limit',
             'display_headers' => true,

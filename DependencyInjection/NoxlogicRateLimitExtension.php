@@ -30,6 +30,7 @@ class NoxlogicRateLimitExtension extends Extension
 
     private function loadServices(ContainerBuilder $container, array $config)
     {
+        $container->setParameter('noxlogic_rate_limit.rate_response_route', $config['rate_response_route']);
         $container->setParameter('noxlogic_rate_limit.rate_response_code', $config['rate_response_code']);
         $container->setParameter('noxlogic_rate_limit.rate_response_message', $config['rate_response_message']);
 

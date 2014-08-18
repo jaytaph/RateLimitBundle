@@ -10,6 +10,7 @@ use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\RedirectResponse;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -89,13 +90,18 @@ class RateLimitAnnotationListener extends BaseListener
 
         // When we exceeded our limit, return a custom error response
         if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
-            $message = $this->getParameter('rate_response_message');
-            $code = $this->getParameter('rate_response_code');
-            $event->setController(function () use ($message, $code) {
-                // @codeCoverageIgnoreStart
-                return new Response($message, $code);
-                // @codeCoverageIgnoreEnd
-            });
+            $route = $this->getParameter('rate_response_route');
+            if($controller){
+                $event->setResponse(new RedirectResponse($route));
+            }else{
+                $message = $this->getParameter('rate_response_message');
+                $code = $this->getParameter('rate_response_code');
+                $event->setController(function () use ($message, $code) {
+                    // @codeCoverageIgnoreStart
+                    return new Response($message, $code);
+                    // @codeCoverageIgnoreEnd
+                });
+            }
         }
 
     }

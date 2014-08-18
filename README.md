@@ -104,6 +104,9 @@ noxlogic_rate_limit:
     # The redis client to use for the redis storage engine
     redis_client:         default_client
 
+    # The route to redirect to when a client hits the rate limit
+    rate_response_route:   '/'
+
     # The HTTP status code to return when a client hits the rate limit
     rate_response_code:   429
 
