@@ -91,7 +91,7 @@ class RateLimitAnnotationListener extends BaseListener
         // When we exceeded our limit, return a custom error response
         if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
             $route = $this->getParameter('rate_response_route');
-            if($controller){
+            if($route){
                 $event->setResponse(new RedirectResponse($route));
             }else{
                 $message = $this->getParameter('rate_response_message');
