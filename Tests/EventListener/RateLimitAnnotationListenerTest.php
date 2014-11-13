@@ -332,7 +332,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     /**
      * @expectedException \BadFunctionCallException
      * @expectedExceptionCode 123
-     * @expectedExceptionMessage "a message"
+     * @expectedExceptionMessage a message
      */
     public function testRateLimitThrottlingWithException()
     {
