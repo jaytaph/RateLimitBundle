@@ -9,6 +9,7 @@ use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -326,4 +327,56 @@ class RateLimitAnnotationListenerTest extends TestCase
             $this->mockPathLimitProcessor
         );
     }
+
+
+    /**
+     * @expectedException \BadFunctionCallException
+     * @expectedExceptionCode 123
+     * @expectedExceptionMessage "a message"
+     */
+    public function testRateLimitThrottlingWithException()
+    {
+        $listener = $this->createListener($this->any());
+        $listener->setParameter('rate_response_exception', '\BadFunctionCallException');
+        $listener->setParameter('rate_response_code', 123);
+        $listener->setParameter('rate_response_message', 'a message');
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+                new RateLimit(array('limit' => 5, 'period' => 3)),
+        ));
+
+        // Throttled
+        $storage = $this->getMockStorage();
+        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+        $listener->onKernelController($event);
+    }
+
+    public function testRateLimitThrottlingWithMessages()
+    {
+        $listener = $this->createListener($this->any());
+        $listener->setParameter('rate_response_code', 123);
+        $listener->setParameter('rate_response_message', 'a message');
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+                new RateLimit(array('limit' => 5, 'period' => 3)),
+        ));
+
+        // Throttled
+        $storage = $this->getMockStorage();
+        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+
+        /** @var Response $response */
+        $listener->onKernelController($event);
+
+        // Call the controller, it will return a response object
+        $a = $event->getController();
+        $response = $a();
+
+        $this->assertEquals($response->getStatusCode(), 123);
+        $this->assertEquals($response->getContent(), "a message");
+    }
+
+
 }
