@@ -44,6 +44,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('rate_response_exception')
                     ->defaultNull()
+                    ->info('Optional exception class that will be returned when a client hits the rate limit')
                     ->validate()
                         ->always(function ($item) {
                             if (! is_subclass_of($item, '\Exception')) {
