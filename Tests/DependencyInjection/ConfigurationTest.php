@@ -38,6 +38,7 @@ class ConfigurationTest extends WebTestCase
             'redis_client' => 'default_client',
             'memcache_client' => 'default',
             'rate_response_code' => 429,
+            'rate_response_exception' => null,
             'rate_response_message' => 'You exceeded the rate limit',
             'display_headers' => true,
             'headers' => array(
@@ -126,4 +127,25 @@ class ConfigurationTest extends WebTestCase
         $this->assertArrayHasKey('path_limits', $configuration);
         $this->assertEquals($pathLimits, $configuration['path_limits']);
     }
+
+    /**
+     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     */
+    public function testMustBeBasedOnExceptionClass()
+    {
+        $configuration = $this->getConfigs(array('rate_response_exception' => '\StdClass'));
+    }
+
+    /**
+     *
+     */
+    public function testMustBeBasedOnExceptionClass2()
+    {
+        $configuration = $this->getConfigs(array('rate_response_exception' => '\InvalidArgumentException'));
+
+        # no exception triggered is ok.
+        $this->assertTrue(true);
+    }
+
+
 }

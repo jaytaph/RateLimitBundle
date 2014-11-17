@@ -43,6 +43,10 @@
                 <argument>rate_response_message</argument>
                 <argument>%noxlogic_rate_limit.rate_response_message%</argument>
             </call>
+            <call method="setParameter">
+                <argument>rate_response_exception</argument>
+                <argument>%noxlogic_rate_limit.rate_response_exception%</argument>
+            </call>
         </service>
 
         <service id="noxlogic_rate_limit.header_modification_listener" class="%noxlogic_rate_limit.header_modification_listener.class%">

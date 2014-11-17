@@ -223,6 +223,13 @@ class RateLimitGenerateKeyListener
 
 Make sure to generate a key based on what is rate limited in your controllers.
 
+
+## Throwing exceptions
+
+Instead of returning a Response object when a rate limit has exceeded, it's also possible to throw an exception. This 
+allows you to easily handle the rate limit on another level, for instance by capturing the ``kernel.exception`` event. 
+
+
 ## Running tests
 
 If you want to run the tests use:

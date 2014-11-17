@@ -4,6 +4,7 @@ namespace Noxlogic\RateLimitBundle\DependencyInjection;
 
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
@@ -40,6 +41,17 @@ class Configuration implements ConfigurationInterface
                     ->max(499)
                     ->defaultValue(static::HTTP_TOO_MANY_REQUESTS)
                     ->info('The HTTP status code to return when a client hits the rate limit')
+                ->end()
+                ->scalarNode('rate_response_exception')
+                    ->defaultNull()
+                    ->info('Optional exception class that will be returned when a client hits the rate limit')
+                    ->validate()
+                        ->always(function ($item) {
+                            if (! is_subclass_of($item, '\Exception')) {
+                                throw new InvalidConfigurationException(sprintf("'%s' must inherit the \\Exception class", $item));
+                            }
+                        })
+                    ->end()
                 ->end()
                 ->scalarNode('rate_response_message')
                     ->defaultValue('You exceeded the rate limit')

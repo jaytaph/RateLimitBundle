@@ -89,6 +89,13 @@ class RateLimitAnnotationListener extends BaseListener
 
         // When we exceeded our limit, return a custom error response
         if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
+
+            // Throw an exception if configured.
+            if ($this->getParameter('rate_response_exception')) {
+                $class = $this->getParameter('rate_response_exception');
+                throw new $class($this->getParameter('rate_response_message'), $this->getParameter('rate_response_code'));
+            }
+
             $message = $this->getParameter('rate_response_message');
             $code = $this->getParameter('rate_response_code');
             $event->setController(function () use ($message, $code) {
