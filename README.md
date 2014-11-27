@@ -7,19 +7,18 @@ NoxlogicRateLimitBundle
 
 [![Latest Stable Version](https://poser.pugx.org/noxlogic/ratelimit-bundle/v/stable.svg)](https://packagist.org/packages/noxlogic/ratelimit-bundle) [![Total Downloads](https://poser.pugx.org/noxlogic/ratelimit-bundle/downloads.svg)](https://packagist.org/packages/noxlogic/ratelimit-bundle) [![Latest Unstable Version](https://poser.pugx.org/noxlogic/ratelimit-bundle/v/unstable.svg)](https://packagist.org/packages/noxlogic/ratelimit-bundle) [![License](https://poser.pugx.org/noxlogic/ratelimit-bundle/license.svg)](https://packagist.org/packages/noxlogic/ratelimit-bundle)
 
-This bundle provides enables the @ratelimit annotation which allows you to limit the number of connections to actions.
-This is mostly useful in APIs. All information is currently only available to be stored in Redis, but adding other storage systems should be not difficult.
+This bundle provides enables the `@RateLimit` annotation which allows you to limit the number of connections to actions.
+This is mostly useful in APIs.
 
-The bundle is prepared to work by default in corporation with the `FOSOAuthServerBundle`. It contains a listener that adds the oauth token to the cache-key. However, you can create your own key generator to allow custom rate limiting based on the request. See *Create a custom key generator* below.
+The bundle is prepared to work by default in corporation with the `FOSOAuthServerBundle`. It contains a listener that adds the OAuth token to the cache-key. However, you can create your own key generator to allow custom rate limiting based on the request. See *Create a custom key generator* below.
 
-This bundle is partially inspired by a github gist from Ruud Kamphuis: https://gist.github.com/ruudk/3350405
+This bundle is partially inspired by a GitHub gist from Ruud Kamphuis: https://gist.github.com/ruudk/3350405
 
 ## Features
 
  * Simple usage through annotations
  * Customize rates per controller, action and even per HTTP method
- * Multiple storage backends: redis, memcached etc
-
+ * Multiple storage backends: Redis, Memcached and Doctrine cache
 
 ## Installation
 
@@ -61,7 +60,7 @@ public function registerBundles()
 }
 ```
 
-## Step 3: Install Redis or Memcache storage engine
+## Step 3: Install a storage engine
 
 ### Redis
 
@@ -74,6 +73,12 @@ If you want to use Redis as your storage engine, you will need to install `SncRe
 If you want to use Memcache, you need to install `LswMemcacheBundle`
 
 * https://github.com/LeaseWeb/LswMemcacheBundle
+
+### Doctrine cache
+
+If you want to use Doctrine cache as your storage engine, you will need to install `DoctrineCacheBundle`:
+
+* https://github.com/doctrine/DoctrineCacheBundle
 
 Referer to their documentations for more details. You can change your storage engine with the `storage_engine` configuration parameter. See *Configuration reference*.
 
@@ -98,13 +103,22 @@ noxlogic_rate_limit:
     enabled:              true
 
     # The storage engine where all the rates will be stored
-    storage_engine:       ~ # One of "redis"; "memcache"
+    storage_engine:       ~ # One of "redis"; "memcache"; "doctrine"
 
     # The redis client to use for the redis storage engine
     redis_client:         default_client
 
+    # The memcache client to use for the memcache storage engine
+    memcache_client:      default
+
+    # The Doctrine Cache provider to use for the doctrine storage engine
+    doctrine_provider:    null # Example: my_apc_cache
+
     # The HTTP status code to return when a client hits the rate limit
     rate_response_code:   429
+
+    # Optional exception class that will be returned when a client hits the rate limit
+    rate_response_exception:  null
 
     # The HTTP message to return when a client hits the rate limit
     rate_response_message:  'You exceeded the rate limit'
@@ -117,6 +131,16 @@ noxlogic_rate_limit:
         limit:                X-RateLimit-Limit
         remaining:            X-RateLimit-Remaining
         reset:                X-RateLimit-Reset
+
+    # Rate limits for paths
+    path_limits:
+        path:                 ~ # Required
+        methods:
+
+            # Default:
+            - *
+        limit:                ~ # Required
+        period:               ~ # Required
 ```
 
 
@@ -235,5 +259,5 @@ allows you to easily handle the rate limit on another level, for instance by cap
 If you want to run the tests use:
 
 ```
-./vendor/phpunit/phpunit .
+./vendor/bin/phpunit ./Tests
 ```
