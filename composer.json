@@ -20,6 +20,7 @@
     "suggest": {
         "snc/redis-bundle": "Use Redis as a storage engine.",
         "leaseweb/memcache-bundle": "Use Memcache as a storage engine.",
+        "doctrine/doctrine-cache-bundle": "Use Doctrine Cache as a storage engine.",
         "friendsofsymfony/oauth-server-bundle": "Throttle using OAuth access tokens."
     },
     "autoload": {

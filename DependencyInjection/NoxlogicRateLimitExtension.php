@@ -41,21 +41,40 @@ class NoxlogicRateLimitExtension extends Extension
 
         $container->setParameter('noxlogic_rate_limit.path_limits', $config['path_limits']);
 
-        $container->setParameter(
-            'noxlogic_rate_limit.storage.class',
-            $config['storage_engine'] === 'memcache'
-                ? 'Noxlogic\RateLimitBundle\Service\Storage\Memcache'
-                : 'Noxlogic\RateLimitBundle\Service\Storage\Redis'
-        );
+        switch ($config['storage_engine']) {
+            case 'memcache':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Memcache');
+                break;
+            case 'redis':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Redis');
+                break;
+            case 'doctrine':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache');
+                break;
+        }
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
         $loader->load('services.xml');
 
-        $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
-            0,
-            $config['storage_engine'] === 'memcache'
-                ? new Reference('memcache.' . $config['memcache_client'])
-                : new Reference('snc_redis.' . $config['redis_client'])
-        );
+        switch ($config['storage_engine']) {
+            case 'memcache':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference('memcache.' . $config['memcache_client'])
+                );
+                break;
+            case 'redis':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference('snc_redis.' . $config['redis_client'])
+                );
+                break;
+            case 'doctrine':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference('doctrine_cache.providers.' . $config['doctrine_provider'])
+                );
+                break;
+        }
     }
 }
