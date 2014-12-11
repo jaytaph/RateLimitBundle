@@ -13,6 +13,8 @@ env:
     - SYMFONY_VERSION=2.5.*
     - SYMFONY_VERSION=dev-master
 
+sudo: false
+
 matrix:
     allow_failures:
         - env: SYMFONY_VERSION=dev-master
