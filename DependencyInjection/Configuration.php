@@ -55,6 +55,7 @@ class Configuration implements ConfigurationInterface
                             if (! is_subclass_of($item, '\Exception')) {
                                 throw new InvalidConfigurationException(sprintf("'%s' must inherit the \\Exception class", $item));
                             }
+                            return $item;
                         })
                     ->end()
                 ->end()
