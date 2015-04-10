@@ -1,3 +1,11 @@
+## 1.5.0
+
+2015-04-10  Sam Van der Borght <sam@king-foo.be>
+	[Security] Prevent ratelimit bypassing by encoding url paths
+
+2015-01-05  Jonathan McLean <defenestrator@gmail.com>
+	Fix rate_response_exception
+
 ## 1.4
 
 2014-12-10  Koen Vlaswinkel <koen@vlaswinkel.info>
@@ -34,3 +42,4 @@
 	Fixed installation documentation for 1.x
 
 ## 1.0 - Initial release
+
