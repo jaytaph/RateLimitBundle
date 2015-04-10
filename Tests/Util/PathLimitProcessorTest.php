@@ -49,6 +49,32 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
+    function itReturnARateLimitIfItMatchesSubPathWithUrlEncodedString()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => 'api',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        ));
+
+        $result = $plp->getRateLimit(
+            Request::create('%2Fapi%2Fusers', 'GET')
+        );
+
+        $this->assertInstanceOf(
+            'Noxlogic\RateLimitBundle\Annotation\RateLimit',
+            $result
+        );
+
+        $this->assertEquals(100, $result->getLimit());
+        $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('GET'), $result->getMethods());
+    }
+
+    /** @test */
     function itWorksWhenMultipleMethodsAreSpecified()
     {
         $plp = new PathLimitProcessor(array(
