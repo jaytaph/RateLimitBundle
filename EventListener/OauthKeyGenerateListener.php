@@ -4,20 +4,21 @@ namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Symfony\Component\Security\Core\SecurityContextInterface;
+use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class OauthKeyGenerateListener
 {
     /**
-     * @var \Symfony\Component\Security\Core\SecurityContextInterface
+     * @var SecurityContextInterface|TokenStorageInterface
      */
-    protected $securityContext;
+    protected $tokenStorage;
 
     /**
-     * @param SecurityContextInterface $securityContext
+     * @param $tokenStorage
      */
-    public function __construct(SecurityContextInterface $securityContext)
+    public function __construct($tokenStorage)
     {
-        $this->securityContext = $securityContext;
+        $this->tokenStorage = $tokenStorage;
     }
 
     /**
@@ -25,7 +26,7 @@ class OauthKeyGenerateListener
      */
     public function onGenerateKey(GenerateKeyEvent $event)
     {
-        $token = $this->securityContext->getToken();
+        $token = $this->tokenStorage->getToken();
         if (! $token instanceof \FOS\OAuthServerBundle\Security\Authentication\Token\OAuthToken) {
             return;
         }

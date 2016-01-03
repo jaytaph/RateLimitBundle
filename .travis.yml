@@ -5,38 +5,65 @@ php:
   - 5.4
   - 5.5
   - 5.6
+  - 7.0
   - hhvm
-
-env:
-    - SYMFONY_VERSION=2.3.*
-    - SYMFONY_VERSION=2.4.*
-    - SYMFONY_VERSION=2.5.*
-    - SYMFONY_VERSION=2.6.*
-    - SYMFONY_VERSION=2.7.*
-    - SYMFONY_VERSION=dev-master
 
 sudo: false
 
 matrix:
+    fast_finish: true
+    include:
+        - php: 5.3
+          env: COMPOSER_FLAGS="--prefer-lowest"
+        - php: 5.4
+          env: COMPOSER_FLAGS="--prefer-lowest"
+        - php: 5.5
+          env: COMPOSER_FLAGS="--prefer-lowest"
+        - php: 5.6
+          env: SYMFONY_VERSION=2.3.*
+        - php: 5.6
+          env: SYMFONY_VERSION=2.6.*
+        - php: 5.6
+          env: SYMFONY_VERSION=2.7.*
+        - php: 5.6
+          env: SYMFONY_VERSION=2.8.*
+        - php: 5.6
+          env: SYMFONY_VERSION=3.0.*
+        - php: 7.0
+          env: COMPOSER_FLAGS="--prefer-lowest"
+        - php: 7.0
+          env: SYMFONY_VERSION=2.3.*
+        - php: 7.0
+          env: SYMFONY_VERSION=2.6.*
+        - php: 7.0
+          env: SYMFONY_VERSION=2.7.*
+        - php: 7.0
+          env: SYMFONY_VERSION=2.8.*
+        - php: 7.0
+          env: SYMFONY_VERSION=3.0.*
+        - php: hhvm
+          env: COMPOSER_FLAGS="--prefer-lowest"
+        - php: hhvm
+          env: SYMFONY_VERSION=2.3.*
+        - php: hhvm
+          env: SYMFONY_VERSION=2.6.*
+        - php: hhvm
+          env: SYMFONY_VERSION=2.7.*
+        - php: hhvm
+          env: SYMFONY_VERSION=2.8.*
+        - php: hhvm
+          env: SYMFONY_VERSION=3.0.*
     allow_failures:
-        - env: SYMFONY_VERSION=2.7.*
+        - env: SYMFONY_VERSION=3.0.*
         - env: SYMFONY_VERSION=dev-master
 
 before_script:
     - wget https://phar.phpunit.de/phpunit-4.1.1.phar
     - composer self-update
-    - composer require symfony/twig-bundle:${SYMFONY_VERSION} --no-update
-    - composer require symfony/twig-bridge:${SYMFONY_VERSION} --no-update
-    - composer require symfony/framework-bundle:${SYMFONY_VERSION} --no-update
-    - composer require symfony/validator:${SYMFONY_VERSION} --dev --no-update
-    - composer require symfony/console:${SYMFONY_VERSION} --no-update
-    - composer require symfony/css-selector:${SYMFONY_VERSION} --dev --no-update
-    - composer require symfony/browser-kit:${SYMFONY_VERSION} --dev --no-update
-    - composer require symfony/yaml:${SYMFONY_VERSION} --dev --no-update
-    - composer require symfony/form:${SYMFONY_VERSION} --dev --no-update
+    - if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
     - composer require predis/predis:0.8.x --dev --no-update
     - composer require friendsofsymfony/oauth-server-bundle:1.4.x --dev --no-update
-    - composer update
+    - composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
 
 script: php phpunit-4.1.1.phar --coverage-text --coverage-clover=coverage.clover
 

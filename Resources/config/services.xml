@@ -18,7 +18,7 @@
         </service>
 
         <service id="noxlogic_rate_limit.rate_limit_service" class="%noxlogic_rate_limit.rate_limit_service.class%">
-            <argument type="service" id="security.context" />
+            <argument /> <!-- security.token_storage or security.context for Symfony <2.6 -->
             <call method="setStorage">
                 <argument type="service" id="noxlogic_rate_limit.storage" />
             </call>
@@ -76,7 +76,7 @@
 
 
         <service id="noxlogic_rate_limit.oauth_key_generate_listener" class="%noxlogic_rate_limit.oauth_key_generate_listener.class%">
-            <argument type="service" id="security.context" />
+            <argument /> <!-- security.token_storage or security.context for Symfony <2.6 -->
 
             <tag name="kernel.event_listener" event="ratelimit.generate.key" method="onGenerateKey" />
         </service>
