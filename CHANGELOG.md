@@ -1,3 +1,10 @@
+## 1.7.0
+2016-03-25  Joshua Thijsen <jthijssen@noxlogic.nl>
+	Fixed issue where manual reset did not correctly reset in redis
+
+2016-03-18  Scott Brown <scott.brown@verified.com>
+	Implement reset of rate limit
+
 ## 1.6.0
 
 2015-24-12  Roland Ekström <peshis@gmail.com>
