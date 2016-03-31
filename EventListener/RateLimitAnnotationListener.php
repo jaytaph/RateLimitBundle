@@ -87,6 +87,11 @@ class RateLimitAnnotationListener extends BaseListener
         $request = $event->getRequest();
         $request->attributes->set('rate_limit_info', $rateLimitInfo);
 
+        // Reset the rate limits
+        if(time() >= $rateLimitInfo->getResetTimestamp()) {
+            $this->rateLimitService->resetRate($key);
+        }
+
         // When we exceeded our limit, return a custom error response
         if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
 
