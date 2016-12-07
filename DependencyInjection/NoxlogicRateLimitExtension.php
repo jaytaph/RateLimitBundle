@@ -2,11 +2,11 @@
 
 namespace Noxlogic\RateLimitBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -22,14 +22,14 @@ class NoxlogicRateLimitExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+        $this->loadServices($container, $config);
 
-        if ($config['enabled'] === true) {
-            $this->loadServices($container, $config);
-        }
     }
 
     private function loadServices(ContainerBuilder $container, array $config)
     {
+        $container->setParameter('noxlogic_rate_limit.enabled', $config['enabled']);
+
         $container->setParameter('noxlogic_rate_limit.rate_response_exception', $config['rate_response_exception']);
         $container->setParameter('noxlogic_rate_limit.rate_response_code', $config['rate_response_code']);
         $container->setParameter('noxlogic_rate_limit.rate_response_message', $config['rate_response_message']);
@@ -53,7 +53,7 @@ class NoxlogicRateLimitExtension extends Extension
                 break;
         }
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.xml');
 
         switch ($config['storage_engine']) {

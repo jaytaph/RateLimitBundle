@@ -40,6 +40,17 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
+    public function testReturnedWhenNotEnabled()
+    {
+        $listener = $this->createListener($this->never());
+        $listener->setParameter('enabled', false);
+
+        $event = $this->createEvent();
+
+        $listener->onKernelController($event);
+    }
+
+
     public function testReturnedWhenNotAMasterRequest()
     {
         $listener = $this->createListener($this->never());

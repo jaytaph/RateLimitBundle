@@ -49,6 +49,11 @@ class RateLimitAnnotationListener extends BaseListener
      */
     public function onKernelController(FilterControllerEvent $event)
     {
+        // Skip if the bundle isn't enabled (for instance in test environment)
+        if( ! $this->getParameter('enabled', true)) {
+            return;
+        }
+
         // Skip if we aren't the main request
         if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
             return;
