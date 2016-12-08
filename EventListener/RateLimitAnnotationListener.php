@@ -95,6 +95,12 @@ class RateLimitAnnotationListener extends BaseListener
         // Reset the rate limits
         if(time() >= $rateLimitInfo->getResetTimestamp()) {
             $this->rateLimitService->resetRate($key);
+            $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
+            if (! $rateLimitInfo) {
+                // @codeCoverageIgnoreStart
+                return;
+                // @codeCoverageIgnoreEnd
+            }
         }
 
         // When we exceeded our limit, return a custom error response

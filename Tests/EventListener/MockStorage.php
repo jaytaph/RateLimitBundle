@@ -38,11 +38,6 @@ class MockStorage implements StorageInterface
             return null;
         }
 
-        if ($this->rates[$key]['reset'] <= time()) {
-            unset($this->rates[$key]);
-            return null;
-        }
-
         $this->rates[$key]['calls']++;
         return $this->getRateInfo($key);
     }
