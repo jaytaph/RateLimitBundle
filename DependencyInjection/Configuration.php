@@ -43,7 +43,7 @@ class Configuration implements ConfigurationInterface
                 ->end()
                 ->scalarNode('database')
                     ->defaultNull()
-                    ->info('The Doctrine Cache provider to use for the doctrine storage engine')
+                    ->info('The Database client to use for the database storage engine')
                     ->example('my_apc_cache')
                 ->end()
                 ->integerNode('rate_response_code')
