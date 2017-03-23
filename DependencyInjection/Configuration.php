@@ -44,7 +44,7 @@ class Configuration implements ConfigurationInterface
                 ->scalarNode('database')
                     ->defaultNull()
                     ->info('The Database client to use for the database storage engine')
-                    ->example('my_apc_cache')
+                    ->example('database')
                 ->end()
                 ->integerNode('rate_response_code')
                     ->min(400)

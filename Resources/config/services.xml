@@ -21,11 +21,16 @@
             <argument type="service" id="database.handler.pdo" />
         </service>
 
-        <service id="database.handler.pdo" class="Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler" public="false">
+        <service id="database.handler.pdo" class="Entity\PdoHandler.php" public="false">
             <argument>psql:host=%database_host%;port=%database_port%;dbname=%database_name%</argument>
             <argument type="collection">
                 <argument key="db_username">%database_user%</argument>
                 <argument key="db_password">%database_password%</argument>
+                <argument key="db_table">%database_table%</argument>
+                <argument key="db_id_col">id</argument>
+                <argument key="db_lifetime_col">reset</argument>
+                <argument key="db_data_col">info</argument>
+                <argument key="db_time_col">period</argument>
             </argument>
         </service>
 
