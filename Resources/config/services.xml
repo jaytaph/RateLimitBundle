@@ -17,6 +17,23 @@
             <argument type="service" id="snc_redis.default_client" />
         </service>
 
+        <service id="noxlogic_rate_limit.storage" class="%noxlogic_rate_limit.storage.class%">
+            <argument type="service" id="database.handler.pdo" />
+        </service>
+
+        <service id="database.handler.pdo" class="Entity\PdoHandler.php" public="false">
+            <argument>psql:host=%database_host%;port=%database_port%;dbname=%database_name%</argument>
+            <argument type="collection">
+                <argument key="db_username">%database_user%</argument>
+                <argument key="db_password">%database_password%</argument>
+                <argument key="db_table">%database_table%</argument>
+                <argument key="db_id_col">id</argument>
+                <argument key="db_time_col">limit</argument>
+                <argument key="db_lifetime_col">reset</argument>
+                <argument key="db_data_col">info</argument>
+            </argument>
+        </service>
+
         <service id="noxlogic_rate_limit.rate_limit_service" class="%noxlogic_rate_limit.rate_limit_service.class%">
             <argument /> <!-- security.token_storage or security.context for Symfony <2.6 -->
             <call method="setStorage">
