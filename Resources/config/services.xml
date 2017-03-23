@@ -31,7 +31,6 @@
                 <argument key="db_time_col">limit</argument>
                 <argument key="db_lifetime_col">reset</argument>
                 <argument key="db_data_col">info</argument>
-                <argument key="db_time_col">period</argument>
             </argument>
         </service>
 
