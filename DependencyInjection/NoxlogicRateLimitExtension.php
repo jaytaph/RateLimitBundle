@@ -81,7 +81,7 @@ class NoxlogicRateLimitExtension extends Extension
             case 'database':
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('database.' . $config['database'])
+                    new Reference('database.handler.pdo')
                 );
                 break;
         }
