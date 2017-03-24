@@ -24,6 +24,9 @@
         <service id="database.handler.pdo" class="Entity\PdoHandler.php" public="false">
             <argument>psql:host=%database.master.host%;port=%database.master.port%;dbname=%database.master.name%</argument>
             <argument type="collection">
+                <argument key="db_host">%database.master.host%</argument>
+                <argument key="db_port">%database.master.port%</argument>
+                <argument key="db_name">%database.master.name%</argument>
                 <argument key="db_username">%database.master.user%</argument>
                 <argument key="db_password">%database.master.password%</argument>
                 <argument key="db_table">rate_limit_cache</argument>
