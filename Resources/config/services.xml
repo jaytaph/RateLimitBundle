@@ -26,7 +26,7 @@
             <argument type="collection">
                 <argument key="db_username">%database.master.user%</argument>
                 <argument key="db_password">%database.master.password%</argument>
-                <argument key="db_table">rate_limit_cache</argument>
+                <argument key="db_table">database_cache</argument>
                 <argument key="db_id_col">id</argument>
                 <argument key="db_time_col">limit</argument>
                 <argument key="db_lifetime_col">reset</argument>
