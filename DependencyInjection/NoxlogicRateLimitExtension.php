@@ -51,6 +51,9 @@ class NoxlogicRateLimitExtension extends Extension
             case 'doctrine':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache');
                 break;
+            case 'database':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Database');
+                break;
         }
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
@@ -73,6 +76,12 @@ class NoxlogicRateLimitExtension extends Extension
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
                     new Reference('doctrine_cache.providers.' . $config['doctrine_provider'])
+                );
+                break;
+            case 'database':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference('database.handler.pdo')
                 );
                 break;
         }
