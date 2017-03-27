@@ -59,4 +59,8 @@ class Database implements StorageInterface
         $this->client->delete($key);
         return true;
     }
+
+    public function fetch($key){
+        return $this->client->fetch($key);
+    }
 }
