@@ -121,7 +121,7 @@ class PdoHandler extends PdoSessionHandler
 
         switch ($this->driver) {
             case 'pgsql':
-                $sql = "CREATE TABLE IF NOT EXISTS database_cache ( id VARCHAR(128) NOT NULL PRIMARY KEY, limit INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL )";
+                $sql = "CREATE TABLE IF NOT EXISTS database_cache (id VARCHAR(128) NOT NULL PRIMARY KEY, 'limit' INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL )";
                 break;
             default:
                 throw new \DomainException(sprintf('Creating the database cache table is currently not implemented for PDO driver "%s".', $this->driver));

@@ -14,7 +14,7 @@ class Database implements StorageInterface
      */
     protected $client;
 
-    public function __construct($client) {
+    public function __construct(PdoHandler $client) {
         $this->client = $client;
     }
 
@@ -61,6 +61,8 @@ class Database implements StorageInterface
     }
 
     public function fetch($key){
+        //      dump($this->client);
+        //    die();
         return $this->client->fetch($key);
     }
 }

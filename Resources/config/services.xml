@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 
 <container xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
         <parameter key="noxlogic_rate_limit.header_modification_listener.class">Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener</parameter>
@@ -17,12 +17,16 @@
             <argument type="service" id="snc_redis.default_client" />
         </service>
 
-        <service id="noxlogic_rate_limit.storage" class="%noxlogic_rate_limit.storage.class%">
+        <service id="noxlogic_rate_limit.pdo" class="%noxlogic_rate_limit.storage.class%">
             <argument type="service" id="database.handler.pdo" />
         </service>
 
-        <service id="database.handler.pdo" class="%noxlogic_rate_limit.storage.class%" public="false">
+        <service id="database.handler.pdo" class="Noxlogic\RateLimitBundle\Entity\PdoHandler" public="false">
             <argument>psql:host=%database.master.host%;port=%database.master.port%;dbname=%database.master.name%</argument>
+        </service>
+
+        <service id="database" class="%noxlogic_rate_limit.storage.class%" public="false">
+            <argument type="service" id="noxlogic_rate_limit.pdo" />
             <argument type="collection">
                 <argument key="db_username">%database.master.user%</argument>
                 <argument key="db_password">%database.master.password%</argument>
