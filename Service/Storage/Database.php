@@ -61,8 +61,6 @@ class Database implements StorageInterface
     }
 
     public function fetch($key){
-        //      dump($this->client);
-        //    die();
         return $this->client->fetch($key);
     }
 }
