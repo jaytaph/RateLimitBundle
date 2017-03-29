@@ -93,6 +93,12 @@ class PdoHandler extends PdoSessionHandler
 
     public function __construct($pdoOrDsn = null, array $options = array())
     {
+
+        $pdoOrDsn = new \PDO($pdoOrDsn, $options['db_username'], $options['db_password']);
+
+        $pdoOrDsn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
+        parent::__construct($pdoOrDsn, $options);
+
         if ($pdoOrDsn instanceof \PDO) {
             if (\PDO::ERRMODE_EXCEPTION !== $pdoOrDsn->getAttribute(\PDO::ATTR_ERRMODE)) {
                 throw new \InvalidArgumentException(sprintf('"%s" requires PDO error mode attribute be set to throw Exceptions (i.e. $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION))', __CLASS__));
@@ -113,6 +119,8 @@ class PdoHandler extends PdoSessionHandler
         $this->password = isset($options['db_password']) ? $options['db_password'] : $this->password;
         $this->connectionOptions = isset($options['db_connection_options']) ? $options['db_connection_options'] : $this->connectionOptions;
         $this->lockMode = isset($options['lock_mode']) ? $options['lock_mode'] : $this->lockMode;
+
+
     }
 
     public function createTable()
