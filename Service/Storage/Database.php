@@ -14,7 +14,7 @@ class Database implements StorageInterface
      */
     protected $client;
 
-    public function __construct($client) {
+    public function __construct(PdoHandler $client) {
         $this->client = $client;
     }
 
@@ -22,7 +22,7 @@ class Database implements StorageInterface
         $info = $this->client->fetch($key);
 
         $rateLimitInfo = new RateLimitInfo();
-        $rateLimitInfo->setLimit($info['limit']);
+        $rateLimitInfo->setLimit($info['limit_cache']);
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
 
@@ -31,7 +31,7 @@ class Database implements StorageInterface
 
     public function limitRate($key) {
         $info = $this->client->fetch($key);
-        if ($info === false || !array_key_exists('limit', $info)) {
+        if ($info === false || !array_key_exists('limit_cache', $info)) {
             return false;
         }
 
@@ -46,7 +46,7 @@ class Database implements StorageInterface
 
     public function createRate($key, $limit, $period) {
         $info          = array();
-        $info['limit'] = $limit;
+        $info['limit_cache'] = $limit;
         $info['calls'] = 1;
         $info['reset'] = time() + $period;
 
