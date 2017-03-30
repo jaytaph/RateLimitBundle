@@ -91,6 +91,24 @@ class PdoHandler extends PdoSessionHandler
      */
     private $lockMode = self::LOCK_TRANSACTIONAL;
 
+
+    /**
+     * @var bool Whether a transaction is active
+     */
+    private $inTransaction = false;
+
+    /**
+     * @var bool Whether gc() has been called
+     */
+    private $gcCalled = false;
+
+    /**
+     * It's an array to support multiple reads before closing which is manual, non-standard usage.
+     *
+     * @var \PDOStatement[] An array of statements to release advisory locks
+     */
+    private $unlockStatements = array();
+
     public function __construct($pdoOrDsn = null, array $options = array())
     {
 
@@ -120,7 +138,10 @@ class PdoHandler extends PdoSessionHandler
         $this->connectionOptions = isset($options['db_connection_options']) ? $options['db_connection_options'] : $this->connectionOptions;
         $this->lockMode = isset($options['lock_mode']) ? $options['lock_mode'] : $this->lockMode;
 
-
+        $this->beginTransaction();
+        $this->createTable();
+        $this->commit();
+        $this->close();
     }
 
     public function createTable()
@@ -129,7 +150,7 @@ class PdoHandler extends PdoSessionHandler
 
         switch ($this->driver) {
             case 'pgsql':
-                $sql = "CREATE TABLE IF NOT EXISTS database_cache (id VARCHAR(128) NOT NULL PRIMARY KEY, 'limit' INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL )";
+                $sql = 'CREATE TABLE IF NOT EXISTS database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, limit_cache INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL)';
                 break;
             default:
                 throw new \DomainException(sprintf('Creating the database cache table is currently not implemented for PDO driver "%s".', $this->driver));
@@ -154,5 +175,102 @@ class PdoHandler extends PdoSessionHandler
 
     public function delete($key){
         $this->destroy($key);
+    }
+
+    /**
+     * Helper method to begin a transaction.
+     *
+     * Since SQLite does not support row level locks, we have to acquire a reserved lock
+     * on the database immediately. Because of https://bugs.php.net/42766 we have to create
+     * such a transaction manually which also means we cannot use PDO::commit or
+     * PDO::rollback or PDO::inTransaction for SQLite.
+     *
+     * Also MySQLs default isolation, REPEATABLE READ, causes deadlock for different sessions
+     * due to http://www.mysqlperformanceblog.com/2013/12/12/one-more-innodb-gap-lock-to-avoid/ .
+     * So we change it to READ COMMITTED.
+     */
+    private function beginTransaction()
+    {
+        if (!$this->inTransaction) {
+            if ('sqlite' === $this->driver) {
+                $this->pdo->exec('BEGIN IMMEDIATE TRANSACTION');
+            } else {
+                if ('mysql' === $this->driver) {
+                    $this->pdo->exec('SET TRANSACTION ISOLATION LEVEL READ COMMITTED');
+                }
+                $this->pdo->beginTransaction();
+            }
+            $this->inTransaction = true;
+        }
+    }
+
+    /**
+     * Helper method to commit a transaction.
+     */
+    private function commit()
+    {
+        if ($this->inTransaction) {
+            try {
+                // commit read-write transaction which also releases the lock
+                if ('sqlite' === $this->driver) {
+                    $this->pdo->exec('COMMIT');
+                } else {
+                    $this->pdo->commit();
+                }
+                $this->inTransaction = false;
+            } catch (\PDOException $e) {
+                $this->rollback();
+
+                throw $e;
+            }
+        }
+    }
+
+    /**
+     * Helper method to rollback a transaction.
+     */
+    private function rollback()
+    {
+        // We only need to rollback if we are in a transaction. Otherwise the resulting
+        // error would hide the real problem why rollback was called. We might not be
+        // in a transaction when not using the transactional locking behavior or when
+        // two callbacks (e.g. destroy and write) are invoked that both fail.
+        if ($this->inTransaction) {
+            if ('sqlite' === $this->driver) {
+                $this->pdo->exec('ROLLBACK');
+            } else {
+                $this->pdo->rollBack();
+            }
+            $this->inTransaction = false;
+        }
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function close()
+    {
+        $this->commit();
+
+        while ($unlockStmt = array_shift($this->unlockStatements)) {
+            $unlockStmt->execute();
+        }
+
+        if ($this->gcCalled) {
+            $this->gcCalled = false;
+
+            // delete the session records that have expired
+            $sql = "DELETE FROM $this->table WHERE $this->lifetimeCol + $this->timeCol < :time";
+
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindValue(':time', time(), \PDO::PARAM_INT);
+            $stmt->execute();
+        }
+
+        if (false !== $this->dsn) {
+            $this->pdo = null; // only close lazy-connection
+        }
+
+        return true;
     }
 }
