@@ -1,5 +1,5 @@
 {
-    "name": "noxlogic/ratelimit-bundle",
+    "name": "bcvsocial/ratelimit-bundle",
     "description": "This bundle provides functionality to limit calls to actions based on rate limits",
     "keywords": [ "x-rate-limit", "api", "rest" ],
     "type": "symfony-bundle",
