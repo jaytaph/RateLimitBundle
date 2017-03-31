@@ -160,7 +160,6 @@ class PdoHandler extends PdoSessionHandler
             $this->pdo->exec($sql);
         } catch (\PDOException $e) {
             $this->pdo->rollBack();
-
             throw $e;
         }
     }
