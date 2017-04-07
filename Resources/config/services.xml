@@ -22,8 +22,7 @@
         </service>
 
         <service id="database.handler.pdo" class="Noxlogic\RateLimitBundle\Entity\PdoHandler" public="false">
-            <argument>pgsql:dbname=<argument type="expression">(%kernel.environment% = 'dev') ? %database.test.name% : %database.master.name%</argument>
-                ;host=%database.master.host%;port=%database.master.port%
+            <argument>pgsql:dbname=%database.master.name%;host=%database.master.host%;port=%database.master.port%
             </argument>
             <argument type="collection">
                 <argument key="db_username">%database.master.user%</argument>
