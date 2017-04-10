@@ -41,6 +41,13 @@ class NoxlogicRateLimitExtension extends Extension
 
         $container->setParameter('noxlogic_rate_limit.path_limits', $config['path_limits']);
 
+        $container->setParameter('noxlogic_rate_limit.database.driver', $config['database']['driver']);
+        $container->setParameter('noxlogic_rate_limit.database.name', $config['database']['name']);
+        $container->setParameter('noxlogic_rate_limit.database.host', $config['database']['host']);
+        $container->setParameter('noxlogic_rate_limit.database.port', $config['database']['port']);
+        $container->setParameter('noxlogic_rate_limit.database.user', $config['database']['user']);
+        $container->setParameter('noxlogic_rate_limit.database.password', $config['database']['password']);
+
         switch ($config['storage_engine']) {
             case 'memcache':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Memcache');
