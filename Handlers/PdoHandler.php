@@ -1,6 +1,6 @@
 <?php
 
-namespace Noxlogic\RateLimitBundle\Entity;
+namespace Noxlogic\RateLimitBundle\Handlers;
 
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
@@ -150,7 +150,8 @@ class PdoHandler extends PdoSessionHandler
 
         switch ($this->driver) {
             case 'pgsql':
-                $sql = 'CREATE TABLE IF NOT EXISTS database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, limit_cache INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL)';
+            case 'mysql':
+                $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, limit_cache INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL)';
                 break;
             default:
                 throw new \DomainException(sprintf('Creating the database cache table is currently not implemented for PDO driver "%s".', $this->driver));
