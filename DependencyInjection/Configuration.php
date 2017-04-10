@@ -47,7 +47,7 @@ class Configuration implements ConfigurationInterface
                     ->example('database')
                     ->children()
                         ->scalarNode('name')->defaultValue('database')->end()
-                        ->scalarNode('host')->defaultValue('127.0.01')->end()
+                        ->scalarNode('host')->defaultValue('127.0.0.1')->end()
                         ->scalarNode('driver')->defaultValue('psql')->end()
                         ->scalarNode('port')->defaultValue('5432')->end()
                         ->scalarNode('user')->defaultValue('root')->end()
