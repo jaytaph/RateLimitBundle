@@ -26,11 +26,11 @@
             <argument type="collection">
                 <argument key="db_username">%database.master.user%</argument>
                 <argument key="db_password">%database.master.password%</argument>
-                <argument key="db_table">database_cache</argument>
+                <argument key="db_table">noxlogic_database_cache</argument>
                 <argument key="db_id_col">id</argument>
-                <argument key="db_time_col">limit_cache</argument>
-                <argument key="db_lifetime_col">reset</argument>
-                <argument key="db_data_col">info</argument>
+                <argument key="db_time_col">time</argument>
+                <argument key="db_lifetime_col">lifetime</argument>
+                <argument key="db_data_col">data</argument>
             </argument>
         </service>
 
