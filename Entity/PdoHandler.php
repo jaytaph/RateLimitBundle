@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Entity;
 
+use PDOException;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
 class PdoHandler extends PdoSessionHandler
@@ -111,9 +112,7 @@ class PdoHandler extends PdoSessionHandler
 
     public function __construct($pdoOrDsn = null, array $options = array())
     {
-
         $pdoOrDsn = new \PDO($pdoOrDsn, $options['db_username'], $options['db_password']);
-
         $pdoOrDsn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         parent::__construct($pdoOrDsn, $options);
 
@@ -140,7 +139,7 @@ class PdoHandler extends PdoSessionHandler
 
         $this->beginTransaction();
         $this->createTable();
-        $this->commit();
+        $this->writeToDB();
         $this->close();
     }
 
@@ -156,17 +155,13 @@ class PdoHandler extends PdoSessionHandler
                 throw new \DomainException(sprintf('Creating the database cache table is currently not implemented for PDO driver "%s".', $this->driver));
         }
 
-        try {
-            $this->pdo->exec($sql);
-        } catch (\PDOException $e) {
-            $this->pdo->rollBack();
-
-            throw $e;
-        }
+        $this->pdo->exec($sql);
     }
 
     public function fetch($key){
-        $this->read($key);
+        $this->inTransaction = true;
+
+        return $this->read($key);
     }
 
     public function save($key, $info){
@@ -175,6 +170,17 @@ class PdoHandler extends PdoSessionHandler
 
     public function delete($key){
         $this->destroy($key);
+    }
+
+    public function writeToDB()
+    {
+        try {
+            $this->commit();
+        } catch (PDOException $e) {
+            $this->rollBack();
+
+            throw $e;
+        }
     }
 
     /**
