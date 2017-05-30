@@ -4,7 +4,7 @@ namespace Noxlogic\RateLimitBundle\Service\Storage;
 
 
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
-use Noxlogic\RateLimitBundle\Entity\PdoHandler;
+use Noxlogic\RateLimitBundle\Handlers\PdoHandler;
 
 class Database implements StorageInterface
 {

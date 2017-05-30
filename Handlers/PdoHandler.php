@@ -1,6 +1,6 @@
 <?php
 
-namespace Noxlogic\RateLimitBundle\Entity;
+namespace Noxlogic\RateLimitBundle\Handlers;
 
 use PDOException;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
@@ -92,7 +92,6 @@ class PdoHandler extends PdoSessionHandler
      */
     private $lockMode = self::LOCK_TRANSACTIONAL;
 
-
     /**
      * @var bool Whether a transaction is active
      */
@@ -151,24 +150,36 @@ class PdoHandler extends PdoSessionHandler
             case 'pgsql':
                 $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, lifetime INTEGER NOT NULL, data VARCHAR(255) NOT NULL, time INTEGER NOT NULL)';
                 break;
+            case 'mysql':
+                $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, limit_cache INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL)';
+                break;
             default:
                 throw new \DomainException(sprintf('Creating the database cache table is currently not implemented for PDO driver "%s".', $this->driver));
         }
 
-        $this->pdo->exec($sql);
+        try {
+            $this->pdo->exec($sql);
+        } catch (\PDOException $e) {
+            $this->pdo->rollBack();
+            throw $e;
+        }
+
     }
 
-    public function fetch($key){
+    public function fetch($key)
+    {
         $this->inTransaction = true;
 
         return $this->read($key);
     }
 
-    public function save($key, $info){
+    public function save($key, $info)
+    {
         $this->write($key, $info);
     }
 
-    public function delete($key){
+    public function delete($key)
+    {
         $this->destroy($key);
     }
 

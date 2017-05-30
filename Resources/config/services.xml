@@ -23,6 +23,7 @@
 
         <service id="database.handler.pdo" class="Noxlogic\RateLimitBundle\Entity\PdoHandler" public="false">
             <argument>%noxlogic_rate_limit.database.driver%:dbname=%noxlogic_rate_limit.database.name%;host=%noxlogic_rate_limit.database.host%;port=%noxlogic_rate_limit.database.port%</argument>
+
             <argument type="collection">
                 <argument key="db_username">%noxlogic_rate_limit.database.user%</argument>
                 <argument key="db_password">%noxlogic_rate_limit.database.password%</argument>
