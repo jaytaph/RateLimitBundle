@@ -34,12 +34,26 @@ class NoxlogicRateLimitExtension extends Extension
         $container->setParameter('noxlogic_rate_limit.rate_response_code', $config['rate_response_code']);
         $container->setParameter('noxlogic_rate_limit.rate_response_message', $config['rate_response_message']);
 
+        $container->setParameter('noxlogic_rate_limit.database.name', $config['database']['name']);
+        $container->setParameter('noxlogic_rate_limit.database.host', $config['database']['host']);
+        $container->setParameter('noxlogic_rate_limit.database.driver', $config['database']['driver']);
+        $container->setParameter('noxlogic_rate_limit.database.port', $config['database']['port']);
+        $container->setParameter('noxlogic_rate_limit.database.user', $config['database']['user']);
+        $container->setParameter('noxlogic_rate_limit.database.password', $config['database']['password']);
+
         $container->setParameter('noxlogic_rate_limit.display_headers', $config['display_headers']);
         $container->setParameter('noxlogic_rate_limit.headers.limit.name', $config['headers']['limit']);
         $container->setParameter('noxlogic_rate_limit.headers.remaining.name', $config['headers']['remaining']);
         $container->setParameter('noxlogic_rate_limit.headers.reset.name', $config['headers']['reset']);
 
         $container->setParameter('noxlogic_rate_limit.path_limits', $config['path_limits']);
+
+        $container->setParameter('noxlogic_rate_limit.database.driver', $config['database']['driver']);
+        $container->setParameter('noxlogic_rate_limit.database.name', $config['database']['name']);
+        $container->setParameter('noxlogic_rate_limit.database.host', $config['database']['host']);
+        $container->setParameter('noxlogic_rate_limit.database.port', $config['database']['port']);
+        $container->setParameter('noxlogic_rate_limit.database.user', $config['database']['user']);
+        $container->setParameter('noxlogic_rate_limit.database.password', $config['database']['password']);
 
         switch ($config['storage_engine']) {
             case 'memcache':
@@ -50,6 +64,9 @@ class NoxlogicRateLimitExtension extends Extension
                 break;
             case 'doctrine':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache');
+                break;
+            case 'database':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Database');
                 break;
         }
 
@@ -73,6 +90,12 @@ class NoxlogicRateLimitExtension extends Extension
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
                     new Reference('doctrine_cache.providers.' . $config['doctrine_provider'])
+                );
+                break;
+            case 'database':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference('database.handler.pdo')
                 );
                 break;
         }
