@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Handlers;
 
+use PDOException;
 use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
 
 class PdoHandler extends PdoSessionHandler
@@ -111,9 +112,7 @@ class PdoHandler extends PdoSessionHandler
 
     public function __construct($pdoOrDsn = null, array $options = array())
     {
-
         $pdoOrDsn = new \PDO($pdoOrDsn, $options['db_username'], $options['db_password']);
-
         $pdoOrDsn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
         parent::__construct($pdoOrDsn, $options);
 
@@ -140,7 +139,7 @@ class PdoHandler extends PdoSessionHandler
 
         $this->beginTransaction();
         $this->createTable();
-        $this->commit();
+        $this->writeToDB();
         $this->close();
     }
 
@@ -150,6 +149,9 @@ class PdoHandler extends PdoSessionHandler
 
         switch ($this->driver) {
             case 'pgsql':
+                $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, lifetime INTEGER NOT NULL, data VARCHAR(255) NOT NULL, time INTEGER NOT NULL)';
+                break;
+
             case 'mysql':
                 $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, limit_cache INTEGER NOT NULL, info VARCHAR(255) NOT NULL, period INTEGER NOT NULL, reset INTEGER NOT NULL)';
                 break;
@@ -163,10 +165,13 @@ class PdoHandler extends PdoSessionHandler
             $this->pdo->rollBack();
             throw $e;
         }
+
     }
 
     public function fetch($key){
-        $this->read($key);
+        $this->inTransaction = true;
+
+        return $this->read($key);
     }
 
     public function save($key, $info){
@@ -175,6 +180,17 @@ class PdoHandler extends PdoSessionHandler
 
     public function delete($key){
         $this->destroy($key);
+    }
+
+    public function writeToDB()
+    {
+        try {
+            $this->commit();
+        } catch (PDOException $e) {
+            $this->rollBack();
+
+            throw $e;
+        }
     }
 
     /**

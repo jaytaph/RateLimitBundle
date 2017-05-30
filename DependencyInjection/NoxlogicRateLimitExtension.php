@@ -34,6 +34,13 @@ class NoxlogicRateLimitExtension extends Extension
         $container->setParameter('noxlogic_rate_limit.rate_response_code', $config['rate_response_code']);
         $container->setParameter('noxlogic_rate_limit.rate_response_message', $config['rate_response_message']);
 
+        $container->setParameter('noxlogic_rate_limit.database.name', $config['database']['name']);
+        $container->setParameter('noxlogic_rate_limit.database.host', $config['database']['host']);
+        $container->setParameter('noxlogic_rate_limit.database.driver', $config['database']['driver']);
+        $container->setParameter('noxlogic_rate_limit.database.port', $config['database']['port']);
+        $container->setParameter('noxlogic_rate_limit.database.user', $config['database']['user']);
+        $container->setParameter('noxlogic_rate_limit.database.password', $config['database']['password']);
+
         $container->setParameter('noxlogic_rate_limit.display_headers', $config['display_headers']);
         $container->setParameter('noxlogic_rate_limit.headers.limit.name', $config['headers']['limit']);
         $container->setParameter('noxlogic_rate_limit.headers.remaining.name', $config['headers']['remaining']);
