@@ -149,9 +149,6 @@ class PdoHandler extends PdoSessionHandler
 
         switch ($this->driver) {
             case 'pgsql':
-                $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, lifetime INTEGER NOT NULL, data VARCHAR(255) NOT NULL, time INTEGER NOT NULL)';
-                break;
-
             case 'mysql':
                 $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, lifetime INTEGER NOT NULL, data VARCHAR(255) NOT NULL, time INTEGER NOT NULL)';
                 break;
