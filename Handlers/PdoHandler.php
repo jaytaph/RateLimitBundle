@@ -179,7 +179,6 @@ class PdoHandler implements \SessionHandlerInterface
             $this->pdo->rollBack();
             throw $e;
         }
-
     }
 
     public function fetch($key){
