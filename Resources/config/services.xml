@@ -1,8 +1,8 @@
 <?xml version="1.0" ?>
 
 <container xmlns="http://symfony.com/schema/dic/services"
-    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-    xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services http://symfony.com/schema/dic/services/services-1.0.xsd">
 
     <parameters>
         <parameter key="noxlogic_rate_limit.header_modification_listener.class">Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener</parameter>
@@ -15,6 +15,23 @@
     <services>
         <service id="noxlogic_rate_limit.storage" class="%noxlogic_rate_limit.storage.class%">
             <argument type="service" id="snc_redis.default_client" />
+        </service>
+
+        <service id="noxlogic_rate_limit.pdo" class="%noxlogic_rate_limit.storage.class%">
+            <argument type="service" id="database.handler.pdo" />
+        </service>
+
+        <service id="database.handler.pdo" class="Noxlogic\RateLimitBundle\Handlers\PdoHandler" public="false">
+            <argument>%noxlogic_rate_limit.database.driver%:dbname=%noxlogic_rate_limit.database.name%;host=%noxlogic_rate_limit.database.host%;port=%noxlogic_rate_limit.database.port%</argument>
+            <argument type="collection">
+                <argument key="db_username">%noxlogic_rate_limit.database.user%</argument>
+                <argument key="db_password">%noxlogic_rate_limit.database.password%</argument>
+                <argument key="db_table">noxlogic_database_cache</argument>
+                <argument key="db_id_col">id</argument>
+                <argument key="db_reset_col">reset</argument>
+                <argument key="db_period_col">period</argument>
+                <argument key="db_info_col">info</argument>
+            </argument>
         </service>
 
         <service id="noxlogic_rate_limit.rate_limit_service" class="%noxlogic_rate_limit.rate_limit_service.class%">

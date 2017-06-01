@@ -103,7 +103,7 @@ noxlogic_rate_limit:
     enabled:              true
 
     # The storage engine where all the rates will be stored
-    storage_engine:       ~ # One of "redis"; "memcache"; "doctrine"
+    storage_engine:       ~ # One of "redis"; "memcache"; "doctrine"; "database"
 
     # The redis client to use for the redis storage engine
     redis_client:         default_client
@@ -125,6 +125,15 @@ noxlogic_rate_limit:
 
     # Should the ratelimit headers be automatically added to the response?
     display_headers:      true
+    
+    # needed parameters when using the "database" storage option
+    database:
+        name:     database
+        host:     127.0.0.1
+        driver:   psql        # currently supported drivers are case 'psql' and 'mysql'
+        port:     5432
+        user:     root
+        password: password
 
     # What are the different header names to add
     headers:
