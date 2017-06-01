@@ -201,18 +201,6 @@ class PdoSessionHandler implements \SessionHandlerInterface
     }
 
     /**
-     * Returns true when the current session exists but expired according to session.gc_maxlifetime.
-     *
-     * Can be used to distinguish between a new session and one that expired due to inactivity.
-     *
-     * @return bool Whether current session expired
-     */
-    public function isSessionExpired()
-    {
-        return $this->sessionExpired;
-    }
-
-    /**
      * {@inheritdoc}
      */
     public function open($savePath, $sessionName)
@@ -331,6 +319,65 @@ class PdoSessionHandler implements \SessionHandlerInterface
 
         return true;
 
+    }
+
+    /**
+     * This method is not used actually, but must be defined (abstract)
+     * {@inheritdoc}
+     */
+    public function write($sessionId, $data)
+    {
+        $maxlifetime = (int) ini_get('session.gc_maxlifetime');
+
+        try {
+            // We use a single MERGE SQL query when supported by the database.
+            $mergeStmt = $this->getMergeStatement($sessionId, $data, $maxlifetime);
+            if (null !== $mergeStmt) {
+                $mergeStmt->execute();
+
+                return true;
+            }
+
+            $updateStmt = $this->pdo->prepare(
+                "UPDATE $this->table SET $this->dataCol = :data, $this->lifetimeCol = :lifetime, $this->timeCol = :time WHERE $this->idCol = :id"
+            );
+            $updateStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+            $updateStmt->bindParam(':data', $data, \PDO::PARAM_LOB);
+            $updateStmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
+            $updateStmt->bindValue(':time', time(), \PDO::PARAM_INT);
+            $updateStmt->execute();
+
+            // When MERGE is not supported, like in Postgres < 9.5, we have to use this approach that can result in
+            // duplicate key errors when the same session is written simultaneously (given the LOCK_NONE behavior).
+            // We can just catch such an error and re-execute the update. This is similar to a serializable
+            // transaction with retry logic on serialization failures but without the overhead and without possible
+            // false positives due to longer gap locking.
+            if (!$updateStmt->rowCount()) {
+                try {
+                    $insertStmt = $this->pdo->prepare(
+                        "INSERT INTO $this->table ($this->idCol, $this->dataCol, $this->lifetimeCol, $this->timeCol) VALUES (:id, :data, :lifetime, :time)"
+                    );
+                    $insertStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+                    $insertStmt->bindParam(':data', $data, \PDO::PARAM_LOB);
+                    $insertStmt->bindParam(':lifetime', $maxlifetime, \PDO::PARAM_INT);
+                    $insertStmt->bindValue(':time', time(), \PDO::PARAM_INT);
+                    $insertStmt->execute();
+                } catch (\PDOException $e) {
+                    // Handle integrity violation SQLSTATE 23000 (or a subclass like 23505 in Postgres) for duplicate keys
+                    if (0 === strpos($e->getCode(), '23')) {
+                        $updateStmt->execute();
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+        } catch (\PDOException $e) {
+            $this->rollback();
+
+            throw $e;
+        }
+
+        return true;
     }
 
     /**
