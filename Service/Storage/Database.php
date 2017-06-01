@@ -21,8 +21,15 @@ class Database implements StorageInterface
     public function getRateInfo($key) {
         $info = $this->client->fetch($key);
 
+        if (!$info) {
+            $this->client->writeToDB();
+
+            return null;
+        }
+
+        $info = json_decode($info, true);
         $rateLimitInfo = new RateLimitInfo();
-        $rateLimitInfo->setLimit($info['limit_cache']);
+        $rateLimitInfo->setLimit($info['limit']);
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
 
@@ -31,26 +38,28 @@ class Database implements StorageInterface
 
     public function limitRate($key) {
         $info = $this->client->fetch($key);
-        if ($info === false || !array_key_exists('limit_cache', $info)) {
+        if (!$info) {
+            $this->client->writeToDB();
+
             return false;
         }
 
+        $info = json_decode($info, true);
+
         $info['calls']++;
 
-        $expire = $info['reset'] - time();
-
-        $this->client->save($key, $info, $expire);
+        $this->client->save($key, json_encode($info));
 
         return $this->getRateInfo($key);
     }
 
     public function createRate($key, $limit, $period) {
-        $info          = array();
-        $info['limit_cache'] = $limit;
+        $info = [];
+        $info['limit'] = $limit;
         $info['calls'] = 1;
         $info['reset'] = time() + $period;
 
-        $this->client->save($key, $info);
+        $this->client->save($key, json_encode($info));
 
         return $this->getRateInfo($key);
     }
