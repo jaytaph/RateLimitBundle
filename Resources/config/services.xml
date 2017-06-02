@@ -28,9 +28,9 @@
                 <argument key="db_password">%noxlogic_rate_limit.database.password%</argument>
                 <argument key="db_table">noxlogic_database_cache</argument>
                 <argument key="db_id_col">id</argument>
-                <argument key="db_time_col">time</argument>
-                <argument key="db_lifetime_col">lifetime</argument>
-                <argument key="db_data_col">data</argument>
+                <argument key="db_reset_col">reset</argument>
+                <argument key="db_period_col">period</argument>
+                <argument key="db_info_col">info</argument>
             </argument>
         </service>
 

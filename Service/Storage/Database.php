@@ -22,7 +22,6 @@ class Database implements StorageInterface
         $info = $this->client->fetch($key);
         if (!$info) {
             $this->client->writeToDB();
-
             return null;
         }
 

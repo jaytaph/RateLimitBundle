@@ -2,10 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Handlers;
 
-use PDOException;
-use Symfony\Component\HttpFoundation\Session\Storage\Handler\PdoSessionHandler;
-
-class PdoHandler extends PdoSessionHandler
+class PdoHandler implements \SessionHandlerInterface
 {
     /**
      * No locking is done. This means sessions are prone to loss of data due to
@@ -58,19 +55,19 @@ class PdoHandler extends PdoSessionHandler
     private $idCol;
 
     /**
-     * @var string Column for cache data
+     * @var string Column for info
      */
-    private $dataCol;
+    private $infoCol;
 
     /**
-     * @var string Column for lifetime
+     * @var integer Column for lifetime
      */
-    private $lifetimeCol;
+    private $periodCol;
 
     /**
-     * @var string Column for timestamp
+     * @var integer Column for time
      */
-    private $timeCol;
+    private $resetCol;
 
     /**
      * @var string Username when lazy-connect
@@ -110,11 +107,17 @@ class PdoHandler extends PdoSessionHandler
      */
     private $unlockStatements = array();
 
+    /**
+     * This class is using the Symfony PDOSessionHandler as a template
+     *
+     * PdoHandler constructor.
+     * @param null $pdoOrDsn
+     * @param array $options
+     */
     public function __construct($pdoOrDsn = null, array $options = array())
     {
         $pdoOrDsn = new \PDO($pdoOrDsn, $options['db_username'], $options['db_password']);
         $pdoOrDsn->setAttribute(\PDO::ATTR_ERRMODE, \PDO::ERRMODE_EXCEPTION);
-        parent::__construct($pdoOrDsn, $options);
 
         if ($pdoOrDsn instanceof \PDO) {
             if (\PDO::ERRMODE_EXCEPTION !== $pdoOrDsn->getAttribute(\PDO::ATTR_ERRMODE)) {
@@ -129,18 +132,31 @@ class PdoHandler extends PdoSessionHandler
 
         $this->table = isset($options['db_table']) ? $options['db_table'] : $this->table;
         $this->idCol = isset($options['db_id_col']) ? $options['db_id_col'] : $this->idCol;
-        $this->dataCol = isset($options['db_data_col']) ? $options['db_data_col'] : $this->dataCol;
-        $this->lifetimeCol = isset($options['db_lifetime_col']) ? $options['db_lifetime_col'] : $this->lifetimeCol;
-        $this->timeCol = isset($options['db_time_col']) ? $options['db_time_col'] : $this->timeCol;
+        $this->infoCol = isset($options['db_info_col']) ? $options['db_info_col'] : $this->infoCol;
+        $this->periodCol = isset($options['db_period_col']) ? $options['db_period_col'] : $this->periodCol;
+        $this->resetCol = isset($options['db_reset_col']) ? $options['db_reset_col'] : $this->resetCol;
         $this->username = isset($options['db_username']) ? $options['db_username'] : $this->username;
         $this->password = isset($options['db_password']) ? $options['db_password'] : $this->password;
         $this->connectionOptions = isset($options['db_connection_options']) ? $options['db_connection_options'] : $this->connectionOptions;
         $this->lockMode = isset($options['lock_mode']) ? $options['lock_mode'] : $this->lockMode;
 
-        $this->beginTransaction();
         $this->createTable();
         $this->writeToDB();
         $this->close();
+    }
+
+    /**
+     * Return a PDO instance.
+     *
+     * @return \PDO
+     */
+    protected function getConnection()
+    {
+        if (null === $this->pdo) {
+            $this->connect($this->dsn ?: ini_get('session.save_path'));
+        }
+
+        return $this->pdo;
     }
 
     public function createTable()
@@ -150,7 +166,7 @@ class PdoHandler extends PdoSessionHandler
         switch ($this->driver) {
             case 'pgsql':
             case 'mysql':
-                $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, lifetime INTEGER NOT NULL, data VARCHAR(255) NOT NULL, time INTEGER NOT NULL)';
+                $sql = 'CREATE TABLE IF NOT EXISTS noxlogic_database_cache (id VARCHAR(256) NOT NULL PRIMARY KEY, period INTEGER NOT NULL, info VARCHAR(255) NOT NULL, reset INTEGER NOT NULL)';
                 break;
             default:
                 throw new \DomainException(sprintf('Creating the database cache table is currently not implemented for PDO driver "%s".', $this->driver));
@@ -222,12 +238,14 @@ class PdoHandler extends PdoSessionHandler
      */
     private function commit()
     {
+
         if ($this->inTransaction) {
             try {
                 // commit read-write transaction which also releases the lock
                 if ('sqlite' === $this->driver) {
                     $this->pdo->exec('COMMIT');
                 } else {
+                    $this->pdo->beginTransaction();
                     $this->pdo->commit();
                 }
                 $this->inTransaction = false;
@@ -273,7 +291,7 @@ class PdoHandler extends PdoSessionHandler
             $this->gcCalled = false;
 
             // delete the session records that have expired
-            $sql = "DELETE FROM $this->table WHERE $this->lifetimeCol + $this->timeCol < :time";
+            $sql = "DELETE FROM $this->table WHERE $this->periodCol + $this->resetCol < :time";
 
             $stmt = $this->pdo->prepare($sql);
             $stmt->bindValue(':time', time(), \PDO::PARAM_INT);
@@ -285,5 +303,260 @@ class PdoHandler extends PdoSessionHandler
         }
 
         return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function read($sessionId)
+    {
+        try {
+            return $this->doRead($sessionId);
+        } catch (\PDOException $e) {
+            $this->rollback();
+
+            throw $e;
+        }
+    }
+
+    /**
+     * Reads the session data in respect to the different locking strategies.
+     *
+     * We need to make sure we do not return session data that is already considered garbage according
+     * to the session.gc_maxlifetime setting because gc() is called after read() and only sometimes.
+     *
+     * @param string $sessionId Session ID
+     *
+     * @throws PDOException
+     *
+     * @return string The session data
+     */
+    private function doRead($sessionId)
+    {
+        $this->sessionExpired = false;
+
+        if (self::LOCK_ADVISORY === $this->lockMode) {
+            $this->unlockStatements[] = $this->doAdvisoryLock($sessionId);
+        }
+
+        $selectSql = $this->getSelectSql();
+        $selectStmt = $this->pdo->prepare($selectSql);
+        $selectStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+
+        do {
+            $selectStmt->execute();
+
+            $sessionRows = $selectStmt->fetchAll(\PDO::FETCH_NUM);
+
+            if ($sessionRows) {
+                if ($sessionRows[0][1] + $sessionRows[0][2] < time()) {
+                    $this->sessionExpired = true;
+
+                    return '';
+                }
+
+                return is_resource($sessionRows[0][0]) ? stream_get_contents($sessionRows[0][0]) : $sessionRows[0][0];
+            }
+
+            if (self::LOCK_TRANSACTIONAL === $this->lockMode && 'sqlite' !== $this->driver) {
+                // Exclusive-reading of non-existent rows does not block, so we need to do an insert to block
+                // until other connections to the session are committed.
+                try {
+                    $insertStmt = $this->pdo->prepare(
+                        "INSERT INTO $this->table ($this->idCol, $this->infoCol, $this->periodCol, $this->resetCol) VALUES (:id, :info, :period, :reset)"
+                    );
+
+                    $insertStmt->bindParam(':id', $sessionId, 2);
+                    $insertStmt->bindValue(':info', '', 3);
+                    $insertStmt->bindValue(':period', 0, 1);
+                    $insertStmt->bindValue(':reset', time(), 1);
+
+                    $insertStmt->execute();
+
+                } catch (\PDOException $e) {
+                    // Catch duplicate key error because other connection created the session already.
+                    // It would only not be the case when the other connection destroyed the session.
+                    if (0 === strpos($e->getCode(), '23')) {
+                        // Retrieve finished session data written by concurrent connection by restarting the loop.
+                        // We have to start a new transaction as a failed query will mark the current transaction as
+                        // aborted in PostgreSQL and disallow further queries within it.
+                        $this->rollback();
+                        $this->beginTransaction();
+                        continue;
+                    }
+
+                    throw $e;
+                }
+            }
+
+            return '';
+        } while (true);
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function gc($maxlifetime)
+    {
+        // We delay gc() to close() so that it is executed outside the transactional and blocking read-write process.
+        // This way, pruning expired sessions does not block them from being started while the current session is used.
+        $this->gcCalled = true;
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function destroy($sessionId)
+    {
+        // delete the record associated with this id
+        $sql = "DELETE FROM $this->table WHERE $this->idCol = :id";
+
+        try {
+            $stmt = $this->pdo->prepare($sql);
+            $stmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+            $stmt->execute();
+        } catch (\PDOException $e) {
+            $this->rollback();
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function write($sessionId, $data)
+    {
+        $maxlifetime = (int) ini_get('session.gc_maxlifetime');
+
+        try {
+            // We use a single MERGE SQL query when supported by the database.
+            $mergeStmt = $this->getMergeStatement($sessionId, $data, $maxlifetime);
+
+            if (null !== $mergeStmt) {
+
+                $mergeStmt->execute();
+
+                return true;
+            }
+
+            $updateStmt = $this->pdo->prepare(
+                "UPDATE $this->table SET $this->infoCol = :info, $this->periodCol = :period, $this->resetCol = :reset WHERE $this->idCol = :id"
+            );
+            $updateStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+            $updateStmt->bindParam(':info', $data, \PDO::PARAM_LOB);
+            $updateStmt->bindParam(':period', $maxlifetime, \PDO::PARAM_INT);
+            $updateStmt->bindValue(':reset', time(), \PDO::PARAM_INT);
+
+            $updateStmt->execute();
+
+            // When MERGE is not supported, like in Postgres < 9.5, we have to use this approach that can result in
+            // duplicate key errors when the same session is written simultaneously (given the LOCK_NONE behavior).
+            // We can just catch such an error and re-execute the update. This is similar to a serializable
+            // transaction with retry logic on serialization failures but without the overhead and without possible
+            // false positives due to longer gap locking.
+            if (!$updateStmt->rowCount()) {
+                try {
+                    $insertStmt = $this->pdo->prepare(
+                        "INSERT INTO $this->table ($this->idCol, $this->infoCol, $this->periodCol, $this->resetCol) VALUES (:id, :info, :period, :reset)"
+                    );
+                    $insertStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+                    $insertStmt->bindParam(':info', $data, \PDO::PARAM_LOB);
+                    $insertStmt->bindParam(':period', $maxlifetime, \PDO::PARAM_INT);
+                    $insertStmt->bindValue(':reset', time(), \PDO::PARAM_INT);
+                    $insertStmt->execute();
+                } catch (\PDOException $e) {
+                    // Handle integrity violation SQLSTATE 23000 (or a subclass like 23505 in Postgres) for duplicate keys
+                    if (0 === strpos($e->getCode(), '23')) {
+                        $updateStmt->execute();
+                    } else {
+                        throw $e;
+                    }
+                }
+            }
+        } catch (\PDOException $e) {
+            $this->rollback();
+
+            throw $e;
+        }
+
+        return true;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function open($savePath, $sessionName)
+    {
+        if (null === $this->pdo) {
+            $this->connect($this->dsn ?: $savePath);
+        }
+
+        return true;
+    }
+
+    /**
+     * Return a locking or nonlocking SQL query to read session information.
+     *
+     * @return string The SQL string
+     *
+     * @throws \DomainException When an unsupported PDO driver is used
+     */
+    private function getSelectSql()
+    {
+        if (self::LOCK_TRANSACTIONAL === $this->lockMode) {
+            $this->beginTransaction();
+
+            switch ($this->driver) {
+                case 'mysql':
+                case 'oci':
+                case 'pgsql':
+                    return "SELECT $this->infoCol, $this->periodCol, $this->resetCol FROM $this->table WHERE $this->idCol = :id FOR UPDATE";
+
+                default:
+                    throw new \DomainException(sprintf('Transactional locks are currently not implemented for PDO driver "%s".', $this->driver));
+            }
+        }
+
+        return "SELECT $this->infoCol, $this->periodCol, $this->resetCol FROM $this->table WHERE $this->idCol = :id";
+    }
+
+    /**
+     * Returns a merge/upsert (i.e. insert or update) statement when supported by the database for writing session data.
+     *
+     * @param string $sessionId   Session ID
+     * @param string $data        Encoded session data
+     * @param int    $maxlifetime session.gc_maxlifetime
+     *
+     * @return \PDOStatement|null The merge statement or null when not supported
+     */
+    private function getMergeStatement($sessionId, $data, $maxlifetime)
+    {
+        $mergeSql = null;
+        switch (true) {
+
+            case 'pgsql' === $this->driver && version_compare($this->pdo->getAttribute(\PDO::ATTR_SERVER_VERSION), '9.5', '>='):
+                $mergeSql = "INSERT INTO $this->table ($this->idCol, $this->infoCol, $this->periodCol, $this->resetCol) VALUES (:id, :info, :period, :reset) ".
+                    "ON CONFLICT ($this->idCol) DO UPDATE SET ($this->infoCol, $this->periodCol, $this->resetCol) = (EXCLUDED.$this->infoCol, EXCLUDED.$this->periodCol, EXCLUDED.$this->resetCol)";
+                break;
+        }
+
+        if (null !== $mergeSql) {
+            $mergeStmt = $this->pdo->prepare($mergeSql);
+
+            if ('pgsql' === $this->driver) {
+
+                $mergeStmt->bindParam(':id', $sessionId, \PDO::PARAM_STR);
+                $mergeStmt->bindParam(':info', $data, \PDO::PARAM_LOB);
+                $mergeStmt->bindParam(':period', $maxlifetime, \PDO::PARAM_INT);
+                $mergeStmt->bindValue(':reset', time(), \PDO::PARAM_INT);
+            }
+
+            return $mergeStmt;
+        }
     }
 }
