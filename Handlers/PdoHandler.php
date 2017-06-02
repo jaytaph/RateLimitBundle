@@ -2,7 +2,6 @@
 
 namespace Noxlogic\RateLimitBundle\Handlers;
 
-
 class PdoHandler implements \SessionHandlerInterface
 {
     /**
@@ -179,6 +178,7 @@ class PdoHandler implements \SessionHandlerInterface
             $this->pdo->rollBack();
             throw $e;
         }
+
     }
 
     public function fetch($key){
@@ -304,7 +304,6 @@ class PdoHandler implements \SessionHandlerInterface
 
         return true;
     }
-
 
     /**
      * {@inheritdoc}

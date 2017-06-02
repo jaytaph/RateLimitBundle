@@ -20,10 +20,8 @@ class Database implements StorageInterface
 
     public function getRateInfo($key) {
         $info = $this->client->fetch($key);
-
         if (!$info) {
             $this->client->writeToDB();
-
             return null;
         }
 
@@ -45,9 +43,7 @@ class Database implements StorageInterface
         }
 
         $info = json_decode($info, true);
-
         $info['calls']++;
-
         $this->client->save($key, json_encode($info));
 
         return $this->getRateInfo($key);
