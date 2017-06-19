@@ -29,16 +29,15 @@ class Memcache implements StorageInterface
 
     public function limitRate($key)
     {
-        $cas = null;
-        do {
-            $info = $this->client->get($key, null, $cas);
-            if (!$info) {
-                return false;
-            }
+        $info = $this->client->get($key);
+        if ($info == false || !isset($info['limit'])) {
+            return;
+        }
 
-            $info['calls']++;
-            $this->client->cas($cas, $key, $info);
-        } while ($this->client->getResultCode() != \Memcached::RES_SUCCESS);
+        $info['calls']++;
+        $expire = $info['reset'] - time();
+
+        $this->client->set($key, $info, $expire);
 
         return $this->getRateInfo($key);
     }
