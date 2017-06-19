@@ -45,6 +45,9 @@ class NoxlogicRateLimitExtension extends Extension
             case 'memcache':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Memcache');
                 break;
+            case 'beryllium_memcache':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\BerylliumMemcache');
+                break;
             case 'redis':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Redis');
                 break;
@@ -61,6 +64,12 @@ class NoxlogicRateLimitExtension extends Extension
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
                     new Reference('memcache.' . $config['memcache_client'])
+                );
+                break;
+            case 'beryllium_memcache':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference($config['beryllium_memcache_client'])
                 );
                 break;
             case 'redis':

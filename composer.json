@@ -1,13 +1,13 @@
 {
-    "name": "noxlogic/ratelimit-bundle",
+    "name": "aggayush/ratelimit-bundle",
     "description": "This bundle provides functionality to limit calls to actions based on rate limits",
     "keywords": [ "x-rate-limit", "api", "rest" ],
     "type": "symfony-bundle",
     "license": "MIT",
     "authors": [
         {
-            "name": "Joshua Thijssen",
-            "email": "jthijssen@noxlogic.nl"
+            "name": "Ayush Aggarwal",
+            "email": "agg.ayush234@gmail.com"
         }
     ],
     "require": {
@@ -21,10 +21,11 @@
         "snc/redis-bundle": "Use Redis as a storage engine.",
         "leaseweb/memcache-bundle": "Use Memcache as a storage engine.",
         "doctrine/doctrine-cache-bundle": "Use Doctrine Cache as a storage engine.",
-        "friendsofsymfony/oauth-server-bundle": "Throttle using OAuth access tokens."
+        "friendsofsymfony/oauth-server-bundle": "Throttle using OAuth access tokens.",
+        "Beryllium/CacheBundle": "Used Beryllium cache client"
     },
     "autoload": {
-        "psr-0": { "Noxlogic\\RateLimitBundle": "" }
+        "psr-0": { "aggayush\\RateLimitBundle": "" }
     },
-    "target-dir": "Noxlogic/RateLimitBundle"
+    "target-dir": "aggayush/RateLimitBundle"
 }
