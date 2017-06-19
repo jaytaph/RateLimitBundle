@@ -4,7 +4,7 @@ namespace Noxlogic\RateLimitBundle\Service\Storage;
 
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
-class Memcache implements StorageInterface
+class BerylliumMemcache implements StorageInterface
 {
 
     /** @var \Memcached */
@@ -29,16 +29,16 @@ class Memcache implements StorageInterface
 
     public function limitRate($key)
     {
-        $cas = null;
-        do {
-            $info = $this->client->get($key, null, $cas);
-            if (!$info) {
-                return false;
-            }
+        $info = $this->client->get($key);
+        if ($info === false || !array_key_exists('limit', $info)) {
+            return false;
+        }
 
-            $info['calls']++;
-            $this->client->cas($cas, $key, $info);
-        } while ($this->client->getResultCode() != \Memcached::RES_SUCCESS);
+        $info['calls']++;
+
+        $expire = $info['reset'] - time();
+
+        $this->client->set($key, $info, $expire);
 
         return $this->getRateInfo($key);
     }
