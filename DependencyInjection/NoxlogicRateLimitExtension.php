@@ -69,7 +69,7 @@ class NoxlogicRateLimitExtension extends Extension
             case 'beryllium_memcache':
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference($config['memcache_client'])
+                    new Reference($config['beryllium_memcache_client'])
                 );
                 break;
             case 'redis':

@@ -2,15 +2,14 @@
 
 namespace Noxlogic\RateLimitBundle\Service\Storage;
 
+use Beryllium\CacheBundle\Cache;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class BerylliumMemcache implements StorageInterface
 {
-
-    /** @var \Memcached */
     protected $client;
 
-    public function __construct(\Memcached $client)
+    public function __construct(Cache $client)
     {
         $this->client = $client;
     }
