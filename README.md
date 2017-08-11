@@ -76,7 +76,7 @@ If you want to use Memcache, you need to install `LswMemcacheBundle`
 
 ### Doctrine cache
 
-If you want to use Doctrine cache as your storage engine, you will need to install `DoctrineCacheBundle`:
+If you want to use Doctrine cache as your storage engine, you might want to install `DoctrineCacheBundle`:
 
 * https://github.com/doctrine/DoctrineCacheBundle
 
@@ -117,6 +117,10 @@ noxlogic_rate_limit:
 
     # The Doctrine Cache provider to use for the doctrine storage engine
     doctrine_provider:    null # Example: my_apc_cache
+    
+    # The Doctrine Cache service, use this if you dont use DoctrineCacheBundle and want to specify a service to use
+    # Should be an instance of \Doctrine\Common\Cache\Cache
+    doctrine_service:    null # Example: project.my_apc_cache
 
     # The HTTP status code to return when a client hits the rate limit
     rate_response_code:   429

@@ -73,9 +73,14 @@ class NoxlogicRateLimitExtension extends Extension
                 );
                 break;
             case 'doctrine':
+                if (isset($config['doctrine_provider'])) {
+                    $service = 'doctrine_cache.providers.' . $config['doctrine_provider'];
+                } else {
+                    $service = $config['doctrine_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('doctrine_cache.providers.' . $config['doctrine_provider'])
+                    new Reference($service)
                 );
                 break;
             case 'php_redis':
