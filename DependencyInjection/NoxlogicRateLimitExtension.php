@@ -77,13 +77,17 @@ class NoxlogicRateLimitExtension extends Extension
                 break;
         }
 
-        // Set the SecurityContext for Symfony < 2.6
-        // Replace with xml when < 2.6 is dropped.
-        if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
-            $tokenStorageReference = new Reference('security.token_storage');
+        if ($config['fos_oauth_key_listener']) {
+            // Set the SecurityContext for Symfony < 2.6
+            // Replace with xml when < 2.6 is dropped.
+            if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
+                $tokenStorageReference = new Reference('security.token_storage');
+            } else {
+                $tokenStorageReference = new Reference('security.context');
+            }
+            $container->getDefinition('noxlogic_rate_limit.oauth_key_generate_listener')->replaceArgument(0, $tokenStorageReference);
         } else {
-            $tokenStorageReference = new Reference('security.context');
+            $container->removeDefinition('noxlogic_rate_limit.oauth_key_generate_listener');
         }
-        $container->getDefinition('noxlogic_rate_limit.oauth_key_generate_listener')->replaceArgument(0, $tokenStorageReference);
     }
 }
