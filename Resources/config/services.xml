@@ -18,7 +18,6 @@
         </service>
 
         <service id="noxlogic_rate_limit.rate_limit_service" class="%noxlogic_rate_limit.rate_limit_service.class%">
-            <argument /> <!-- security.token_storage or security.context for Symfony <2.6 -->
             <call method="setStorage">
                 <argument type="service" id="noxlogic_rate_limit.storage" />
             </call>

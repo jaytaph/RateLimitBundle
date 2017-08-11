@@ -84,7 +84,6 @@ class NoxlogicRateLimitExtension extends Extension
         } else {
             $tokenStorageReference = new Reference('security.context');
         }
-        $container->getDefinition('noxlogic_rate_limit.rate_limit_service')->replaceArgument(0, $tokenStorageReference);
         $container->getDefinition('noxlogic_rate_limit.oauth_key_generate_listener')->replaceArgument(0, $tokenStorageReference);
     }
 }
