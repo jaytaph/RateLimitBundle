@@ -58,9 +58,14 @@ class NoxlogicRateLimitExtension extends Extension
 
         switch ($config['storage_engine']) {
             case 'memcache':
+                if (isset($config['memcache_client'])) {
+                    $service = 'memcache.' . $config['memcache_client'];
+                } else {
+                    $service = $config['memcache_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('memcache.' . $config['memcache_client'])
+                    new Reference($service)
                 );
                 break;
             case 'redis':

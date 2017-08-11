@@ -70,7 +70,7 @@ If you want to use Redis as your storage engine, you will need to install `SncRe
 
 ### Memcache
 
-If you want to use Memcache, you need to install `LswMemcacheBundle`
+If you want to use Memcache, you might want to install `LswMemcacheBundle`
 
 * https://github.com/LeaseWeb/LswMemcacheBundle
 
@@ -110,6 +110,10 @@ noxlogic_rate_limit:
 
     # The memcache client to use for the memcache storage engine
     memcache_client:      default
+    
+    # The Memcached service, use this if you dont use LswMemcacheBundle and want to specify a service to use
+    # Should be instance of \Memcached
+    memcache_service:    null # Example: project.memcached
 
     # The Doctrine Cache provider to use for the doctrine storage engine
     doctrine_provider:    null # Example: my_apc_cache
