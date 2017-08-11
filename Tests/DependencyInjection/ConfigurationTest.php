@@ -38,6 +38,7 @@ class ConfigurationTest extends WebTestCase
             'redis_client' => 'default_client',
             'php_redis_service' => null,
             'memcache_client' => 'default',
+            'memcache_service' => null,
             'doctrine_provider' => null,
             'doctrine_service' => null,
             'rate_response_code' => 429,
