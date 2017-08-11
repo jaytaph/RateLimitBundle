@@ -64,7 +64,7 @@ public function registerBundles()
 
 ### Redis
 
-If you want to use Redis as your storage engine, you will need to install `SncRedisBundle`:
+If you want to use Redis as your storage engine, you might want  to install `SncRedisBundle`:
 
 * https://github.com/snc/SncRedisBundle
 
@@ -108,6 +108,10 @@ noxlogic_rate_limit:
     # The redis client to use for the redis storage engine
     redis_client:         default_client
     
+    # The Redis service, use this if you dont use SncRedisBundle and want to specify a service to use
+    # Should be instance of \Predis\Client
+    redis_service:    null # Example: project.predis
+
     # The Redis client to use for the php_redis storage engine
     # Should be an instance of \Redis
     php_redis_service:    null # Example: project.redis

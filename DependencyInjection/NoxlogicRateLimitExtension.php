@@ -72,9 +72,14 @@ class NoxlogicRateLimitExtension extends Extension
                 );
                 break;
             case 'redis':
+                if (isset($config['redis_client'])) {
+                    $service = 'snc_redis.' . $config['redis_client'];
+                } else {
+                    $service = $config['redis_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('snc_redis.' . $config['redis_client'])
+                    new Reference($service)
                 );
                 break;
             case 'doctrine':
