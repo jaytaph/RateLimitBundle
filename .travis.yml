@@ -26,6 +26,12 @@ matrix:
           env: SYMFONY_VERSION=2.8.*
         - php: 5.6
           env: SYMFONY_VERSION=3.0.*
+        - php: 5.6
+          env: SYMFONY_VERSION=3.1.*
+        - php: 5.6
+          env: SYMFONY_VERSION=3.2.*
+        - php: 5.6
+          env: SYMFONY_VERSION=3.3.*
         - php: 7.0
           env: COMPOSER_FLAGS="--prefer-lowest"
         - php: 7.0
@@ -38,6 +44,12 @@ matrix:
           env: SYMFONY_VERSION=2.8.*
         - php: 7.0
           env: SYMFONY_VERSION=3.0.*
+        - php: 7.0
+          env: SYMFONY_VERSION=3.1.*
+        - php: 7.0
+          env: SYMFONY_VERSION=3.2.*
+        - php: 7.0
+          env: SYMFONY_VERSION=3.3.*
         - php: 7.1
           env: COMPOSER_FLAGS="--prefer-lowest"
         - php: 7.1
@@ -50,6 +62,12 @@ matrix:
           env: SYMFONY_VERSION=2.8.*
         - php: 7.1
           env: SYMFONY_VERSION=3.0.*
+        - php: 7.1
+          env: SYMFONY_VERSION=3.1.*
+        - php: 7.1
+          env: SYMFONY_VERSION=3.2.*
+        - php: 7.1
+          env: SYMFONY_VERSION=3.3.*
     allow_failures:
         - env: SYMFONY_VERSION=dev-master       
 
