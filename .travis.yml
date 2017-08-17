@@ -54,14 +54,13 @@ matrix:
         - env: SYMFONY_VERSION=dev-master       
 
 before_script:
-    - wget https://phar.phpunit.de/phpunit-4.8.9.phar
     - composer self-update
     - if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
     - composer require predis/predis:0.8.x --dev --no-update
     - composer require friendsofsymfony/oauth-server-bundle:1.5.x --dev --no-update
     - composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
 
-script: php phpunit-4.8.9.phar --coverage-text --coverage-clover=coverage.clover
+script: php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
 
 after_script:
   - wget https://scrutinizer-ci.com/ocular.phar
