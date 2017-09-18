@@ -141,6 +141,9 @@ noxlogic_rate_limit:
             - *
         limit:                ~ # Required
         period:               ~ # Required
+        
+    # - { path: /api, limit: 1000, period: 3600 }
+    # - { path: /dashboard, limit: 100, period: 3600, methods: ['GET', 'POST']}
 ```
 
 
