@@ -64,19 +64,19 @@ public function registerBundles()
 
 ### Redis
 
-If you want to use Redis as your storage engine, you will need to install `SncRedisBundle`:
+If you want to use Redis as your storage engine, you might want  to install `SncRedisBundle`:
 
 * https://github.com/snc/SncRedisBundle
 
 ### Memcache
 
-If you want to use Memcache, you need to install `LswMemcacheBundle`
+If you want to use Memcache, you might want to install `LswMemcacheBundle`
 
 * https://github.com/LeaseWeb/LswMemcacheBundle
 
 ### Doctrine cache
 
-If you want to use Doctrine cache as your storage engine, you will need to install `DoctrineCacheBundle`:
+If you want to use Doctrine cache as your storage engine, you might want to install `DoctrineCacheBundle`:
 
 * https://github.com/doctrine/DoctrineCacheBundle
 
@@ -107,12 +107,24 @@ noxlogic_rate_limit:
 
     # The redis client to use for the redis storage engine
     redis_client:         default_client
+    
+    # The Redis service, use this if you dont use SncRedisBundle and want to specify a service to use
+    # Should be instance of \Predis\Client
+    redis_service:    null # Example: project.predis
 
     # The memcache client to use for the memcache storage engine
     memcache_client:      default
+    
+    # The Memcached service, use this if you dont use LswMemcacheBundle and want to specify a service to use
+    # Should be instance of \Memcached
+    memcache_service:    null # Example: project.memcached
 
     # The Doctrine Cache provider to use for the doctrine storage engine
     doctrine_provider:    null # Example: my_apc_cache
+    
+    # The Doctrine Cache service, use this if you dont use DoctrineCacheBundle and want to specify a service to use
+    # Should be an instance of \Doctrine\Common\Cache\Cache
+    doctrine_service:    null # Example: project.my_apc_cache
 
     # The HTTP status code to return when a client hits the rate limit
     rate_response_code:   429
