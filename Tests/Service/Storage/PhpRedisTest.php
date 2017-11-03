@@ -52,11 +52,11 @@ class PhpRedisTest extends TestCase
 
     public function testLimitRateNoKey()
     {
-        $client = $this->getMock('\Redis', array('hexists'));
+        $client = $this->getMock('\Redis', array('hgetall'));
         $client->expects($this->once())
-              ->method('hexists')
-              ->with('foo', 'limit')
-              ->will($this->returnValue(false));
+              ->method('hgetall')
+              ->with('foo')
+              ->will($this->returnValue([]));
 
         $storage = new PhpRedis($client);
         $this->assertFalse($storage->limitRate('foo'));
@@ -64,15 +64,19 @@ class PhpRedisTest extends TestCase
 
     public function testLimitRateWithKey()
     {
-        $client = $this->getMock('\Redis', array('hexists', 'hincrby', 'hgetall'));
+        $client = $this->getMock('\Redis', array('hincrby', 'hgetall'));
         $client->expects($this->once())
-              ->method('hexists')
-              ->with('foo', 'limit')
-              ->will($this->returnValue(true));
+              ->method('hgetall')
+              ->with('foo')
+              ->will($this->returnValue([
+                  'limit' => 1,
+                  'calls' => 1,
+                  'reset' => 1,
+              ]));
         $client->expects($this->once())
               ->method('hincrby')
               ->with('foo', 'calls', 1)
-              ->will($this->returnValue(true));
+              ->will($this->returnValue(2));
 
         $storage = new PhpRedis($client);
         $storage->limitRate('foo');
