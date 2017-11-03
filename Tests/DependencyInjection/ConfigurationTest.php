@@ -37,6 +37,7 @@ class ConfigurationTest extends WebTestCase
             'storage_engine' => 'redis',
             'redis_client' => 'default_client',
             'redis_service' => null,
+            'php_redis_service' => null,
             'memcache_client' => 'default',
             'memcache_service' => null,
             'doctrine_provider' => null,
