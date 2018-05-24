@@ -1,3 +1,19 @@
+## 1.8.0
+2018-05-24
+Support for Symfony 4  
+
+2017-10-19 merk
+Force $methods to be an array 
+
+2017-08-17 odoucet
+Fix and improve Travis builds 
+
+2017-08-11 mcfedr
+- More efficient use of Redis
+- Option to disable fos listener 
+- Easy to use RateLimitBundle without extra bundles 
+- Add support for using a php redis client 
+
 ## 1.7.0
 2016-03-25  Joshua Thijsen <jthijssen@noxlogic.nl>
 	Fixed issue where manual reset did not correctly reset in redis
