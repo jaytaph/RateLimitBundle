@@ -75,7 +75,7 @@ class RateLimit extends ConfigurationAnnotation
      */
     public function setMethods($methods)
     {
-        $this->methods = $methods;
+        $this->methods = (array) $methods;
     }
 
     /**
