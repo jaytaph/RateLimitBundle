@@ -2,21 +2,22 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Service\Storage\PhpRedis;
 use Noxlogic\RateLimitBundle\Service\Storage\Redis;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
-class RedisTest extends TestCase
+class PhpRedisTest extends TestCase
 {
 
     function setUp() {
-        if (! class_exists('Predis\\Client')) {
-            $this->markTestSkipped('Predis client not installed');
+        if (! class_exists('\Redis')) {
+            $this->markTestSkipped('Php Redis client not installed');
         }
     }
 
     public function testgetRateInfo()
     {
-        $client = $this->getMockBuilder('Predis\\Client')
+        $client = $this->getMockBuilder('\Redis')
             ->setMethods(array('hgetall'))
             ->getMock();
         $client->expects($this->once())
@@ -24,7 +25,7 @@ class RedisTest extends TestCase
               ->with('foo')
               ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
 
-        $storage = new Redis($client);
+        $storage = new PhpRedis($client);
         $rli = $storage->getRateInfo('foo');
         $this->assertInstanceOf('Noxlogic\\RateLimitBundle\\Service\\RateLimitInfo', $rli);
         $this->assertEquals(100, $rli->getLimit());
@@ -34,7 +35,7 @@ class RedisTest extends TestCase
 
     public function testcreateRate()
     {
-        $client = $this->getMockBuilder('Predis\\Client')
+        $client = $this->getMockBuilder('\Redis')
             ->setMethods(array('hset', 'expire', 'hgetall'))
             ->getMock();
         $client->expects($this->once())
@@ -48,14 +49,14 @@ class RedisTest extends TestCase
                     array('foo', 'reset')
               );
 
-        $storage = new Redis($client);
+        $storage = new PhpRedis($client);
         $storage->createRate('foo', 100, 123);
     }
 
 
     public function testLimitRateNoKey()
     {
-        $client = $this->getMockBuilder('Predis\\Client')
+        $client = $this->getMockBuilder('\Redis')
             ->setMethods(array('hgetall'))
             ->getMock();
         $client->expects($this->once())
@@ -63,29 +64,29 @@ class RedisTest extends TestCase
               ->with('foo')
               ->will($this->returnValue([]));
 
-        $storage = new Redis($client);
+        $storage = new PhpRedis($client);
         $this->assertFalse($storage->limitRate('foo'));
     }
 
     public function testLimitRateWithKey()
     {
-        $client = $this->getMockBuilder('Predis\\Client')
-            ->setMethods(array('hexists', 'hincrby', 'hgetall'))
+        $client = $this->getMockBuilder('\Redis')
+            ->setMethods(array('hincrby', 'hgetall'))
             ->getMock();
         $client->expects($this->once())
-            ->method('hgetall')
-            ->with('foo')
-            ->will($this->returnValue([
-                'limit' => 1,
-                'calls' => 1,
-                'reset' => 1,
-            ]));
+              ->method('hgetall')
+              ->with('foo')
+              ->will($this->returnValue([
+                  'limit' => 1,
+                  'calls' => 1,
+                  'reset' => 1,
+              ]));
         $client->expects($this->once())
-            ->method('hincrby')
-            ->with('foo', 'calls', 1)
-            ->will($this->returnValue(2));
+              ->method('hincrby')
+              ->with('foo', 'calls', 1)
+              ->will($this->returnValue(2));
 
-        $storage = new Redis($client);
+        $storage = new PhpRedis($client);
         $storage->limitRate('foo');
     }
 
@@ -93,14 +94,14 @@ class RedisTest extends TestCase
 
     public function testresetRate()
     {
-        $client = $this->getMockBuilder('Predis\\Client')
+        $client = $this->getMockBuilder('\Redis')
             ->setMethods(array('del'))
             ->getMock();
         $client->expects($this->once())
               ->method('del')
               ->with('foo');
 
-        $storage = new Redis($client);
+        $storage = new PhpRedis($client);
         $this->assertTrue($storage->resetRate('foo'));
     }
 

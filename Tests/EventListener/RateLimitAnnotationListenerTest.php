@@ -40,6 +40,17 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
+    public function testReturnedWhenNotEnabled()
+    {
+        $listener = $this->createListener($this->never());
+        $listener->setParameter('enabled', false);
+
+        $event = $this->createEvent();
+
+        $listener->onKernelController($event);
+    }
+
+
     public function testReturnedWhenNotAMasterRequest()
     {
         $listener = $this->createListener($this->never());
@@ -53,7 +64,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     {
         $listener = $this->createListener($this->never());
 
-        $kernel = $this->getMock('Symfony\\Component\\HttpKernel\\HttpKernelInterface');
+        $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
         $request = new Request();
         $event = new FilterControllerEvent($kernel, function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
 
@@ -296,7 +307,7 @@ class RateLimitAnnotationListenerTest extends TestCase
      */
     protected function createEvent($type = HttpKernelInterface::MASTER_REQUEST, Request $request = null)
     {
-        $kernel = $this->getMock('Symfony\\Component\\HttpKernel\\HttpKernelInterface');
+        $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
 
         $controller = new MockController();
         $action = 'mockAction';
@@ -309,7 +320,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     protected function createListener($expects)
     {
-        $mockDispatcher = $this->getMock('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface');
+        $mockDispatcher = $this->getMockBuilder('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
         $mockDispatcher
             ->expects($expects)
             ->method('dispatch');

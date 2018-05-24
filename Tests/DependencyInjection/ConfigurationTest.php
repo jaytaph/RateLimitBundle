@@ -36,8 +36,12 @@ class ConfigurationTest extends WebTestCase
             'enabled' => true,
             'storage_engine' => 'redis',
             'redis_client' => 'default_client',
+            'redis_service' => null,
+            'php_redis_service' => null,
             'memcache_client' => 'default',
+            'memcache_service' => null,
             'doctrine_provider' => null,
+            'doctrine_service' => null,
             'rate_response_code' => 429,
             'rate_response_exception' => null,
             'rate_response_message' => 'You exceeded the rate limit',
@@ -47,7 +51,8 @@ class ConfigurationTest extends WebTestCase
                 'remaining' => 'X-RateLimit-Remaining',
                 'reset' => 'X-RateLimit-Reset',
             ),
-            'path_limits' => array()
+            'path_limits' => array(),
+            'fos_oauth_key_listener' => true
         ), $configuration);
     }
 

@@ -64,19 +64,19 @@ public function registerBundles()
 
 ### Redis
 
-If you want to use Redis as your storage engine, you will need to install `SncRedisBundle`:
+If you want to use Redis as your storage engine, you might want  to install `SncRedisBundle`:
 
 * https://github.com/snc/SncRedisBundle
 
 ### Memcache
 
-If you want to use Memcache, you need to install `LswMemcacheBundle`
+If you want to use Memcache, you might want to install `LswMemcacheBundle`
 
 * https://github.com/LeaseWeb/LswMemcacheBundle
 
 ### Doctrine cache
 
-If you want to use Doctrine cache as your storage engine, you will need to install `DoctrineCacheBundle`:
+If you want to use Doctrine cache as your storage engine, you might want to install `DoctrineCacheBundle`:
 
 * https://github.com/doctrine/DoctrineCacheBundle
 
@@ -103,16 +103,32 @@ noxlogic_rate_limit:
     enabled:              true
 
     # The storage engine where all the rates will be stored
-    storage_engine:       ~ # One of "redis"; "memcache"; "doctrine"
+    storage_engine:       ~ # One of "redis"; "memcache"; "doctrine"; "php_redis"
 
     # The redis client to use for the redis storage engine
     redis_client:         default_client
+    
+    # The Redis service, use this if you dont use SncRedisBundle and want to specify a service to use
+    # Should be instance of \Predis\Client
+    redis_service:    null # Example: project.predis
+
+    # The Redis client to use for the php_redis storage engine
+    # Should be an instance of \Redis
+    php_redis_service:    null # Example: project.redis
 
     # The memcache client to use for the memcache storage engine
     memcache_client:      default
+    
+    # The Memcached service, use this if you dont use LswMemcacheBundle and want to specify a service to use
+    # Should be instance of \Memcached
+    memcache_service:    null # Example: project.memcached
 
     # The Doctrine Cache provider to use for the doctrine storage engine
     doctrine_provider:    null # Example: my_apc_cache
+    
+    # The Doctrine Cache service, use this if you dont use DoctrineCacheBundle and want to specify a service to use
+    # Should be an instance of \Doctrine\Common\Cache\Cache
+    doctrine_service:    null # Example: project.my_apc_cache
 
     # The HTTP status code to return when a client hits the rate limit
     rate_response_code:   429
@@ -141,6 +157,12 @@ noxlogic_rate_limit:
             - *
         limit:                ~ # Required
         period:               ~ # Required
+        
+    # - { path: /api, limit: 1000, period: 3600 }
+    # - { path: /dashboard, limit: 100, period: 3600, methods: ['GET', 'POST']}
+
+    # Should the FOS OAuthServerBundle listener be enabled 
+    fos_oauth_key_listener: true
 ```
 
 

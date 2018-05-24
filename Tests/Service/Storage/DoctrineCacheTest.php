@@ -16,7 +16,9 @@ class DoctrineCacheTest extends TestCase
 
     public function testgetRateInfo()
     {
-        $client = $this->getMock('Doctrine\\Common\\Cache\\ArrayCache', array('fetch'));
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
+            ->setMethods(array('fetch'))
+            ->getMock();
         $client->expects($this->once())
             ->method('fetch')
             ->with('foo')
@@ -32,7 +34,9 @@ class DoctrineCacheTest extends TestCase
 
     public function testcreateRate()
     {
-        $client = $this->getMock('Doctrine\\Common\\Cache\\ArrayCache', array('save'));
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
+            ->setMethods(array('save'))
+            ->getMock();
         $client->expects($this->once())
             ->method('save');
 
@@ -43,7 +47,9 @@ class DoctrineCacheTest extends TestCase
 
     public function testLimitRateNoKey()
     {
-        $client = $this->getMock('Doctrine\\Common\\Cache\\ArrayCache', array('fetch'));
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
+            ->setMethods(array('fetch'))
+            ->getMock();
         $client->expects($this->once())
             ->method('fetch')
             ->with('foo')
@@ -55,7 +61,9 @@ class DoctrineCacheTest extends TestCase
 
     public function testLimitRateWithKey()
     {
-        $client = $this->getMock('Doctrine\\Common\\Cache\\ArrayCache', array('fetch', 'save'));
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
+            ->setMethods(array('fetch', 'save'))
+            ->getMock();
 
         $info['limit'] = 100;
         $info['calls'] = 50;
@@ -76,7 +84,9 @@ class DoctrineCacheTest extends TestCase
 
     public function testresetRate()
     {
-        $client = $this->getMock('Doctrine\\Common\\Cache\\ArrayCache', array('delete'));
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
+            ->setMethods(array('delete'))
+            ->getMock();
         $client->expects($this->once())
             ->method('delete')
             ->with('foo');

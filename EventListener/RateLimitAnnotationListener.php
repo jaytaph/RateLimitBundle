@@ -49,6 +49,11 @@ class RateLimitAnnotationListener extends BaseListener
      */
     public function onKernelController(FilterControllerEvent $event)
     {
+        // Skip if the bundle isn't enabled (for instance in test environment)
+        if( ! $this->getParameter('enabled', true)) {
+            return;
+        }
+
         // Skip if we aren't the main request
         if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
             return;
@@ -90,6 +95,12 @@ class RateLimitAnnotationListener extends BaseListener
         // Reset the rate limits
         if(time() >= $rateLimitInfo->getResetTimestamp()) {
             $this->rateLimitService->resetRate($key);
+            $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
+            if (! $rateLimitInfo) {
+                // @codeCoverageIgnoreStart
+                return;
+                // @codeCoverageIgnoreEnd
+            }
         }
 
         // When we exceeded our limit, return a custom error response
@@ -108,6 +119,7 @@ class RateLimitAnnotationListener extends BaseListener
                 return new Response($message, $code);
                 // @codeCoverageIgnoreEnd
             });
+            $event->stopPropagation();
         }
 
     }

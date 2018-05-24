@@ -1,18 +1,19 @@
 <?php
 
+
 namespace Noxlogic\RateLimitBundle\Service\Storage;
 
-use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
-use Predis\Client;
 
-class Redis implements StorageInterface
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
+
+class PhpRedis implements StorageInterface
 {
     /**
-     * @var \Predis\Client
-     */
+    * @var \Redis
+    */
     protected $client;
 
-    public function __construct(Client $client)
+    public function __construct(\Redis $client)
     {
         $this->client = $client;
     }

@@ -30,7 +30,7 @@ class RateLimitTest extends TestCase
         $annot = new RateLimit(array('methods' => 'POST', 'limit' => 1234, 'period' => 1000));
         $this->assertEquals(1234, $annot->getLimit());
         $this->assertEquals(1000, $annot->getPeriod());
-        $this->assertEquals('POST', $annot->getMethods());
+        $this->assertEquals(['POST'], $annot->getMethods());
     }
 
     public function testConstructionWithMethods()

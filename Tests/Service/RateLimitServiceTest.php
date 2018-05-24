@@ -14,7 +14,7 @@ class RateLimitServiceTest extends TestCase
 
     public function testSetStorage()
     {
-        $mockStorage = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface');
+        $mockStorage = $this->getMockBuilder('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface')->getMock();
 
         $service = new RateLimitService();
         $service->setStorage($mockStorage);
@@ -34,7 +34,7 @@ class RateLimitServiceTest extends TestCase
 
     public function testLimitRate()
     {
-        $mockStorage = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface');
+        $mockStorage = $this->getMockBuilder('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface')->getMock();
         $mockStorage
             ->expects($this->once())
             ->method('limitRate')
@@ -47,7 +47,7 @@ class RateLimitServiceTest extends TestCase
 
     public function testcreateRate()
     {
-        $mockStorage = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface');
+        $mockStorage = $this->getMockBuilder('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface')->getMock();
         $mockStorage
             ->expects($this->once())
             ->method('createRate')
@@ -60,7 +60,7 @@ class RateLimitServiceTest extends TestCase
 
     public function testResetRate()
     {
-        $mockStorage = $this->getMock('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface');
+        $mockStorage = $this->getMockBuilder('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface')->getMock();
         $mockStorage
             ->expects($this->once())
             ->method('resetRate')

@@ -2,11 +2,11 @@
 
 namespace Noxlogic\RateLimitBundle\DependencyInjection;
 
-use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\Config\FileLocator;
-use Symfony\Component\HttpKernel\DependencyInjection\Extension;
+use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\Loader;
 use Symfony\Component\DependencyInjection\Reference;
+use Symfony\Component\HttpKernel\DependencyInjection\Extension;
 
 /**
  * This is the class that loads and manages your bundle configuration
@@ -22,14 +22,14 @@ class NoxlogicRateLimitExtension extends Extension
     {
         $configuration = new Configuration();
         $config = $this->processConfiguration($configuration, $configs);
+        $this->loadServices($container, $config);
 
-        if ($config['enabled'] === true) {
-            $this->loadServices($container, $config);
-        }
     }
 
     private function loadServices(ContainerBuilder $container, array $config)
     {
+        $container->setParameter('noxlogic_rate_limit.enabled', $config['enabled']);
+
         $container->setParameter('noxlogic_rate_limit.rate_response_exception', $config['rate_response_exception']);
         $container->setParameter('noxlogic_rate_limit.rate_response_code', $config['rate_response_code']);
         $container->setParameter('noxlogic_rate_limit.rate_response_message', $config['rate_response_message']);
@@ -51,40 +51,67 @@ class NoxlogicRateLimitExtension extends Extension
             case 'doctrine':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache');
                 break;
+            case 'php_redis';
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PhpRedis');
+                break;
         }
 
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__.'/../Resources/config'));
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
         $loader->load('services.xml');
 
         switch ($config['storage_engine']) {
             case 'memcache':
+                if (isset($config['memcache_client'])) {
+                    $service = 'memcache.' . $config['memcache_client'];
+                } else {
+                    $service = $config['memcache_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('memcache.' . $config['memcache_client'])
+                    new Reference($service)
                 );
                 break;
             case 'redis':
+                if (isset($config['redis_client'])) {
+                    $service = 'snc_redis.' . $config['redis_client'];
+                } else {
+                    $service = $config['redis_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('snc_redis.' . $config['redis_client'])
+                    new Reference($service)
                 );
                 break;
             case 'doctrine':
+                if (isset($config['doctrine_provider'])) {
+                    $service = 'doctrine_cache.providers.' . $config['doctrine_provider'];
+                } else {
+                    $service = $config['doctrine_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('doctrine_cache.providers.' . $config['doctrine_provider'])
+                    new Reference($service)
+                );
+                break;
+            case 'php_redis':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference($config['php_redis_service'])
                 );
                 break;
         }
 
-        // Set the SecurityContext for Symfony < 2.6
-        // Replace with xml when < 2.6 is dropped.
-        if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
-            $tokenStorageReference = new Reference('security.token_storage');
+        if ($config['fos_oauth_key_listener']) {
+            // Set the SecurityContext for Symfony < 2.6
+            // Replace with xml when < 2.6 is dropped.
+            if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
+                $tokenStorageReference = new Reference('security.token_storage');
+            } else {
+                $tokenStorageReference = new Reference('security.context');
+            }
+            $container->getDefinition('noxlogic_rate_limit.oauth_key_generate_listener')->replaceArgument(0, $tokenStorageReference);
         } else {
-            $tokenStorageReference = new Reference('security.context');
+            $container->removeDefinition('noxlogic_rate_limit.oauth_key_generate_listener');
         }
-        $container->getDefinition('noxlogic_rate_limit.rate_limit_service')->replaceArgument(0, $tokenStorageReference);
-        $container->getDefinition('noxlogic_rate_limit.oauth_key_generate_listener')->replaceArgument(0, $tokenStorageReference);
     }
 }

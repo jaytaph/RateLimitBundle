@@ -16,9 +16,9 @@ class OauthKeyGenerateListenerTest extends TestCase
             $this->markTestSkipped('FOSOAuth bundle is not found');
         }
         if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
-            $this->mockContext = $this->getMock('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface');
+            $this->mockContext = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')->getMock();
         } else {
-            $this->mockContext = $this->getMock('Symfony\Component\Security\Core\SecurityContextInterface');
+            $this->mockContext = $this->getMockBuilder('Symfony\Component\Security\Core\SecurityContextInterface')->getMock();
         }
     }
 
@@ -59,7 +59,7 @@ class OauthKeyGenerateListenerTest extends TestCase
 
     private function createMockToken()
     {
-        $oauthToken = $this->getMock('FOS\\OAuthServerBundle\\Security\\Authentication\\Token\\OAuthToken');
+        $oauthToken = $this->getMockBuilder('FOS\\OAuthServerBundle\\Security\\Authentication\\Token\\OAuthToken')->getMock();
         $oauthToken
             ->expects($this->any())
             ->method('getToken')
