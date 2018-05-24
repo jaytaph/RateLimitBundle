@@ -16,7 +16,9 @@ class MemcacheTest extends TestCase
 
     public function testgetRateInfo()
     {
-        $client = @$this->getMock('\\Memcached', array('get'));
+        $client = @$this->getMockBuilder('\\Memcached')
+            ->setMethods(array('get'))
+            ->getMock();
         $client->expects($this->once())
               ->method('get')
               ->with('foo')
@@ -32,7 +34,9 @@ class MemcacheTest extends TestCase
 
     public function testcreateRate()
     {
-        $client = @$this->getMock('\\Memcached', array('set', 'get'));
+        $client = @$this->getMockBuilder('\\Memcached')
+            ->setMethods(array('set', 'get'))
+            ->getMock();
         $client->expects($this->exactly(1))
               ->method('set');
 
@@ -43,7 +47,9 @@ class MemcacheTest extends TestCase
 
     public function testLimitRateNoKey()
     {
-        $client = @$this->getMock('\\Memcached', array('get','cas','getResultCode'));
+        $client = @$this->getMockBuilder('\\Memcached')
+            ->setMethods(array('get','cas','getResultCode'))
+            ->getMock();
         $client->expects($this->any())
                 ->method('getResultCode')
                 ->willReturn(\Memcached::RES_SUCCESS);
@@ -62,7 +68,9 @@ class MemcacheTest extends TestCase
 
     public function testLimitRateWithKey()
     {
-        $client = @$this->getMock('\\Memcached', array('get','cas','getResultCode'));
+        $client = @$this->getMockBuilder('\\Memcached')
+            ->setMethods(array('get','cas','getResultCode'))
+            ->getMock();
         $client->expects($this->any())
                 ->method('getResultCode')
                 ->willReturn(\Memcached::RES_SUCCESS);
@@ -77,7 +85,9 @@ class MemcacheTest extends TestCase
 
     public function testresetRate()
     {
-        $client = @$this->getMock('\\Memcached', array('delete'));
+        $client = @$this->getMockBuilder('\\Memcached')
+            ->setMethods(array('delete'))
+            ->getMock();
         $client->expects($this->once())
               ->method('delete')
               ->with('foo');

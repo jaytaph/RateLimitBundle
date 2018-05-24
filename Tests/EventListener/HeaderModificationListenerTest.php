@@ -140,7 +140,7 @@ class HeaderModificationListenerTest extends TestCase
      */
     protected function createEvent()
     {
-        $kernel = $this->getMock('Symfony\\Component\\HttpKernel\\HttpKernelInterface');
+        $kernel = $this->createMock('Symfony\\Component\\HttpKernel\\HttpKernelInterface');
 
         $request = new Request();
         $response = new Response();
