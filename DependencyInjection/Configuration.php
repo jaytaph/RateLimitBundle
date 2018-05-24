@@ -107,6 +107,10 @@ class Configuration implements ConfigurationInterface
                         ->end()
                     ->end()
                 ->end()
+                ->booleanNode('fos_oauth_key_listener')
+                    ->defaultTrue()
+                    ->info('Enabled the FOS OAuthServerBundle listener')
+                ->end()
             ->end()
         ;
 

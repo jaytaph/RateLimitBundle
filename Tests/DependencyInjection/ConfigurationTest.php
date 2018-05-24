@@ -48,7 +48,8 @@ class ConfigurationTest extends WebTestCase
                 'remaining' => 'X-RateLimit-Remaining',
                 'reset' => 'X-RateLimit-Reset',
             ),
-            'path_limits' => array()
+            'path_limits' => array(),
+            'fos_oauth_key_listener' => true
         ), $configuration);
     }
 
