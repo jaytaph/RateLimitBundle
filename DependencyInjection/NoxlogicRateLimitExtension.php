@@ -61,21 +61,36 @@ class NoxlogicRateLimitExtension extends Extension
 
         switch ($config['storage_engine']) {
             case 'memcache':
+                if (isset($config['memcache_client'])) {
+                    $service = 'memcache.' . $config['memcache_client'];
+                } else {
+                    $service = $config['memcache_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('memcache.' . $config['memcache_client'])
+                    new Reference($service)
                 );
                 break;
             case 'redis':
+                if (isset($config['redis_client'])) {
+                    $service = 'snc_redis.' . $config['redis_client'];
+                } else {
+                    $service = $config['redis_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('snc_redis.' . $config['redis_client'])
+                    new Reference($service)
                 );
                 break;
             case 'doctrine':
+                if (isset($config['doctrine_provider'])) {
+                    $service = 'doctrine_cache.providers.' . $config['doctrine_provider'];
+                } else {
+                    $service = $config['doctrine_service'];
+                }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
-                    new Reference('doctrine_cache.providers.' . $config['doctrine_provider'])
+                    new Reference($service)
                 );
                 break;
             case 'php_redis':
