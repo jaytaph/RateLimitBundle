@@ -17,7 +17,9 @@ class PhpRedisTest extends TestCase
 
     public function testgetRateInfo()
     {
-        $client = $this->getMock('\Redis', array('hgetall'));
+        $client = $this->getMockBuilder('\Redis')
+            ->setMethods(array('hgetall'))
+            ->getMock();
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
@@ -33,7 +35,9 @@ class PhpRedisTest extends TestCase
 
     public function testcreateRate()
     {
-        $client = $this->getMock('\Redis', array('hset', 'expire', 'hgetall'));
+        $client = $this->getMockBuilder('\Redis')
+            ->setMethods(array('hset', 'expire', 'hgetall'))
+            ->getMock();
         $client->expects($this->once())
               ->method('expire')
               ->with('foo', 123);
@@ -52,7 +56,9 @@ class PhpRedisTest extends TestCase
 
     public function testLimitRateNoKey()
     {
-        $client = $this->getMock('\Redis', array('hgetall'));
+        $client = $this->getMockBuilder('\Redis')
+            ->setMethods(array('hgetall'))
+            ->getMock();
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
@@ -64,7 +70,9 @@ class PhpRedisTest extends TestCase
 
     public function testLimitRateWithKey()
     {
-        $client = $this->getMock('\Redis', array('hincrby', 'hgetall'));
+        $client = $this->getMockBuilder('\Redis')
+            ->setMethods(array('hincrby', 'hgetall'))
+            ->getMock();
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
@@ -86,7 +94,9 @@ class PhpRedisTest extends TestCase
 
     public function testresetRate()
     {
-        $client = $this->getMock('\Redis', array('del'));
+        $client = $this->getMockBuilder('\Redis')
+            ->setMethods(array('del'))
+            ->getMock();
         $client->expects($this->once())
               ->method('del')
               ->with('foo');

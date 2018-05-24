@@ -16,7 +16,9 @@ class RedisTest extends TestCase
 
     public function testgetRateInfo()
     {
-        $client = $this->getMock('Predis\\Client', array('hgetall'));
+        $client = $this->getMockBuilder('Predis\\Client')
+            ->setMethods(array('hgetall'))
+            ->getMock();
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
@@ -32,7 +34,9 @@ class RedisTest extends TestCase
 
     public function testcreateRate()
     {
-        $client = $this->getMock('Predis\\Client', array('hset', 'expire', 'hgetall'));
+        $client = $this->getMockBuilder('Predis\\Client')
+            ->setMethods(array('hset', 'expire', 'hgetall'))
+            ->getMock();
         $client->expects($this->once())
               ->method('expire')
               ->with('foo', 123);
@@ -51,7 +55,9 @@ class RedisTest extends TestCase
 
     public function testLimitRateNoKey()
     {
-        $client = $this->getMock('Predis\\Client', array('hgetall'));
+        $client = $this->getMockBuilder('Predis\\Client')
+            ->setMethods(array('hgetall'))
+            ->getMock();
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
@@ -63,7 +69,9 @@ class RedisTest extends TestCase
 
     public function testLimitRateWithKey()
     {
-        $client = $this->getMock('Predis\\Client', array('hexists', 'hincrby', 'hgetall'));
+        $client = $this->getMockBuilder('Predis\\Client')
+            ->setMethods(array('hexists', 'hincrby', 'hgetall'))
+            ->getMock();
         $client->expects($this->once())
             ->method('hgetall')
             ->with('foo')
@@ -85,7 +93,9 @@ class RedisTest extends TestCase
 
     public function testresetRate()
     {
-        $client = $this->getMock('Predis\\Client', array('del'));
+        $client = $this->getMockBuilder('Predis\\Client')
+            ->setMethods(array('del'))
+            ->getMock();
         $client->expects($this->once())
               ->method('del')
               ->with('foo');
