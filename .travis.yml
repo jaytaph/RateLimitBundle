@@ -87,12 +87,12 @@ matrix:
 
 before_install:
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-
+    - echo "memory_limit = 2048M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 before_script:
     - composer self-update
     - if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
     - composer require predis/predis:0.8.x --dev --no-update
-    - composer require friendsofsymfony/oauth-server-bundle:1.5.x --dev --no-update
+    - if [[ "$SYMFONY_VERSION" = "4."* ]]; then composer require friendsofsymfony/oauth-server-bundle:1.6.x --dev --no-update; else composer require friendsofsymfony/oauth-server-bundle:1.5.x --dev --no-update; fi
     - composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
 
 script: php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
