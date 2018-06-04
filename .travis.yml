@@ -87,7 +87,7 @@ matrix:
 
 before_install:
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
-
+    - echo "memory_limit = 2048M" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 before_script:
     - composer self-update
     - if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
