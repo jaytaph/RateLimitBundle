@@ -54,6 +54,9 @@ class NoxlogicRateLimitExtension extends Extension
             case 'php_redis';
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PhpRedis');
                 break;
+            case 'simple_cache':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\SimpleCache');
+                break;
         }
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
@@ -99,6 +102,11 @@ class NoxlogicRateLimitExtension extends Extension
                     new Reference($config['php_redis_service'])
                 );
                 break;
+            case 'simple_cache':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference($config['simple_cache_service'])
+                );
         }
 
         if ($config['fos_oauth_key_listener']) {
