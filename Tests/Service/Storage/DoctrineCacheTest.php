@@ -94,4 +94,13 @@ class DoctrineCacheTest extends TestCase
         $storage = new DoctrineCache($client);
         $this->assertTrue($storage->resetRate('foo'));
     }
+
+    public function testNoClient()
+    {
+        $storage = new DoctrineCache();
+        $this->assertFalse($storage->createRate('foo', 100, 123));
+        $this->assertFalse($storage->getRateInfo('foo'));
+        $this->assertFalse($storage->limitRate('foo'));
+        $this->assertFalse($storage->resetRate('foo'));
+    }
 } 

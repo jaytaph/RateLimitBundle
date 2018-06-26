@@ -13,13 +13,17 @@ class PhpRedis implements StorageInterface
     */
     protected $client;
 
-    public function __construct(\Redis $client)
+    public function __construct(\Redis $client = null)
     {
         $this->client = $client;
     }
 
     public function getRateInfo($key)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $info = $this->client->hgetall($key);
         if (!isset($info['limit']) || !isset($info['calls']) || !isset($info['reset'])) {
             return false;
@@ -35,6 +39,10 @@ class PhpRedis implements StorageInterface
 
     public function limitRate($key)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $info = $this->getRateInfo($key);
         if (!$info) {
             return false;
@@ -47,6 +55,10 @@ class PhpRedis implements StorageInterface
 
     public function createRate($key, $limit, $period)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $reset = time() + $period;
 
         $this->client->hset($key, 'limit', $limit);
@@ -64,6 +76,10 @@ class PhpRedis implements StorageInterface
 
     public function resetRate($key)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $this->client->del($key);
 
         return true;
