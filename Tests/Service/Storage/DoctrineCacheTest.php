@@ -8,16 +8,16 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class DoctrineCacheTest extends TestCase
 {
-    function setUp() {
-        if (! class_exists('Doctrine\\Common\\Cache\\ArrayCache')) {
+    function setUp()
+    {
+        if (!interface_exists('Doctrine\\Common\\Cache\\Cache')) {
             $this->markTestSkipped('Doctrine cache not installed');
         }
     }
 
-    public function testgetRateInfo()
+    public function testGetRateInfo()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
-            ->setMethods(array('fetch'))
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();
         $client->expects($this->once())
             ->method('fetch')
@@ -32,10 +32,9 @@ class DoctrineCacheTest extends TestCase
         $this->assertEquals(1234, $rli->getResetTimestamp());
     }
 
-    public function testcreateRate()
+    public function testCreateRate()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
-            ->setMethods(array('save'))
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();
         $client->expects($this->once())
             ->method('save');
@@ -47,8 +46,7 @@ class DoctrineCacheTest extends TestCase
 
     public function testLimitRateNoKey()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
-            ->setMethods(array('fetch'))
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();
         $client->expects($this->once())
             ->method('fetch')
@@ -61,15 +59,14 @@ class DoctrineCacheTest extends TestCase
 
     public function testLimitRateWithKey()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
-            ->setMethods(array('fetch', 'save'))
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();
 
         $info['limit'] = 100;
         $info['calls'] = 50;
         $info['reset'] = 1234;
 
-        $client->expects($this->exactly(2))
+        $client->expects($this->exactly(1))
             ->method('fetch')
             ->with('foo')
             ->will($this->returnValue($info));
@@ -82,10 +79,9 @@ class DoctrineCacheTest extends TestCase
 
 
 
-    public function testresetRate()
+    public function testResetRate()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
-            ->setMethods(array('delete'))
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();
         $client->expects($this->once())
             ->method('delete')
