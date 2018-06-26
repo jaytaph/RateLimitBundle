@@ -96,4 +96,13 @@ class MemcacheTest extends TestCase
         $this->assertTrue($storage->resetRate('foo'));
     }
 
+    public function testNoClient()
+    {
+        $storage = new Memcache();
+        $this->assertFalse($storage->createRate('foo', 100, 123));
+        $this->assertFalse($storage->getRateInfo('foo'));
+        $this->assertFalse($storage->limitRate('foo'));
+        $this->assertFalse($storage->resetRate('foo'));
+    }
+
 }

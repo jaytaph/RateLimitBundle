@@ -10,13 +10,17 @@ class Memcache implements StorageInterface
     /** @var \Memcached */
     protected $client;
 
-    public function __construct(\Memcached $client)
+    public function __construct(\Memcached $client = null)
     {
         $this->client = $client;
     }
 
     public function getRateInfo($key)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $info = $this->client->get($key);
 
         $rateLimitInfo = new RateLimitInfo();
@@ -29,6 +33,10 @@ class Memcache implements StorageInterface
 
     public function limitRate($key)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $cas = null;
         do {
             $info = $this->client->get($key, null, $cas);
@@ -45,6 +53,10 @@ class Memcache implements StorageInterface
 
     public function createRate($key, $limit, $period)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $info = array();
         $info['limit'] = $limit;
         $info['calls'] = 1;
@@ -57,6 +69,10 @@ class Memcache implements StorageInterface
 
     public function resetRate($key)
     {
+        if (!$this->client) {
+            return false;
+        }
+
         $this->client->delete($key);
         return true;
     }

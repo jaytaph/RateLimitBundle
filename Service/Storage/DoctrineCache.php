@@ -9,11 +9,15 @@ class DoctrineCache implements StorageInterface {
     /** @var \Doctrine\Common\Cache\Cache */
     protected $client;
 
-    public function __construct(Cache $client) {
+    public function __construct(Cache $client = null) {
         $this->client = $client;
     }
 
     public function getRateInfo($key) {
+        if (!$this->client) {
+            return false;
+        }
+
         $info = $this->client->fetch($key);
 
         $rateLimitInfo = new RateLimitInfo();
@@ -25,6 +29,10 @@ class DoctrineCache implements StorageInterface {
     }
 
     public function limitRate($key) {
+        if (!$this->client) {
+            return false;
+        }
+
         $info = $this->client->fetch($key);
         if ($info === false || !array_key_exists('limit', $info)) {
             return false;
@@ -40,6 +48,10 @@ class DoctrineCache implements StorageInterface {
     }
 
     public function createRate($key, $limit, $period) {
+        if (!$this->client) {
+            return false;
+        }
+
         $info          = array();
         $info['limit'] = $limit;
         $info['calls'] = 1;
@@ -51,6 +63,10 @@ class DoctrineCache implements StorageInterface {
     }
 
     public function resetRate($key) {
+        if (!$this->client) {
+            return false;
+        }
+
         $this->client->delete($key);
         return true;
     }

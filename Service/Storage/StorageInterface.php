@@ -10,7 +10,7 @@ interface StorageInterface
      * Get information about the current rate
      *
      * @param  string        $key
-     * @return RateLimitInfo Rate limit information
+     * @return RateLimitInfo|bool Rate limit information or false on error
      */
     public function getRateInfo($key);
 
@@ -18,7 +18,7 @@ interface StorageInterface
      * Limit the rate by one
      *
      * @param  string        $key
-     * @return RateLimitInfo Rate limit info
+     * @return RateLimitInfo|bool Rate limit info or false on error
      */
     public function limitRate($key);
 
@@ -28,6 +28,8 @@ interface StorageInterface
      * @param  string        $key
      * @param  integer       $limit
      * @param  integer       $period
+     *
+     * @return RateLimitInfo|bool Rate limit info or false on error
      */
     public function createRate($key, $limit, $period);
 
@@ -35,6 +37,8 @@ interface StorageInterface
      * Reset the rating
      *
      * @param $key
+     *
+     * @return bool false on error
      */
     public function resetRate($key);
 }
