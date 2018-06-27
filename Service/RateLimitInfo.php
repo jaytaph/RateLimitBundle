@@ -9,6 +9,11 @@ class RateLimitInfo
     protected $resetTimestamp;
 
     /**
+     * @var bool
+     */
+    protected $blocked = false;
+
+    /**
      * @return mixed
      */
     public function getLimit()
@@ -54,5 +59,25 @@ class RateLimitInfo
     public function setResetTimestamp($resetTimestamp)
     {
         $this->resetTimestamp = $resetTimestamp;
+    }
+
+    /**
+     * Return true if the action is blocked
+     *
+     * @return bool
+     */
+    public function isBlocked()
+    {
+        return $this->blocked;
+    }
+
+    /**
+     * Set block the action
+     *
+     * @param bool $blocked
+     */
+    public function setBlocked($blocked)
+    {
+        $this->blocked = $blocked;
     }
 }

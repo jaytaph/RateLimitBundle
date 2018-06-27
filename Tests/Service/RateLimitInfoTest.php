@@ -23,6 +23,11 @@ class RateLimitInfoTest extends TestCase
 
         $rateInfo->setResetTimestamp(100000);
         $this->assertEquals(100000, $rateInfo->getResetTimestamp());
+
+        $this->assertFalse($rateInfo->isBlocked());
+
+        $rateInfo->setBlocked(true);
+        $this->assertTrue($rateInfo->isBlocked());
     }
 
 }
