@@ -28,6 +28,9 @@ class RateLimitInfoTest extends TestCase
 
         $rateInfo->setBlocked(true);
         $this->assertTrue($rateInfo->isBlocked());
+
+        $rateInfo->setKey('test');
+        $this->assertEquals('test', $rateInfo->getKey());
     }
 
 }
