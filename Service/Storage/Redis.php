@@ -28,6 +28,7 @@ class Redis implements StorageInterface
         $rateLimitInfo->setLimit($info['limit']);
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
+        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
 
         return $rateLimitInfo;
     }
@@ -51,12 +52,14 @@ class Redis implements StorageInterface
         $this->client->hset($key, 'limit', $limit);
         $this->client->hset($key, 'calls', 1);
         $this->client->hset($key, 'reset', $reset);
+        $this->client->hset($key, 'blocked', 0);
         $this->client->expire($key, $period);
 
         $rateLimitInfo = new RateLimitInfo();
         $rateLimitInfo->setLimit($limit);
         $rateLimitInfo->setCalls(1);
         $rateLimitInfo->setResetTimestamp($reset);
+        $rateLimitInfo->setBlocked(false);
 
         return $rateLimitInfo;
     }
@@ -74,8 +77,10 @@ class Redis implements StorageInterface
     public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock)
     {
         $resetTimestamp = time() + $periodBlock;
-        $this->client->hset($rateLimitInfo->getKey(), 'blocked', 1);
+        $this->client->hset($rateLimitInfo->getKey(), 'limit', $rateLimitInfo->getLimit());
+        $this->client->hset($rateLimitInfo->getKey(), 'calls', $rateLimitInfo->getCalls());
         $this->client->hset($rateLimitInfo->getKey(), 'reset', $resetTimestamp);
+        $this->client->hset($rateLimitInfo->getKey(), 'blocked', 1);
         $this->client->expire($rateLimitInfo->getKey(), $periodBlock);
 
         $rateLimitInfo->setBlocked(true);

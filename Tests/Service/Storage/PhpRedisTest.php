@@ -24,7 +24,7 @@ class PhpRedisTest extends TestCase
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
-              ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
+              ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234, 'blocked' => 1)));
 
         $storage = new PhpRedis($client);
         $rli = $storage->getRateInfo('foo');
@@ -32,6 +32,7 @@ class PhpRedisTest extends TestCase
         $this->assertEquals(100, $rli->getLimit());
         $this->assertEquals(50, $rli->getCalls());
         $this->assertEquals(1234, $rli->getResetTimestamp());
+        $this->assertTrue($rli->isBlocked());
     }
 
     public function testcreateRate()
@@ -42,12 +43,13 @@ class PhpRedisTest extends TestCase
         $client->expects($this->once())
               ->method('expire')
               ->with('foo', 123);
-        $client->expects($this->exactly(3))
+        $client->expects($this->exactly(4))
               ->method('hset')
               ->withConsecutive(
                     array('foo', 'limit', 100),
                     array('foo', 'calls', 1),
-                    array('foo', 'reset')
+                    array('foo', 'reset'),
+                    array('foo', 'blocked', 0)
               );
 
         $storage = new PhpRedis($client);
@@ -111,11 +113,13 @@ class PhpRedisTest extends TestCase
         $client = $this->getMockBuilder('\Redis')
                        ->setMethods(array('hset', 'expire'))
                        ->getMock();
-        $client->expects(self::exactly(2))
+        $client->expects(self::exactly(4))
                ->method('hset')
                ->withConsecutive(
-                   array('foo', 'blocked', 1),
-                   array('foo', 'reset', time() + 100)
+                   array('foo', 'limit', 2),
+                   array('foo', 'calls', 1),
+                   array('foo', 'reset', time() + 100),
+                   array('foo', 'blocked', 1)
                );
         $client->expects(self::once())
                ->method('expire')
@@ -124,6 +128,8 @@ class PhpRedisTest extends TestCase
         $rateLimitInfo = new RateLimitInfo();
         $rateLimitInfo->setKey('foo');
         $rateLimitInfo->setResetTimestamp(10);
+        $rateLimitInfo->setLimit(2);
+        $rateLimitInfo->setCalls(1);
 
         $storage = new PhpRedis($client);
         self::assertTrue($storage->setBlock($rateLimitInfo, 100));

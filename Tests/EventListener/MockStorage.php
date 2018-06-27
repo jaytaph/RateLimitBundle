@@ -23,6 +23,8 @@ class MockStorage implements StorageInterface
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
         $rateLimitInfo->setLimit($info['limit']);
+        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
+
         return $rateLimitInfo;
     }
 

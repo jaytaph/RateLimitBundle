@@ -23,7 +23,7 @@ class DoctrineCacheTest extends TestCase
         $client->expects($this->once())
             ->method('fetch')
             ->with('foo')
-            ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
+            ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234, 'blocked' => 1)));
 
         $storage = new DoctrineCache($client);
         $rli = $storage->getRateInfo('foo');
@@ -31,6 +31,7 @@ class DoctrineCacheTest extends TestCase
         $this->assertEquals(100, $rli->getLimit());
         $this->assertEquals(50, $rli->getCalls());
         $this->assertEquals(1234, $rli->getResetTimestamp());
+        $this->assertTrue($rli->isBlocked());
     }
 
     public function testcreateRate()

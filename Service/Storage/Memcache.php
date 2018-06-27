@@ -23,6 +23,7 @@ class Memcache implements StorageInterface
         $rateLimitInfo->setLimit($info['limit']);
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
+        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
 
         return $rateLimitInfo;
     }
@@ -49,6 +50,7 @@ class Memcache implements StorageInterface
         $info['limit'] = $limit;
         $info['calls'] = 1;
         $info['reset'] = time() + $period;
+        $info['blocked'] = 0;
 
         $this->client->set($key, $info, $period);
 
