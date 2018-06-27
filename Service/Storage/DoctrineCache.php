@@ -6,25 +6,29 @@ use Doctrine\Common\Cache\Cache;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class DoctrineCache implements StorageInterface {
-    /** @var \Doctrine\Common\Cache\Cache */
+
+    /**
+     * @var \Doctrine\Common\Cache\Cache
+     */
     protected $client;
 
-    public function __construct(Cache $client) {
+    public function __construct(Cache $client)
+    {
         $this->client = $client;
     }
 
-    public function getRateInfo($key) {
+    public function getRateInfo($key)
+    {
         $info = $this->client->fetch($key);
+        if ($info === false || !array_key_exists('limit', $info)) {
+            return false;
+        }
 
-        $rateLimitInfo = new RateLimitInfo();
-        $rateLimitInfo->setLimit($info['limit']);
-        $rateLimitInfo->setCalls($info['calls']);
-        $rateLimitInfo->setResetTimestamp($info['reset']);
-
-        return $rateLimitInfo;
+        return $this->createRateInfo($info);
     }
 
-    public function limitRate($key) {
+    public function limitRate($key)
+    {
         $info = $this->client->fetch($key);
         if ($info === false || !array_key_exists('limit', $info)) {
             return false;
@@ -36,10 +40,11 @@ class DoctrineCache implements StorageInterface {
 
         $this->client->save($key, $info, $expire);
 
-        return $this->getRateInfo($key);
+        return $this->createRateInfo($info);
     }
 
-    public function createRate($key, $limit, $period) {
+    public function createRate($key, $limit, $period)
+    {
         $info          = array();
         $info['limit'] = $limit;
         $info['calls'] = 1;
@@ -47,11 +52,23 @@ class DoctrineCache implements StorageInterface {
 
         $this->client->save($key, $info, $period);
 
-        return $this->getRateInfo($key);
+        return $this->createRateInfo($info);
     }
 
-    public function resetRate($key) {
+    public function resetRate($key)
+    {
         $this->client->delete($key);
+
         return true;
+    }
+
+    private function createRateInfo(array $info)
+    {
+        $rateLimitInfo = new RateLimitInfo();
+        $rateLimitInfo->setLimit($info['limit']);
+        $rateLimitInfo->setCalls($info['calls']);
+        $rateLimitInfo->setResetTimestamp($info['reset']);
+
+        return $rateLimitInfo;
     }
 }
