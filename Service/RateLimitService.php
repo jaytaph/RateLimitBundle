@@ -54,4 +54,17 @@ class RateLimitService
     {
         return $this->storage->resetRate($key);
     }
+
+    /**
+     * Set block for the call
+     *
+     * @param RateLimitInfo $rateLimitInfo
+     * @param integer $blockPeriod
+     *
+     * @return bool
+     */
+    public function setBlock(RateLimitInfo $rateLimitInfo, $blockPeriod)
+    {
+        return $this->storage->setBlock($rateLimitInfo, $blockPeriod);
+    }
 }

@@ -70,4 +70,20 @@ class RateLimitServiceTest extends TestCase
         $service->setStorage($mockStorage);
         $service->resetRate('testkey');
     }
+
+    public function testSetBlock()
+    {
+        $mockStorage = $this->getMockBuilder('Noxlogic\\RateLimitBundle\\Service\\Storage\\StorageInterface')->getMock();
+
+        $rateLimitInfo = $this->createMock(RateLimitInfo::class);
+
+        $mockStorage
+            ->expects(self::once())
+            ->method('setBlock')
+            ->with($rateLimitInfo, 100);
+
+        $service = new RateLimitService();
+        $service->setStorage($mockStorage);
+        $service->setBlock($rateLimitInfo, 100);
+    }
 }
