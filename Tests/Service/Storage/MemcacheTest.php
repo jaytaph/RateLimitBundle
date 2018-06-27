@@ -8,13 +8,14 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 class MemcacheTest extends TestCase
 {
 
-    function setUp() {
-        if (! class_exists('\\MemCached')) {
+    function setUp()
+    {
+        if (!class_exists('\\MemCached')) {
             $this->markTestSkipped('MemCached extension not installed');
         }
     }
 
-    public function testgetRateInfo()
+    public function testGetRateInfo()
     {
         $client = @$this->getMockBuilder('\\Memcached')
             ->setMethods(array('get'))
@@ -32,7 +33,7 @@ class MemcacheTest extends TestCase
         $this->assertEquals(1234, $rli->getResetTimestamp());
     }
 
-    public function testcreateRate()
+    public function testCreateRate()
     {
         $client = @$this->getMockBuilder('\\Memcached')
             ->setMethods(array('set', 'get'))
@@ -57,7 +58,7 @@ class MemcacheTest extends TestCase
               ->method('get')
               ->with('foo')
               ->will($this->returnValue(array('limit' => 100, 'calls' => 1, 'reset' => 1234)));
-        $client->expects($this->atLeastOnce())
+        $client->expects($this->exactly(1))
               ->method('cas')
               ->with(null, 'foo')
               ->will($this->returnValue(true));
@@ -74,7 +75,7 @@ class MemcacheTest extends TestCase
         $client->expects($this->any())
                 ->method('getResultCode')
                 ->willReturn(\Memcached::RES_SUCCESS);
-        $client->expects($this->atLeastOnce())
+        $client->expects($this->exactly(1))
               ->method('get')
               ->with('foo')
               ->willReturn(false);
@@ -83,7 +84,7 @@ class MemcacheTest extends TestCase
         $storage->limitRate('foo');
     }
 
-    public function testresetRate()
+    public function testResetRate()
     {
         $client = @$this->getMockBuilder('\\Memcached')
             ->setMethods(array('delete'))
