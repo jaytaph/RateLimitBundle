@@ -1,3 +1,9 @@
+## 1.9.1
+2018-06-27 mcfedr
+- Optimisation for Memcached storage engine
+- Reduce likely hood of infinite loop in memcached storage
+- Memcached storage will silently fail in the same way other storages fail
+
 ## 1.9.0
 2018-06-27 mcfedr
 - Add Psr-16 Simple Cache storage engine
