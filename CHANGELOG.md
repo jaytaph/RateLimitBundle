@@ -1,12 +1,22 @@
-## 1.8.0
-2018-05-24
-Support for Symfony 4  
+## 1.9.0
+2018-06-27 mcfedr
+- Add Psr-16 Simple Cache storage engine
+- Optimisation for Doctrine Cache storage engine
+
+## 1.8.2
+2018-06-04 goetas
+- Fix Symfony 4 support by allowing newer versions of `framework-extra-bundle`
+- Fix travis tests as some just seem to fail
+
+## 1.8.1
+2018-05-24 mcfedr
+- Support for Symfony 4  
 
 2017-10-19 merk
-Force $methods to be an array 
+- Force $methods to be an array 
 
 2017-08-17 odoucet
-Fix and improve Travis builds 
+- Fix and improve Travis builds 
 
 2017-08-11 mcfedr
 - More efficient use of Redis
