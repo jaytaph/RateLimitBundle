@@ -30,6 +30,7 @@ class Memcache implements StorageInterface
     public function limitRate($key)
     {
         $cas = null;
+        $i = 0;
         do {
             $info = $this->client->get($key, null, $cas);
             if (!$info) {
@@ -38,7 +39,7 @@ class Memcache implements StorageInterface
 
             $info['calls']++;
             $this->client->cas($cas, $key, $info);
-        } while ($this->client->getResultCode() != \Memcached::RES_SUCCESS);
+        } while ($this->client->getResultCode() == \Memcached::RES_DATA_EXISTS && $i++ < 5);
 
         return $this->getRateInfo($key);
     }
