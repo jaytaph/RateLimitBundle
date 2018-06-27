@@ -1,3 +1,7 @@
+## 1.10.0
+2018-06-27 mcfedr
+- Add Psr-6 Cache storage engine
+
 ## 1.9.1
 2018-06-27 mcfedr
 - Optimisation for Memcached storage engine
