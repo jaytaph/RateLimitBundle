@@ -71,7 +71,8 @@ class ConfigurationTest extends WebTestCase
                 'path' => 'api/',
                 'methods' => array('GET'),
                 'limit' => 100,
-                'period' => 60
+                'period' => 60,
+                'block_period' => 120
             )
         );
 
@@ -90,13 +91,15 @@ class ConfigurationTest extends WebTestCase
                 'path' => 'api/',
                 'methods' => array('GET', 'POST'),
                 'limit' => 200,
-                'period' => 10
+                'period' => 10,
+                'block_period' => 20
             ),
             'api2' => array(
                 'path' => 'api2/',
                 'methods' => array('*'),
                 'limit' => 1000,
-                'period' => 15
+                'period' => 15,
+                'block_period' => 0
             )
         );
 
@@ -115,12 +118,14 @@ class ConfigurationTest extends WebTestCase
                 'path' => 'api/',
                 'methods' => array('GET', 'POST'),
                 'limit' => 200,
-                'period' => 10
+                'period' => 10,
+                'block_period' => 0
             ),
             'api2' => array(
                 'path' => 'api2/',
                 'limit' => 1000,
-                'period' => 15
+                'period' => 15,
+                'block_period' => 0,
             )
         );
 
