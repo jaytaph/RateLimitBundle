@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Service\Storage\PhpRedis;
 use Noxlogic\RateLimitBundle\Service\Storage\Redis;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
@@ -105,4 +106,28 @@ class PhpRedisTest extends TestCase
         $this->assertTrue($storage->resetRate('foo'));
     }
 
+    public function testSetBlock()
+    {
+        $client = $this->getMockBuilder('\Redis')
+                       ->setMethods(array('hset', 'expire'))
+                       ->getMock();
+        $client->expects(self::exactly(2))
+               ->method('hset')
+               ->withConsecutive(
+                   array('foo', 'blocked', 1),
+                   array('foo', 'reset', time() + 100)
+               );
+        $client->expects(self::once())
+               ->method('expire')
+               ->with('foo', 100);
+
+        $rateLimitInfo = new RateLimitInfo();
+        $rateLimitInfo->setKey('foo');
+        $rateLimitInfo->setResetTimestamp(10);
+
+        $storage = new PhpRedis($client);
+        self::assertTrue($storage->setBlock($rateLimitInfo, 100));
+        self::assertTrue($rateLimitInfo->isBlocked());
+        self::assertGreaterThan(10, $rateLimitInfo->getResetTimestamp());
+    }
 }

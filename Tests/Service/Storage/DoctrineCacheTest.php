@@ -3,6 +3,7 @@
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
 
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
@@ -93,5 +94,27 @@ class DoctrineCacheTest extends TestCase
 
         $storage = new DoctrineCache($client);
         $this->assertTrue($storage->resetRate('foo'));
+    }
+
+    public function testSetBlock()
+    {
+        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\ArrayCache')
+                       ->setMethods(array('save'))
+                       ->getMock();
+        $client->expects(self::once())
+               ->method('save')
+               ->with('foo', ['limit' => 5, 'calls' => 6, 'reset' => time() + 100, 'blocked' => 1,], 100)
+               ->willReturn(true);
+
+        $rateLimitInfo = new RateLimitInfo();
+        $rateLimitInfo->setKey('foo');
+        $rateLimitInfo->setResetTimestamp(10);
+        $rateLimitInfo->setLimit(5);
+        $rateLimitInfo->setCalls(6);
+
+        $storage = new DoctrineCache($client);
+        self::assertTrue($storage->setBlock($rateLimitInfo, 100));
+        self::assertTrue($rateLimitInfo->isBlocked());
+        self::assertGreaterThan(100, $rateLimitInfo->getResetTimestamp());
     }
 } 

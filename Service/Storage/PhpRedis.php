@@ -69,4 +69,19 @@ class PhpRedis implements StorageInterface
         return true;
     }
 
+    /**
+     * @inheritDoc
+     */
+    public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock)
+    {
+        $resetTimestamp = time() + $periodBlock;
+        $this->client->hset($rateLimitInfo->getKey(), 'blocked', 1);
+        $this->client->hset($rateLimitInfo->getKey(), 'reset', $resetTimestamp);
+        $this->client->expire($rateLimitInfo->getKey(), $periodBlock);
+
+        $rateLimitInfo->setBlocked(true);
+        $rateLimitInfo->setResetTimestamp($resetTimestamp);
+
+        return true;
+    }
 }

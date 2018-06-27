@@ -60,4 +60,28 @@ class Memcache implements StorageInterface
         $this->client->delete($key);
         return true;
     }
+
+    /**
+     * @inheritDoc
+     */
+    public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock)
+    {
+        $resetTimestamp = time() + $periodBlock;
+
+        $this->client->set(
+            $rateLimitInfo->getKey(),
+            [
+                'limit'   => $rateLimitInfo->getLimit(),
+                'calls'   => $rateLimitInfo->getCalls(),
+                'reset'   => $resetTimestamp,
+                'blocked' => 1,
+            ],
+            $periodBlock
+        );
+
+        $rateLimitInfo->setBlocked(true);
+        $rateLimitInfo->setResetTimestamp($resetTimestamp);
+
+        return true;
+    }
 }
