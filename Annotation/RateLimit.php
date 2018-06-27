@@ -27,6 +27,11 @@ class RateLimit extends ConfigurationAnnotation
     protected $period = 3600;
 
     /**
+     * @var int Amount of seconds when the calls aren't available
+     */
+    protected $blockPeriod = 0;
+
+    /**
      * Returns the alias name for an annotated configuration.
      *
      * @return string
@@ -92,5 +97,21 @@ class RateLimit extends ConfigurationAnnotation
     public function setPeriod($period)
     {
         $this->period = $period;
+    }
+
+    /**
+     * @return int
+     */
+    public function getBlockPeriod()
+    {
+        return $this->blockPeriod;
+    }
+
+    /**
+     * @param int $blockPeriod
+     */
+    public function setBlockPeriod($blockPeriod)
+    {
+        $this->blockPeriod = $blockPeriod;
     }
 }
