@@ -78,12 +78,11 @@ class MockStorage implements StorageInterface
     public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock)
     {
         $resetTimestamp = time() + $periodBlock;
-        $this->rates[$rateLimitInfo->getKey()] = array_merge(
-            $this->rates[$rateLimitInfo->getKey()],
-            array(
-                'reset'   => $resetTimestamp,
-                'blocked' => 1
-            )
+        $this->rates[$rateLimitInfo->getKey()] = array(
+            'calls'   => $rateLimitInfo->getCalls(),
+            'limit'   => $rateLimitInfo->getLimit(),
+            'reset'   => $resetTimestamp,
+            'blocked' => 1
         );
 
         $rateLimitInfo->setBlocked(1);
