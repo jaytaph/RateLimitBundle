@@ -57,6 +57,9 @@ class NoxlogicRateLimitExtension extends Extension
             case 'simple_cache':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\SimpleCache');
                 break;
+            case 'cache':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PsrCache');
+                break;
         }
 
         $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
@@ -107,6 +110,13 @@ class NoxlogicRateLimitExtension extends Extension
                     0,
                     new Reference($config['simple_cache_service'])
                 );
+                break;
+            case 'cache':
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference($config['cache_service'])
+                );
+                break;
         }
 
         if ($config['fos_oauth_key_listener']) {

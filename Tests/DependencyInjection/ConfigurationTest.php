@@ -43,6 +43,7 @@ class ConfigurationTest extends WebTestCase
             'doctrine_provider' => null,
             'doctrine_service' => null,
             'simple_cache_service' => null,
+            'cache_service' => null,
             'rate_response_code' => 429,
             'rate_response_exception' => null,
             'rate_response_message' => 'You exceeded the rate limit',
