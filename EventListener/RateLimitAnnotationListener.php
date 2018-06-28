@@ -3,6 +3,7 @@
 namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
+use Noxlogic\RateLimitBundle\Events\BlockEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
@@ -39,6 +40,7 @@ class RateLimitAnnotationListener extends BaseListener
         RateLimitService $rateLimitService,
         PathLimitProcessor $pathLimitProcessor
     ) {
+        //todo:use an event dispatcher passed into onKernelController
         $this->eventDispatcher = $eventDispatcher;
         $this->rateLimitService = $rateLimitService;
         $this->pathLimitProcessor = $pathLimitProcessor;
@@ -109,6 +111,7 @@ class RateLimitAnnotationListener extends BaseListener
                 $rateLimitInfo,
                 $rateLimit->getBlockPeriod() > 0 ? $rateLimit->getBlockPeriod() : $rateLimit->getPeriod()
             );
+            $this->eventDispatcher->dispatch(RateLimitEvents::AFTER_BLOCK, new BlockEvent($rateLimitInfo, $request));
         }
 
         if ($rateLimitInfo->isBlocked()) {
