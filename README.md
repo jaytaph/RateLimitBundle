@@ -29,7 +29,7 @@ Installation takes just few easy steps:
 If you're not yet familiar with Composer see http://getcomposer.org.
 Add the NoxlogicRateLimitBundle in your composer.json:
 
-```js
+```json
 {
     "require": {
         "noxlogic/ratelimit-bundle": "1.x"
@@ -157,8 +157,10 @@ noxlogic_rate_limit:
             - *
         limit:                ~ # Required
         period:               ~ # Required
+        block_period:         ~ # Optional
         
     # - { path: /api, limit: 1000, period: 3600 }
+    # - { path: /auth, limit: 1000, period: 3600, block_period: 7200 }
     # - { path: /dashboard, limit: 100, period: 3600, methods: ['GET', 'POST']}
 
     # Should the FOS OAuthServerBundle listener be enabled 
@@ -182,6 +184,27 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
  * @Route(...)
  *
  * @RateLimit(limit=1000, period=3600)
+ */
+public function someApiAction()
+{
+}
+```
+
+### Simple rate limit with custom block period
+
+To enable this feature, you should write `blockPeriod` into the annotation `RateLimit`. If `blockPeriod` is not set up
+its value will be equaled `period` parameter.
+
+```php
+<?php
+
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
+use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
+
+/**
+ * @Route(...)
+ *
+ * @RateLimit(limit=1000, period=3600, blockPeriod=7200)
  */
 public function someApiAction()
 {
