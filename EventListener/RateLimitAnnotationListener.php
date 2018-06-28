@@ -5,6 +5,7 @@ namespace Noxlogic\RateLimitBundle\EventListener;
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\Events\BlockEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
+use Noxlogic\RateLimitBundle\Events\GetResponseEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
@@ -121,11 +122,20 @@ class RateLimitAnnotationListener extends BaseListener
                 throw new $class($this->getParameter('rate_response_message'), $this->getParameter('rate_response_code'));
             }
 
-            $message = $this->getParameter('rate_response_message');
-            $code = $this->getParameter('rate_response_code');
-            $event->setController(function () use ($message, $code) {
+            $response = new Response(
+                $this->getParameter('rate_response_message'),
+                $this->getParameter('rate_response_code')
+            );
+
+            $eventResponse = new GetResponseEvent($request, $rateLimitInfo);
+            $this->eventDispatcher->dispatch(RateLimitEvents::RESPONSE_SENDING_BEFORE, $eventResponse);
+            if ($eventResponse->hasResponse()) {
+                $response = $eventResponse->getResponse();
+            }
+
+            $event->setController(function () use ($response) {
                 // @codeCoverageIgnoreStart
-                return new Response($message, $code);
+                return $response;
                 // @codeCoverageIgnoreEnd
             });
             $event->stopPropagation();

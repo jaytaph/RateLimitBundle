@@ -154,6 +154,9 @@ class RateLimitAnnotationListenerTest extends TestCase
             new RateLimit(array('limit' => 5, 'period' => 5)),
         ));
 
+        $listener->setParameter('rate_response_code', 200);
+        $listener->setParameter('rate_response_message', 'Test message');
+
         $listener->onKernelController($event);
         $this->assertInternalType('array', $event->getController());
         $listener->onKernelController($event);
@@ -180,6 +183,9 @@ class RateLimitAnnotationListenerTest extends TestCase
         $event->getRequest()->attributes->set('_x-rate-limit', array(
                 new RateLimit(array('limit' => 5, 'period' => 3)),
         ));
+
+        $listener->setParameter('rate_response_code', 200);
+        $listener->setParameter('rate_response_message', 'Test message');
 
         // Throttled
         $storage = $this->getMockStorage();
@@ -323,7 +329,8 @@ class RateLimitAnnotationListenerTest extends TestCase
         $mockDispatcher = $this->getMockBuilder('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
         $mockDispatcher
             ->expects($expects)
-            ->method('dispatch');
+            ->method('dispatch')
+        ;
 
         $rateLimitService = new RateLimitService();
         $rateLimitService->setStorage($this->getMockStorage());
