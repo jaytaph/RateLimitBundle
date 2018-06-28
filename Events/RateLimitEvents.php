@@ -12,7 +12,7 @@ final class RateLimitEvents
     /**
      * This event is dispatched after a block happened
      */
-    const AFTER_BLOCK = 'ratelimit.block.after';
+    const BLOCK_AFTER = 'ratelimit.block.after';
 
     /**
      * This event is dispatched before response is sent

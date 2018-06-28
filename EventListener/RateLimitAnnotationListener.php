@@ -112,7 +112,7 @@ class RateLimitAnnotationListener extends BaseListener
                 $rateLimitInfo,
                 $rateLimit->getBlockPeriod() > 0 ? $rateLimit->getBlockPeriod() : $rateLimit->getPeriod()
             );
-            $this->eventDispatcher->dispatch(RateLimitEvents::AFTER_BLOCK, new BlockEvent($rateLimitInfo, $request));
+            $this->eventDispatcher->dispatch(RateLimitEvents::BLOCK_AFTER, new BlockEvent($rateLimitInfo, $request));
         }
 
         if ($rateLimitInfo->isBlocked()) {
