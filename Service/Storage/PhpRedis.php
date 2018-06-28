@@ -30,6 +30,7 @@ class PhpRedis implements StorageInterface
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
         $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
+        $rateLimitInfo->setKey($key);
 
         return $rateLimitInfo;
     }
