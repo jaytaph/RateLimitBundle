@@ -18,6 +18,7 @@ This bundle is partially inspired by a GitHub gist from Ruud Kamphuis: https://g
 
  * Simple usage through annotations
  * Customize rates per controller, action and even per HTTP method
+ * Customize the period of a lock 
  * Multiple storage backends: Redis, Memcached and Doctrine cache
 
 ## Installation
@@ -259,6 +260,17 @@ class DefaultController extends Controller
 }
 ```
 
+## Events
+
+This bundle has several events. They are placed in
+[Noxlogic\RateLimitBundle\Events\RateLimitEvents](Events/RateLimitEvents.php)
+
+ * `ratelimit.generate.key`
+ * `ratelimit.block.after` you can do additional manipulations when a block happens, for example to register a block 
+ event in journal
+ * `ratelimit.response.sending.before` you can use this event for making your own response when somebody call a blocked
+ URL
+
 ## Create a custom key generator
 
 If you need to create a custom key generator, you need to register a listener to listen to the `ratelimit.generate.key` event:
@@ -292,12 +304,92 @@ class RateLimitGenerateKeyListener
 
 Make sure to generate a key based on what is rate limited in your controllers.
 
+## Creating custom response with `ratelimit.response.sending.before`
+
+```yaml
+services:
+    mybundle.listener.rate_limit_custom_response:
+        class: MyBundle\Listener\RateLimitResponseListener
+        tags:
+            - { name: kernel.event_listener, event: 'ratelimit.response.sending.before', method: 'onResponse' }
+```
+
+```php
+<?php
+
+namespace MyBundle\Listener;
+
+use Noxlogic\RateLimitBundle\Events\GetResponseEvent;
+use Symfony\Component\HttpFoundation\JsonResponse;
+
+class RateLimitResponseListener
+{
+    public function onResponse(GetResponseEvent $event)
+    {
+        $request = $event->getRequest();
+        $rateLimitInfo = $event->getRateLimitInfo();
+
+        $event->setResponse(new JsonResponse(
+            array(
+                "error" => sprintf("Access for URL %s deny", $request->getRequestUri()),
+                "block_period" => $rateLimitInfo->getResetTimestamp() - time() 
+            ), 
+            Response::HTTP_TOO_MANY_REQUESTS
+        ));
+    }
+}
+```
+
+## Logging a block into a journal
+
+You could do a lot of things with an event `ratelimit.block.after`. This event is dispatched just before a lock is set.
+For example below you could register every blocked URL in your security journal.
+
+```yaml
+services:
+    mybundle.listener.rate_limit_log_block:
+        class: MyBundle\Listener\RateLimitLogBlockListener
+        arguments: ["@my.service.journal"]
+        tags:
+            - { name: kernel.event_listener, event: 'ratelimit.block.after', method: 'onLog' }
+```
+
+```php
+<?php
+
+namespace MyBundle\Listener;
+
+use Noxlogic\RateLimitBundle\Events\BlockEvent;
+
+class RateLimitLogBlockListener
+{
+    /**
+     * @var object security journal 
+     */
+    private $journal;
+    
+    public function __construct($journal)
+    {
+        $this->journal = $journal;
+    }
+    
+    public function onLog(BlockEvent $event)
+    {
+        $message = sprintf(
+            "Somebody tries to make brute force on URL %s with login %s. They will be lock until %s", 
+            $event->getRequest()->getUri(), 
+            $event->getRequest()->request->get('login'),
+            date(\DateTime::ISO8601, $event->getRateLimitInfo()->getResetTimestamp())
+        );
+        $this->journal->log($message);
+    }
+}
+```
 
 ## Throwing exceptions
 
 Instead of returning a Response object when a rate limit has exceeded, it's also possible to throw an exception. This 
 allows you to easily handle the rate limit on another level, for instance by capturing the ``kernel.exception`` event. 
-
 
 ## Running tests
 
