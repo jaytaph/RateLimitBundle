@@ -93,7 +93,7 @@ class RateLimitAnnotationListener extends BaseListener
         $request->attributes->set('rate_limit_info', $rateLimitInfo);
 
         // Reset the rate limits
-        if(time() >= $rateLimitInfo->getResetTimestamp()) {
+        if(!$rateLimitInfo->isBlocked() && time() >= $rateLimitInfo->getResetTimestamp()) {
             $this->rateLimitService->resetRate($key);
             $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
             if (! $rateLimitInfo) {
@@ -104,8 +104,14 @@ class RateLimitAnnotationListener extends BaseListener
         }
 
         // When we exceeded our limit, return a custom error response
-        if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
+        if (!$rateLimitInfo->isBlocked() && $rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
+            $this->rateLimitService->setBlock(
+                $rateLimitInfo,
+                $rateLimit->getBlockPeriod() > 0 ? $rateLimit->getBlockPeriod() : $rateLimit->getPeriod()
+            );
+        }
 
+        if ($rateLimitInfo->isBlocked()) {
             // Throw an exception if configured.
             if ($this->getParameter('rate_response_exception')) {
                 $class = $this->getParameter('rate_response_exception');
