@@ -12,6 +12,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\Routing\Route;
 
 class RateLimitAnnotationListener extends BaseListener
 {
@@ -56,11 +57,6 @@ class RateLimitAnnotationListener extends BaseListener
 
         // Skip if we aren't the main request
         if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
-            return;
-        }
-
-        // Skip if we are a closure
-        if (! is_array($controller = $event->getController())) {
             return;
         }
 
@@ -155,21 +151,46 @@ class RateLimitAnnotationListener extends BaseListener
 
     private function getKey(FilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
     {
-        $request = $event->getRequest();
-        $controller = $event->getController();
-
-        $rateLimitMethods = join("", $rateLimit->getMethods());
-        $rateLimitAlias = count($annotations) === 0
-            ? $this->pathLimitProcessor->getMatchedPath($request)
-            : get_class($controller[0]) . ':' . $controller[1];
-
-        // Create an initial key by joining the methods and the alias
-        $key = $rateLimitMethods . ':' . $rateLimitAlias ;
-
         // Let listeners manipulate the key
-        $keyEvent = new GenerateKeyEvent($event->getRequest(), $key);
+        $keyEvent = new GenerateKeyEvent($event->getRequest());
+
+        $rateLimitMethods = join('.', $rateLimit->getMethods());
+        $keyEvent->addToKey($rateLimitMethods);
+
+        $rateLimitAlias = count($annotations) === 0
+            ? str_replace('/', '.', $this->pathLimitProcessor->getMatchedPath($event->getRequest()))
+            : $this->getAliasForRequest($event);
+        $keyEvent->addToKey($rateLimitAlias);
+
         $this->eventDispatcher->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
 
         return $keyEvent->getKey();
+    }
+
+    private function getAliasForRequest(FilterControllerEvent $event)
+    {
+        if (($route = $event->getRequest()->attributes->get('_route'))) {
+            return $route;
+        }
+
+        $controller = $event->getController();
+
+        if (is_string($controller) && false !== strpos($controller, '::')) {
+            $controller = explode('::', $controller);
+        }
+
+        if (is_array($controller)) {
+            return str_replace('\\', '.', is_string($controller[0]) ? $controller[0] : get_class($controller[0])) . '.' . $controller[1];
+        }
+
+        if ($controller instanceof \Closure) {
+            return 'closure';
+        }
+
+        if (is_object($controller)) {
+            return str_replace('\\', '.', get_class($controller[0]));
+        }
+
+        return 'other';
     }
 }

@@ -7,13 +7,6 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class PsrCacheTest extends TestCase
 {
-    function setUp()
-    {
-        if (!interface_exists('Psr\\Cache\\CacheItemPoolInterface')) {
-            $this->markTestSkipped('Psr cache not installed');
-        }
-    }
-
     public function testGetRateInfo()
     {
         $item = $this->getMockBuilder('Psr\\Cache\\CacheItemInterface')

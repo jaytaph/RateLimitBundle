@@ -18,7 +18,9 @@
         "phpunit/phpunit": "^4.8|^5.0",
         "psr/simple-cache": "^1.0",
         "doctrine/cache": "^1.5",
-        "psr/cache": "^1.0"
+        "psr/cache": "^1.0",
+        "predis/predis": "^0.8|^1.1",
+        "friendsofsymfony/oauth-server-bundle": "^1.5"
     },
     "suggest": {
         "snc/redis-bundle": "Use Redis as a storage engine.",

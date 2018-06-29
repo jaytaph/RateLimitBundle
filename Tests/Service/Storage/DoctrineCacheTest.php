@@ -8,13 +8,6 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class DoctrineCacheTest extends TestCase
 {
-    function setUp()
-    {
-        if (!interface_exists('Doctrine\\Common\\Cache\\Cache')) {
-            $this->markTestSkipped('Doctrine cache not installed');
-        }
-    }
-
     public function testGetRateInfo()
     {
         $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')

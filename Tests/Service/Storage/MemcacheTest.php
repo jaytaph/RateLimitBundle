@@ -7,8 +7,7 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class MemcacheTest extends TestCase
 {
-
-    function setUp()
+    public function setUp()
     {
         if (!class_exists('\\MemCached')) {
             $this->markTestSkipped('MemCached extension not installed');
