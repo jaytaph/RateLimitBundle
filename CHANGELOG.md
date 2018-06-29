@@ -1,3 +1,7 @@
+## 1.10.1
+2018-06-29 mcfedr
+- Change cache keys to be valid PSR-6 keys
+
 ## 1.10.0
 2018-06-27 mcfedr
 - Add Psr-6 Cache storage engine
