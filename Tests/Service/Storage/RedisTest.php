@@ -7,13 +7,6 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class RedisTest extends TestCase
 {
-
-    function setUp() {
-        if (! class_exists('Predis\\Client')) {
-            $this->markTestSkipped('Predis client not installed');
-        }
-    }
-
     public function testgetRateInfo()
     {
         $client = $this->getMockBuilder('Predis\\Client')
