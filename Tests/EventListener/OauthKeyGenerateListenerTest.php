@@ -37,10 +37,9 @@ class OauthKeyGenerateListenerTest extends TestCase
         $listener = new OauthKeyGenerateListener($mockContext);
         $listener->onGenerateKey($event);
 
-        $this->assertEquals('foo:mocktoken', $event->getKey());
+        $this->assertEquals('foo.mocktoken', $event->getKey());
     }
-
-
+    
     public function testListenerWithoutOAuthToken()
     {
         $mockContext = $this->mockContext;

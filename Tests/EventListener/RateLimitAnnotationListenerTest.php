@@ -183,7 +183,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         // Throttled
         $storage = $this->getMockStorage();
-        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+        $storage->createMockRate('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', 5, 10, 6);
         $listener->onKernelController($event);
         $this->assertNotInternalType('array', $event->getController());
     }
@@ -199,7 +199,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         // Expired
         $storage = $this->getMockStorage();
-        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, -10, 12);
+        $storage->createMockRate('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', 5, -10, 12);
         $listener->onKernelController($event);
         $this->assertInternalType('array', $event->getController());
     }
@@ -359,7 +359,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         // Throttled
         $storage = $this->getMockStorage();
-        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+        $storage->createMockRate('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', 5, 10, 6);
         $listener->onKernelController($event);
     }
 
@@ -376,7 +376,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         // Throttled
         $storage = $this->getMockStorage();
-        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+        $storage->createMockRate('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', 5, 10, 6);
 
         /** @var Response $response */
         $listener->onKernelController($event);
