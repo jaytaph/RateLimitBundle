@@ -1,3 +1,7 @@
+## 1.11.1
+2018-07-02 mcfedr
+- Accept null rate response exception configuration
+
 ## 1.10.1
 2018-06-29 mcfedr
 - Change cache keys to be valid PSR-6 keys
