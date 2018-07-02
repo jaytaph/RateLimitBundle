@@ -82,7 +82,7 @@ class Configuration implements ConfigurationInterface
                     ->info('Optional exception class that will be returned when a client hits the rate limit')
                     ->validate()
                         ->always(function ($item) {
-                            if (! is_subclass_of($item, '\Exception')) {
+                            if ($item && !is_subclass_of($item, '\Exception')) {
                                 throw new InvalidConfigurationException(sprintf("'%s' must inherit the \\Exception class", $item));
                             }
                             return $item;
