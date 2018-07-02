@@ -155,5 +155,11 @@ class ConfigurationTest extends WebTestCase
         $this->assertTrue(true);
     }
 
+    public function testMustBeBasedOnExceptionOrNull()
+    {
+        $configuration = $this->getConfigs(array('rate_response_exception' => null));
 
+        # no exception triggered is ok.
+        $this->assertTrue(true);
+    }
 }
