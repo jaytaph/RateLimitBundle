@@ -252,7 +252,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 class DefaultController extends Controller
 {
     /**
-     * @ratelimit(method="POST", limit=200, period=10); // 200 POST requests to indexAction allowed.
+     * @Ratelimit(method="POST", limit=200, period=10); // 200 POST requests to indexAction allowed.
      */
     public function indexAction()
     {

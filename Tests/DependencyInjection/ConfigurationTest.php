@@ -42,6 +42,8 @@ class ConfigurationTest extends WebTestCase
             'memcache_service' => null,
             'doctrine_provider' => null,
             'doctrine_service' => null,
+            'simple_cache_service' => null,
+            'cache_service' => null,
             'rate_response_code' => 429,
             'rate_response_exception' => null,
             'rate_response_message' => 'You exceeded the rate limit',
@@ -158,5 +160,11 @@ class ConfigurationTest extends WebTestCase
         $this->assertTrue(true);
     }
 
+    public function testMustBeBasedOnExceptionOrNull()
+    {
+        $configuration = $this->getConfigs(array('rate_response_exception' => null));
 
+        # no exception triggered is ok.
+        $this->assertTrue(true);
+    }
 }

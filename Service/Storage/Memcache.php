@@ -6,8 +6,9 @@ use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class Memcache implements StorageInterface
 {
-
-    /** @var \Memcached */
+    /**
+     * @var \Memcached
+     */
     protected $client;
 
     public function __construct(\Memcached $client)
@@ -19,19 +20,13 @@ class Memcache implements StorageInterface
     {
         $info = $this->client->get($key);
 
-        $rateLimitInfo = new RateLimitInfo();
-        $rateLimitInfo->setLimit($info['limit']);
-        $rateLimitInfo->setCalls($info['calls']);
-        $rateLimitInfo->setResetTimestamp($info['reset']);
-        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
-        $rateLimitInfo->setKey($key);
-
-        return $rateLimitInfo;
+        return $this->createRateInfo($key, $info);
     }
 
     public function limitRate($key)
     {
         $cas = null;
+        $i = 0;
         do {
             $info = $this->client->get($key, null, $cas);
             if (!$info) {
@@ -40,9 +35,9 @@ class Memcache implements StorageInterface
 
             $info['calls']++;
             $this->client->cas($cas, $key, $info);
-        } while ($this->client->getResultCode() != \Memcached::RES_SUCCESS);
+        } while ($this->client->getResultCode() == \Memcached::RES_DATA_EXISTS && $i++ < 5);
 
-        return $this->getRateInfo($key);
+        return $this->createRateInfo($key, $info);
     }
 
     public function createRate($key, $limit, $period)
@@ -55,12 +50,13 @@ class Memcache implements StorageInterface
 
         $this->client->set($key, $info, $period);
 
-        return $this->getRateInfo($key);
+        return $this->createRateInfo($key, $info);
     }
 
     public function resetRate($key)
     {
         $this->client->delete($key);
+
         return true;
     }
 
@@ -86,5 +82,17 @@ class Memcache implements StorageInterface
         $rateLimitInfo->setResetTimestamp($resetTimestamp);
 
         return true;
+    }
+
+    private function createRateInfo($key, array $info)
+    {
+        $rateLimitInfo = new RateLimitInfo();
+        $rateLimitInfo->setLimit($info['limit']);
+        $rateLimitInfo->setCalls($info['calls']);
+        $rateLimitInfo->setResetTimestamp($info['reset']);
+        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
+        $rateLimitInfo->setKey($key);
+
+        return $rateLimitInfo;
     }
 }

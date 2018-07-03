@@ -33,13 +33,13 @@ class GenerateKeyEventsTest extends TestCase
         $this->assertEquals("foo", $event->getKey());
 
         $event->addToKey("bar");
-        $this->assertEquals("foo:bar", $event->getKey());
+        $this->assertEquals("foo.bar", $event->getKey());
 
         $event->addToKey("baz");
-        $this->assertEquals("foo:bar:baz", $event->getKey());
+        $this->assertEquals("foo.bar.baz", $event->getKey());
 
         $event->addToKey("");
-        $this->assertEquals("foo:bar:baz:", $event->getKey());
+        $this->assertEquals("foo.bar.baz.", $event->getKey());
     }
 
     public function testSetKey()

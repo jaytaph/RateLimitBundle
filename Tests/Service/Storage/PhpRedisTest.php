@@ -9,8 +9,7 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class PhpRedisTest extends TestCase
 {
-
-    function setUp() {
+    public function setUp() {
         if (! class_exists('\Redis')) {
             $this->markTestSkipped('Php Redis client not installed');
         }

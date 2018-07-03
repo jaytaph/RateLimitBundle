@@ -24,7 +24,7 @@ class Configuration implements ConfigurationInterface
             ->canBeDisabled()
             ->children()
                 ->enumNode('storage_engine')
-                    ->values(array('redis','memcache','doctrine', 'php_redis'))
+                    ->values(array('redis','memcache','doctrine', 'php_redis', 'simple_cache', 'cache'))
                     ->defaultValue('redis')
                     ->info('The storage engine where all the rates will be stored')
                 ->end()
@@ -61,6 +61,16 @@ class Configuration implements ConfigurationInterface
                     ->info('The Doctrine Cache service to use for the doctrine storage engine')
                     ->example('project.my_apc_cache')
                 ->end()
+                ->scalarNode('simple_cache_service')
+                    ->defaultNull()
+                    ->info('Service id of a simple cache, should be an instance of \\Psr\\SimpleCache\\CacheInterface')
+                    ->example('project.cache')
+                ->end()
+                ->scalarNode('cache_service')
+                    ->defaultNull()
+                    ->info('Service id of a cache, should be an instance of \\Psr\\Cache\\CacheItemPoolInterface')
+                    ->example('project.cache')
+                ->end()
                 ->integerNode('rate_response_code')
                     ->min(400)
                     ->max(499)
@@ -72,7 +82,7 @@ class Configuration implements ConfigurationInterface
                     ->info('Optional exception class that will be returned when a client hits the rate limit')
                     ->validate()
                         ->always(function ($item) {
-                            if (! is_subclass_of($item, '\Exception')) {
+                            if ($item && !is_subclass_of($item, '\Exception')) {
                                 throw new InvalidConfigurationException(sprintf("'%s' must inherit the \\Exception class", $item));
                             }
                             return $item;

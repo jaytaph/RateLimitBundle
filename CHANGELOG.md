@@ -1,12 +1,36 @@
-## 1.8.0
-2018-05-24
-Support for Symfony 4  
+## 1.10.1
+2018-06-29 mcfedr
+- Change cache keys to be valid PSR-6 keys
+
+## 1.10.0
+2018-06-27 mcfedr
+- Add Psr-6 Cache storage engine
+
+## 1.9.1
+2018-06-27 mcfedr
+- Optimisation for Memcached storage engine
+- Reduce likely hood of infinite loop in memcached storage
+- Memcached storage will silently fail in the same way other storages fail
+
+## 1.9.0
+2018-06-27 mcfedr
+- Add Psr-16 Simple Cache storage engine
+- Optimisation for Doctrine Cache storage engine
+
+## 1.8.2
+2018-06-04 goetas
+- Fix Symfony 4 support by allowing newer versions of `framework-extra-bundle`
+- Fix travis tests as some just seem to fail
+
+## 1.8.1
+2018-05-24 mcfedr
+- Support for Symfony 4  
 
 2017-10-19 merk
-Force $methods to be an array 
+- Force $methods to be an array 
 
 2017-08-17 odoucet
-Fix and improve Travis builds 
+- Fix and improve Travis builds 
 
 2017-08-11 mcfedr
 - More efficient use of Redis
