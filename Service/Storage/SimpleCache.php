@@ -24,7 +24,7 @@ class SimpleCache implements StorageInterface
             return false;
         }
 
-        return $this->createRateInfo($info);
+        return $this->createRateInfo($key, $info);
     }
 
     public function limitRate($key)
@@ -39,19 +39,20 @@ class SimpleCache implements StorageInterface
 
         $this->client->set($key, $info, $ttl);
 
-        return $this->createRateInfo($info);
+        return $this->createRateInfo($key, $info);
     }
 
     public function createRate($key, $limit, $period)
     {
         $info = [
-            'limit' => $limit,
-            'calls' => 1,
-            'reset' => time() + $period,
+            'limit'   => $limit,
+            'calls'   => 1,
+            'reset'   => time() + $period,
+            'blocked' => 0
         ];
         $this->client->set($key, $info, $period);
 
-        return $this->createRateInfo($info);
+        return $this->createRateInfo($key, $info);
     }
 
     public function resetRate($key)
@@ -61,13 +62,37 @@ class SimpleCache implements StorageInterface
         return true;
     }
 
-    private function createRateInfo(array $info)
+    private function createRateInfo($key, array $info)
     {
         $rateLimitInfo = new RateLimitInfo();
         $rateLimitInfo->setLimit($info['limit']);
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
+        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
+        $rateLimitInfo->setKey($key);
 
         return $rateLimitInfo;
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock)
+    {
+        $resetTimestamp = time() + $periodBlock;
+        $info = [
+            'limit'   => $rateLimitInfo->getLimit(),
+            'calls'   => $rateLimitInfo->getCalls(),
+            'reset'   => $resetTimestamp,
+            'blocked' => 1
+        ];
+        if (!$this->client->set($rateLimitInfo->getKey(), $info, $periodBlock)) {
+            return false;
+        }
+
+        $rateLimitInfo->setBlocked(true);
+        $rateLimitInfo->setResetTimestamp($resetTimestamp);
+
+        return true;
     }
 }

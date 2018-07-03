@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Service\Storage\SimpleCache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
@@ -79,5 +80,37 @@ class SimpleCacheTest extends TestCase
 
         $storage = new SimpleCache($client);
         $this->assertTrue($storage->resetRate('foo'));
+    }
+
+    public function testSetBlock()
+    {
+        $client = $this->getMockBuilder('Psr\SimpleCache\CacheInterface')->getMock();
+
+        $rateLimitInfo = new RateLimitInfo();
+        $rateLimitInfo->setKey('foo');
+        $rateLimitInfo->setCalls(1);
+        $rateLimitInfo->setLimit(2);
+        $rateLimitInfo->setResetTimestamp(time());
+
+        $periodBlock = 100;
+        $resetTimestamp = time() + $periodBlock;
+        $client->expects(self::once())
+               ->method('set')
+               ->with(
+                   'foo',
+                   [
+                       'limit'   => $rateLimitInfo->getLimit(),
+                       'calls'   => $rateLimitInfo->getCalls(),
+                       'reset'   => $resetTimestamp,
+                       'blocked' => 1
+                   ],
+                   $periodBlock
+               )
+               ->willReturn(true);
+
+        $storage = new SimpleCache($client);
+        self::assertTrue($storage->setBlock($rateLimitInfo, $periodBlock), 'Result of setting the block must equal true');
+        self::assertTrue($rateLimitInfo->isBlocked(), 'After setting the block RateLimitInfo must contain blocked=true');
+        self::assertEquals($resetTimestamp, $rateLimitInfo->getResetTimestamp());
     }
 } 
