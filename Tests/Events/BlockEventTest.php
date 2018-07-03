@@ -3,16 +3,14 @@
 namespace Tests\Events;
 
 use Noxlogic\RateLimitBundle\Events\BlockEvent;
-use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
-use PHPUnit\Framework\TestCase;
-use Symfony\Component\HttpFoundation\Request;
+use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class BlockEventTest extends TestCase
 {
     public function testConstruct()
     {
-        $rateLimitInfo = $this->createMock(RateLimitInfo::class);
-        $request = $this->createMock(Request::class);
+        $rateLimitInfo = $this->createMock('Noxlogic\RateLimitBundle\Service\RateLimitInfo');
+        $request = $this->createMock('Symfony\Component\HttpFoundation\Request');
         $event = new BlockEvent($rateLimitInfo, $request);
 
         self::assertSame($rateLimitInfo, $event->getRateLimitInfo());
