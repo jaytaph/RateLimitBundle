@@ -9,8 +9,8 @@ class BlockEventTest extends TestCase
 {
     public function testConstruct()
     {
-        $rateLimitInfo = $this->createMock('Noxlogic\RateLimitBundle\Service\RateLimitInfo');
-        $request = $this->createMock('Symfony\Component\HttpFoundation\Request');
+        $rateLimitInfo = $this->getMockBuilder('Noxlogic\RateLimitBundle\Service\RateLimitInfo')->getMock();
+        $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')->getMock();
         $event = new BlockEvent($rateLimitInfo, $request);
 
         self::assertSame($rateLimitInfo, $event->getRateLimitInfo());

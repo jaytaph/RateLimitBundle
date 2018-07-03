@@ -110,7 +110,13 @@ class RedisTest extends TestCase
                ->withConsecutive(
                    array('foo', 'limit', 2),
                    array('foo', 'calls', 1),
-                   array('foo', 'reset', time() + 100),
+                   array(
+                       'foo',
+                       'reset',
+                       self::callback(function ($time) {
+                           return $time > 10;
+                       })
+                   ),
                    array('foo', 'blocked', 1)
                );
         $client->expects(self::once())

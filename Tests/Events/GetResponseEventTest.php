@@ -12,8 +12,8 @@ class GetResponseEventTest extends TestCase
      */
     public function testConstruct()
     {
-        $request = $this->createMock('Symfony\Component\HttpFoundation\Request');
-        $rateLimitInfo = $this->createMock('Noxlogic\RateLimitBundle\Service\RateLimitInfo');
+        $request = $this->getMockBuilder('Symfony\Component\HttpFoundation\Request')->getMock();
+        $rateLimitInfo = $this->getMockBuilder('Noxlogic\RateLimitBundle\Service\RateLimitInfo')->getMock();
 
         $event = new GetResponseEvent($request, $rateLimitInfo);
 
@@ -41,7 +41,7 @@ class GetResponseEventTest extends TestCase
      */
     public function testSetResponse(GetResponseEvent $event)
     {
-        $response = $this->createMock('Symfony\Component\HttpFoundation\Response');
+        $response = $this->getMockBuilder('Symfony\Component\HttpFoundation\Response')->getMock();
         $event->setResponse($response);
         self::assertSame($response, $event->getResponse());
 

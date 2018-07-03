@@ -126,7 +126,7 @@ class PsrCacheTest extends TestCase
     public function testSetBlock()
     {
         $client = $this->getMockBuilder('Psr\Cache\CacheItemPoolInterface')->getMock();
-        $item = $this->createMock('Psr\Cache\CacheItemInterface');
+        $item = $this->getMockBuilder('Psr\Cache\CacheItemInterface')->getMock();
 
         $client->expects($this->once())
                ->method('getItem')
