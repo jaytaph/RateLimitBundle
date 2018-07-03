@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Service\Storage\PsrCache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
@@ -120,5 +121,45 @@ class PsrCacheTest extends TestCase
 
         $storage = new PsrCache($client);
         $this->assertTrue($storage->resetRate('foo'));
+    }
+
+    public function testSetBlock()
+    {
+        $client = $this->getMockBuilder('Psr\Cache\CacheItemPoolInterface')->getMock();
+        $item = $this->createMock('Psr\Cache\CacheItemInterface');
+
+        $client->expects($this->once())
+               ->method('getItem')
+               ->with('foo')
+               ->willReturn($item);
+
+        $rateLimitInfo = new RateLimitInfo();
+        $rateLimitInfo->setKey('foo');
+        $rateLimitInfo->setCalls(1);
+        $rateLimitInfo->setLimit(2);
+        $rateLimitInfo->setResetTimestamp(time());
+
+        $periodBlock = 100;
+        $resetTimestamp = time() + $periodBlock;
+        $item->expects(self::once())
+             ->method('set')
+             ->with([
+                 'limit'   => $rateLimitInfo->getLimit(),
+                 'calls'   => $rateLimitInfo->getCalls(),
+                 'reset'   => $resetTimestamp,
+                 'blocked' => 1
+             ]);
+        $item->expects(self::once())
+             ->method('expiresAfter')
+             ->with($periodBlock);
+        $client->expects(self::once())
+               ->method('save')
+               ->with($item)
+               ->willReturn(true);
+
+        $storage = new PsrCache($client);
+        self::assertTrue($storage->setBlock($rateLimitInfo, $periodBlock), 'Result of setting the block must equal true');
+        self::assertTrue($rateLimitInfo->isBlocked(), 'After setting the block RateLimitInfo must contain blocked=true');
+        self::assertEquals($resetTimestamp, $rateLimitInfo->getResetTimestamp());
     }
 } 
