@@ -4,10 +4,12 @@ namespace Noxlogic\RateLimitBundle\Tests\DependencyInjection;
 
 use Noxlogic\RateLimitBundle\DependencyInjection\Configuration;
 use Noxlogic\RateLimitBundle\DependencyInjection\NoxlogicRateLimitExtension;
+use Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache;
 use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
+use Symfony\Component\DependencyInjection\Reference;
 
 /**
  * ConfigurationTest
@@ -24,6 +26,40 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code'), 429);
         $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.display_headers'), true);
         $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.headers.reset.name'), 'X-RateLimit-Reset');
+    }
+
+    public function testStorageEngineParameterProvider()
+    {
+        $extension = new NoxlogicRateLimitExtension();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+        $extension->load(array(
+            'noxlogic_rate_limit' => array(
+                'storage_engine' => 'doctrine',
+                'doctrine_provider' => 'redis_cache',
+            )
+        ), $containerBuilder);
+
+        $this->assertEquals('Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache', $containerBuilder->getParameter('noxlogic_rate_limit.storage.class'));
+
+        $storageDef = $containerBuilder->getDefinition('noxlogic_rate_limit.storage');
+        $this->assertEquals('doctrine_cache.providers.redis_cache', (string)($storageDef->getArgument(0)));
+    }
+
+    public function testStorageEngineParameterService()
+    {
+        $extension = new NoxlogicRateLimitExtension();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+        $extension->load(array(
+            'noxlogic_rate_limit' => array(
+                'storage_engine' => 'doctrine',
+                'doctrine_service' => 'my.redis_cache',
+            )
+        ), $containerBuilder);
+
+        $this->assertEquals('Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache', $containerBuilder->getParameter('noxlogic_rate_limit.storage.class'));
+
+        $storageDef = $containerBuilder->getDefinition('noxlogic_rate_limit.storage');
+        $this->assertEquals('my.redis_cache', (string)($storageDef->getArgument(0)));
     }
 
     public function testParametersWhenDisabled()
