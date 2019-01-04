@@ -9,13 +9,17 @@ use Symfony\Component\HttpFoundation\Request;
 class CheckedRateLimitEvent extends Event
 {
 
-    /** @var Request */
+    /**
+     * @var Request
+     */
     protected $request;
 
-    /** @var null|RateLimit */
+    /**
+     * @var RateLimit|null
+     */
     protected $rateLimit;
 
-    public function __construct(Request $request, ?RateLimit $rateLimit)
+    public function __construct(Request $request, RateLimit $rateLimit = null)
     {
         $this->request = $request;
         $this->rateLimit = $rateLimit;
@@ -32,7 +36,7 @@ class CheckedRateLimitEvent extends Event
     /**
      * @param RateLimit|null $rateLimit
      */
-    public function setRateLimit(?RateLimit $rateLimit)
+    public function setRateLimit(RateLimit $rateLimit = null)
     {
         $this->rateLimit = $rateLimit;
     }
