@@ -3,6 +3,7 @@
 namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
+use Noxlogic\RateLimitBundle\Events\CheckedRateLimitEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
@@ -63,6 +64,11 @@ class RateLimitAnnotationListener extends BaseListener
         // Find the best match
         $annotations = $event->getRequest()->attributes->get('_x-rate-limit', array());
         $rateLimit = $this->findBestMethodMatch($event->getRequest(), $annotations);
+
+        // Another treatment before applying RateLimit ?
+        $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
+        $this->eventDispatcher->dispatch(RateLimitEvents::CHECKED_RATE_LIMIT, $checkedRateLimitEvent);
+        $rateLimit = $checkedRateLimitEvent->getRateLimit();
 
         // No matching annotation found
         if (! $rateLimit) {
