@@ -1,3 +1,7 @@
+## 1.13.0
+2019-01-04 axi
+- Added CheckedRateLimit event that allows RateLimit to be changed
+
 ## 1.12.0
 2019-01-04
 - Something has gone wrong with the versions, just going to make a new one and
