@@ -1,3 +1,7 @@
+## 1.11.1
+2018-07-02 mcfedr
+- Accept null rate response exception configuration
+
 ## 1.10.2
 2018-09-28 pierniq
 - Fixed setting calls in Redis/PhpRedis storage
