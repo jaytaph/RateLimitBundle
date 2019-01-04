@@ -24,7 +24,7 @@ class DoctrineCache implements StorageInterface {
             return false;
         }
 
-        return $this->createRateInfo($info);
+        return $this->createRateInfo($key, $info);
     }
 
     public function limitRate($key)
@@ -40,19 +40,20 @@ class DoctrineCache implements StorageInterface {
 
         $this->client->save($key, $info, $expire);
 
-        return $this->createRateInfo($info);
+        return $this->createRateInfo($key, $info);
     }
 
     public function createRate($key, $limit, $period)
     {
-        $info          = array();
-        $info['limit'] = $limit;
-        $info['calls'] = 1;
-        $info['reset'] = time() + $period;
+        $info            = array();
+        $info['limit']   = $limit;
+        $info['calls']   = 1;
+        $info['reset']   = time() + $period;
+        $info['blocked'] = 0;
 
         $this->client->save($key, $info, $period);
 
-        return $this->createRateInfo($info);
+        return $this->createRateInfo($key, $info);
     }
 
     public function resetRate($key)
@@ -62,12 +63,37 @@ class DoctrineCache implements StorageInterface {
         return true;
     }
 
-    private function createRateInfo(array $info)
+    /**
+     * @inheritDoc
+     */
+    public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock)
+    {
+        $resetTimestamp = time() + $periodBlock;
+        $this->client->save(
+            $rateLimitInfo->getKey(),
+            array(
+                'limit'   => $rateLimitInfo->getLimit(),
+                'calls'   => $rateLimitInfo->getCalls(),
+                'reset'   => $resetTimestamp,
+                'blocked' => 1,
+            ),
+            $periodBlock
+        );
+
+        $rateLimitInfo->setBlocked(true);
+        $rateLimitInfo->setResetTimestamp($resetTimestamp);
+
+        return true;
+    }
+
+    private function createRateInfo($key, array $info)
     {
         $rateLimitInfo = new RateLimitInfo();
         $rateLimitInfo->setLimit($info['limit']);
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
+        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
+        $rateLimitInfo->setKey($key);
 
         return $rateLimitInfo;
     }

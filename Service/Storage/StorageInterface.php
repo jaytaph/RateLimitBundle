@@ -37,4 +37,14 @@ interface StorageInterface
      * @param $key
      */
     public function resetRate($key);
+
+    /**
+     * Set block for the call
+     *
+     * @param RateLimitInfo $rateLimitInfo
+     * @param integer       $periodBlock
+     *
+     * @return bool
+     */
+    public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock);
 }

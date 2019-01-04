@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Service\Storage\Memcache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
@@ -22,7 +23,7 @@ class MemcacheTest extends TestCase
         $client->expects($this->once())
               ->method('get')
               ->with('foo')
-              ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
+              ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234, 'blocked' => 1)));
 
         $storage = new Memcache($client);
         $rli = $storage->getRateInfo('foo');
@@ -30,6 +31,7 @@ class MemcacheTest extends TestCase
         $this->assertEquals(100, $rli->getLimit());
         $this->assertEquals(50, $rli->getCalls());
         $this->assertEquals(1234, $rli->getResetTimestamp());
+        $this->assertTrue($rli->isBlocked());
     }
 
     public function testCreateRate()
@@ -96,4 +98,21 @@ class MemcacheTest extends TestCase
         $this->assertTrue($storage->resetRate('foo'));
     }
 
+    public function testSetBlock()
+    {
+        $client = @$this->getMockBuilder('\\Memcached')
+                       ->setMethods(array('set'))
+                       ->getMock();
+        $client->expects(self::once())
+               ->method('set')
+               ->with('foo', ['limit' => null, 'calls' => null, 'reset' => time() + 100, 'blocked' => 1], 100);
+
+        $rateLimitInfo = new RateLimitInfo();
+        $rateLimitInfo->setKey('foo');
+
+        $storage = new Memcache($client);
+        self::assertTrue($storage->setBlock($rateLimitInfo, 100));
+        self::assertTrue($rateLimitInfo->isBlocked());
+        self::assertGreaterThan(10, $rateLimitInfo->getResetTimestamp());
+    }
 }

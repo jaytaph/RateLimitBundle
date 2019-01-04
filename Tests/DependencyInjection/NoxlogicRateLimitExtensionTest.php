@@ -42,7 +42,8 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
                 'path' => 'api/',
                 'methods' => array('GET'),
                 'limit' => 100,
-                'period' => 60
+                'period' => 60,
+                'block_period' => 0
             )
         );
 

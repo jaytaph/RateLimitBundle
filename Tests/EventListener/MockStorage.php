@@ -23,6 +23,8 @@ class MockStorage implements StorageInterface
         $rateLimitInfo->setCalls($info['calls']);
         $rateLimitInfo->setResetTimestamp($info['reset']);
         $rateLimitInfo->setLimit($info['limit']);
+        $rateLimitInfo->setBlocked(isset($info['blocked']) && $info['blocked']);
+
         return $rateLimitInfo;
     }
 
@@ -70,5 +72,22 @@ class MockStorage implements StorageInterface
     {
         $this->rates[$key] = array('calls' => $calls, 'limit' => $limit, 'reset' => (time() + $period));
         return $this->getRateInfo($key);
+    }
+
+    /**
+     * @inheritDoc
+     */
+    public function setBlock(RateLimitInfo $rateLimitInfo, $periodBlock)
+    {
+        $resetTimestamp = time() + $periodBlock;
+        $this->rates[$rateLimitInfo->getKey()] = array(
+            'calls'   => $rateLimitInfo->getCalls(),
+            'limit'   => $rateLimitInfo->getLimit(),
+            'reset'   => $resetTimestamp,
+            'blocked' => 1
+        );
+
+        $rateLimitInfo->setBlocked(1);
+        $rateLimitInfo->setResetTimestamp($resetTimestamp);
     }
 }

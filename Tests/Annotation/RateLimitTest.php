@@ -18,19 +18,22 @@ class RateLimitTest extends TestCase
         $this->assertEquals(-1, $annot->getLimit());
         $this->assertEmpty($annot->getMethods());
         $this->assertEquals(3600, $annot->getPeriod());
+        $this->assertEquals(0, $annot->getBlockPeriod());
     }
 
     public function testConstructionWithValues()
     {
-        $annot = new RateLimit(array('limit' => 1234, 'period' => 1000));
+        $annot = new RateLimit(array('limit' => 1234, 'period' => 1000, 'blockPeriod' => 7200));
         $this->assertEquals(1234, $annot->getLimit());
         $this->assertEquals(1000, $annot->getPeriod());
+        $this->assertEquals(7200, $annot->getBlockPeriod());
 
 
-        $annot = new RateLimit(array('methods' => 'POST', 'limit' => 1234, 'period' => 1000));
+        $annot = new RateLimit(array('methods' => 'POST', 'limit' => 1234, 'period' => 1000, 'blockPeriod' => 7200));
         $this->assertEquals(1234, $annot->getLimit());
         $this->assertEquals(1000, $annot->getPeriod());
         $this->assertEquals(['POST'], $annot->getMethods());
+        $this->assertEquals(7200, $annot->getBlockPeriod());
     }
 
     public function testConstructionWithMethods()
