@@ -28,6 +28,9 @@ class NoxlogicRateLimitExtension extends Extension
 
     private function loadServices(ContainerBuilder $container, array $config)
     {
+        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
+        $loader->load('services.xml');
+
         $container->setParameter('noxlogic_rate_limit.enabled', $config['enabled']);
 
         $container->setParameter('noxlogic_rate_limit.rate_response_exception', $config['rate_response_exception']);
@@ -44,29 +47,6 @@ class NoxlogicRateLimitExtension extends Extension
         switch ($config['storage_engine']) {
             case 'memcache':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Memcache');
-                break;
-            case 'redis':
-                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Redis');
-                break;
-            case 'doctrine':
-                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache');
-                break;
-            case 'php_redis';
-                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PhpRedis');
-                break;
-            case 'simple_cache':
-                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\SimpleCache');
-                break;
-            case 'cache':
-                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PsrCache');
-                break;
-        }
-
-        $loader = new Loader\XmlFileLoader($container, new FileLocator(__DIR__ . '/../Resources/config'));
-        $loader->load('services.xml');
-
-        switch ($config['storage_engine']) {
-            case 'memcache':
                 if (isset($config['memcache_client'])) {
                     $service = 'memcache.' . $config['memcache_client'];
                 } else {
@@ -78,6 +58,7 @@ class NoxlogicRateLimitExtension extends Extension
                 );
                 break;
             case 'redis':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Redis');
                 if (isset($config['redis_client'])) {
                     $service = 'snc_redis.' . $config['redis_client'];
                 } else {
@@ -89,6 +70,7 @@ class NoxlogicRateLimitExtension extends Extension
                 );
                 break;
             case 'doctrine':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache');
                 if (isset($config['doctrine_provider'])) {
                     $service = 'doctrine_cache.providers.' . $config['doctrine_provider'];
                 } else {
@@ -100,18 +82,21 @@ class NoxlogicRateLimitExtension extends Extension
                 );
                 break;
             case 'php_redis':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PhpRedis');
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
                     new Reference($config['php_redis_service'])
                 );
                 break;
             case 'simple_cache':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\SimpleCache');
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
                     new Reference($config['simple_cache_service'])
                 );
                 break;
             case 'cache':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PsrCache');
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
                     new Reference($config['cache_service'])
