@@ -160,6 +160,9 @@ noxlogic_rate_limit:
         
     # - { path: /api, limit: 1000, period: 3600 }
     # - { path: /dashboard, limit: 100, period: 3600, methods: ['GET', 'POST']}
+    
+    # Optional class that is used to check if a request is whitelisted, so that rate limits won't apply. Must implement Noxlogic\RateLimitBundle\Whitelisting\WhitelistInterface
+    whitelist_interface: null
 
     # Should the FOS OAuthServerBundle listener be enabled 
     fos_oauth_key_listener: true

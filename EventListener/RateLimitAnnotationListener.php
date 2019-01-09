@@ -8,6 +8,7 @@ use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
+use Noxlogic\RateLimitBundle\Whitelisting\WhitelistInterface;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -59,6 +60,15 @@ class RateLimitAnnotationListener extends BaseListener
         // Skip if we aren't the main request
         if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
             return;
+        }
+
+        // Skip if call is whitelisted
+        if ($this->getParameter('whitelist_interface')) {
+            $whitelistClass = $this->getParameter('whitelist_interface');
+            $whitelist = new $whitelistClass();
+            if ($whitelist->isWhitelisted($event->getRequest())) {
+                return;
+            }
         }
 
         // Find the best match

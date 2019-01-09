@@ -3,8 +3,10 @@
 namespace Noxlogic\RateLimitBundle\Tests\DependencyInjection;
 
 use Noxlogic\RateLimitBundle\DependencyInjection\Configuration;
+use Noxlogic\RateLimitBundle\Whitelisting\WhitelistInterface;
 use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
 use Symfony\Component\Config\Definition\Processor;
+use Symfony\Component\HttpFoundation\Request;
 
 /**
  * ConfigurationTest
@@ -54,6 +56,7 @@ class ConfigurationTest extends WebTestCase
                 'reset' => 'X-RateLimit-Reset',
             ),
             'path_limits' => array(),
+            'whitelist_interface' => null,
             'fos_oauth_key_listener' => true
         ), $configuration);
     }
@@ -134,6 +137,33 @@ class ConfigurationTest extends WebTestCase
 
         $this->assertArrayHasKey('path_limits', $configuration);
         $this->assertEquals($pathLimits, $configuration['path_limits']);
+    }
+
+    /**
+     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
+     */
+    public function testMustBeBasedOnWhitelistInterface() {
+        $configuration = $this->getConfigs(array('whitelist_interface' => '\StdClass'));
+    }
+
+    public function testMustBeBasedOnWhitelistInterface2() {
+        $configuration = $this->getConfigs(array('whitelist_interface' => "\Noxlogic\RateLimitBundle\Tests\Whitelisting\WhitelistAll"));
+        assert(true);
+    }
+
+    public function testMustBeBasedOnWhitelistInterface3() {
+        /** @var Configuration $configuration */
+        $configuration = $this->getConfigs(array('whitelist_interface' => "\Noxlogic\RateLimitBundle\Tests\Whitelisting\WhitelistAll"));
+        $whitelistClass = $configuration["whitelist_interface"];
+        $whitelist = new $whitelistClass();
+        assert($whitelist instanceof WhitelistInterface);
+    }
+
+    public function testMustBeBasedOnWhitelistInterfaceOrNull() {
+        $configuration = $this->getConfigs(array('whitelist_interface' => null));
+
+        # no exception triggered is ok.
+        $this->assertTrue(true);
     }
 
     /**

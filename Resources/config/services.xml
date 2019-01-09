@@ -50,6 +50,10 @@
                 <argument>rate_response_exception</argument>
                 <argument>%noxlogic_rate_limit.rate_response_exception%</argument>
             </call>
+            <call method="setParameter">
+                <argument>whitelist_interface</argument>
+                <argument>%noxlogic_rate_limit.whitelist_interface%</argument>
+            </call>
         </service>
 
         <service id="noxlogic_rate_limit.header_modification_listener" class="%noxlogic_rate_limit.header_modification_listener.class%">

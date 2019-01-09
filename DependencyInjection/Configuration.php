@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\DependencyInjection;
 
+use Noxlogic\RateLimitBundle\Whitelisting\WhitelistInterface;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
@@ -136,6 +137,18 @@ class Configuration implements ConfigurationInterface
                                 ->min(0)
                             ->end()
                         ->end()
+                    ->end()
+                ->end()
+                ->scalarNode('whitelist_interface')
+                    ->defaultNull()
+                    ->info("Optional class that is used to check if a request is whitelisted, so that rate limits won't apply")
+                    ->validate()
+                        ->always(function ($class) {
+                            if ($class && !(new $class() instanceof WhitelistInterface)) {
+                                throw new InvalidConfigurationException(sprintf("'%s' must implement Noxlogic\RateLimitBundle\Whitelisting\WhitelistInterface", $class));
+                            }
+                            return $class;
+                        })
                     ->end()
                 ->end()
                 ->booleanNode('fos_oauth_key_listener')

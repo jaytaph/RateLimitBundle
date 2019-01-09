@@ -7,6 +7,8 @@ use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
+use Noxlogic\RateLimitBundle\Tests\Whitelisting\WhitelistAll;
+use Noxlogic\RateLimitBundle\Tests\Whitelisting\WhitelistNone;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -44,6 +46,27 @@ class RateLimitAnnotationListenerTest extends TestCase
     {
         $listener = $this->createListener($this->never());
         $listener->setParameter('enabled', false);
+
+        $event = $this->createEvent();
+
+        $listener->onKernelController($event);
+    }
+
+    public function testReturnedWhenWhitelisted()
+    {
+        $listener = $this->createListener($this->never());
+        $listener->setParameter('whitelist_interface', WhitelistAll::class);
+
+        $event = $this->createEvent();
+
+        $listener->onKernelController($event);
+    }
+
+
+    public function testInvokedWhenNotWhitelisted()
+    {
+        $listener = $this->createListener($this->atLeastOnce());
+        $listener->setParameter('whitelist_interface', WhitelistNone::class);
 
         $event = $this->createEvent();
 
