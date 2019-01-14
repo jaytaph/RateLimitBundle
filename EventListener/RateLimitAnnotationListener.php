@@ -6,6 +6,7 @@ use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\Events\CheckedRateLimitEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
+use Noxlogic\RateLimitBundle\Exception\RateLimitExceptionInterface;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
@@ -111,7 +112,14 @@ class RateLimitAnnotationListener extends BaseListener
             // Throw an exception if configured.
             if ($this->getParameter('rate_response_exception')) {
                 $class = $this->getParameter('rate_response_exception');
-                throw new $class($this->getParameter('rate_response_message'), $this->getParameter('rate_response_code'));
+
+                $e = new $class($this->getParameter('rate_response_message'), $this->getParameter('rate_response_code'));
+
+                if ($e instanceof RateLimitExceptionInterface) {
+                    $e->setPayload($rateLimit->getPayload());
+                }
+
+                throw $e;
             }
 
             $message = $this->getParameter('rate_response_message');

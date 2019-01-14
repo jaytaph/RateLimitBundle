@@ -339,6 +339,33 @@ class RateLimitAnnotationListenerTest extends TestCase
         );
     }
 
+    public function testRateLimitThrottlingWithExceptionAndPayload()
+    {
+        $listener = $this->createListener($this->any());
+        $listener->setParameter('rate_response_exception', 'Noxlogic\RateLimitBundle\Tests\Exception\TestException');
+        $listener->setParameter('rate_response_code', 123);
+        $listener->setParameter('rate_response_message', 'a message');
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 3, 'payload' => ['foo'])),
+        ));
+
+        // Throttled
+        $storage = $this->getMockStorage();
+        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+
+        try {
+            $listener->onKernelController($event);
+
+            $this->assertFalse(true, 'Exception not being thrown');
+        } catch (\Exception $e) {
+            $this->assertInstanceOf('Noxlogic\RateLimitBundle\Tests\Exception\TestException', $e);
+            $this->assertSame(123, $e->getCode());
+            $this->assertSame('a message', $e->getMessage());
+            $this->assertSame(['foo'], $e->payload);
+        }
+    }
 
     /**
      * @expectedException \BadFunctionCallException
