@@ -25,6 +25,14 @@ class GenerateKeyEventsTest extends TestCase
         $this->assertEquals($request, $event->getRequest());
     }
 
+    public function testPayload()
+    {
+        $request = new Request();
+        $event = new GenerateKeyEvent($request, "", 'bar');
+
+        $this->assertSame('bar', $event->getPayload());
+    }
+
     public function testAddKey()
     {
         $request = new Request();

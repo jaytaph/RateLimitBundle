@@ -166,7 +166,7 @@ class RateLimitAnnotationListener extends BaseListener
     private function getKey(FilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
     {
         // Let listeners manipulate the key
-        $keyEvent = new GenerateKeyEvent($event->getRequest());
+        $keyEvent = new GenerateKeyEvent($event->getRequest(), '', $rateLimit->getPayload());
 
         $rateLimitMethods = join('.', $rateLimit->getMethods());
         $keyEvent->addToKey($rateLimitMethods);

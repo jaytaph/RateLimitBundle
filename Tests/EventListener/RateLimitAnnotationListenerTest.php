@@ -4,6 +4,8 @@ namespace Noxlogic\RateLimitBundle\EventListener\Tests;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
+use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
+use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
@@ -32,6 +34,9 @@ class RateLimitAnnotationListenerTest extends TestCase
     protected function setUp()
     {
         $this->mockStorage = new MockStorage();
+        $this->mockPathLimitProcessor = $this->getMockBuilder('Noxlogic\RateLimitBundle\Util\PathLimitProcessor')
+            ->disableOriginalConstructor()
+            ->getMock();
     }
 
     protected function getMockStorage()
@@ -328,15 +333,47 @@ class RateLimitAnnotationListenerTest extends TestCase
         $rateLimitService = new RateLimitService();
         $rateLimitService->setStorage($this->getMockStorage());
 
-        $this->mockPathLimitProcessor = $this->getMockBuilder('Noxlogic\RateLimitBundle\Util\PathLimitProcessor')
-                                             ->disableOriginalConstructor()
-                                             ->getMock();
-
         return new RateLimitAnnotationListener(
             $mockDispatcher,
             $rateLimitService,
             $this->mockPathLimitProcessor
         );
+    }
+
+    public function testRateLimitKeyGenerationEventHasPayload()
+    {
+        $event = $this->createEvent();
+        $request = $event->getRequest();
+        $request->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 3, 'payload' => ['foo'])),
+        ));
+
+        $generated = false;
+        $mockDispatcher = $this->getMockBuilder('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
+        $mockDispatcher
+            ->expects($this->any())
+            ->method('dispatch')
+            ->willReturnCallback(function ($name, $event) use ($request, &$generated) {
+                if ($name !== RateLimitEvents::GENERATE_KEY) {
+                    return;
+                }
+                $generated = true;
+                $this->assertSame(RateLimitEvents::GENERATE_KEY, $name);
+                $this->assertSame($request, $event->getRequest());
+                $this->assertSame(['foo'], $event->getPayload());
+                $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
+            });
+
+        $storage = $this->getMockStorage();
+        $storage->createMockRate('test-key', 5, 10, 1);
+
+        $rateLimitService = $this->getMockBuilder('Noxlogic\RateLimitBundle\Service\RateLimitService')
+            ->getMock();
+
+        $listener = new RateLimitAnnotationListener($mockDispatcher, $rateLimitService, $this->mockPathLimitProcessor);
+        $listener->onKernelController($event);
+
+        $this->assertTrue($generated, 'Generate key event not dispatched');
     }
 
     public function testRateLimitThrottlingWithExceptionAndPayload()
@@ -353,7 +390,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         // Throttled
         $storage = $this->getMockStorage();
-        $storage->createMockRate(':Noxlogic\RateLimitBundle\EventListener\Tests\MockController:mockAction', 5, 10, 6);
+        $storage->createMockRate('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', 5, 10, 6);
 
         try {
             $listener->onKernelController($event);
@@ -415,6 +452,4 @@ class RateLimitAnnotationListenerTest extends TestCase
         $this->assertEquals($response->getStatusCode(), 123);
         $this->assertEquals($response->getContent(), "a message");
     }
-
-
 }
