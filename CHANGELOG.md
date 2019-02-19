@@ -1,3 +1,7 @@
+## 1.14.0
+2019-02-19 goetas
+- Added Payload to RateLimit to allow better exceptions
+
 ## 1.13.0
 2019-01-04 axi
 - Added CheckedRateLimit event that allows RateLimit to be changed
