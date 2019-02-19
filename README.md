@@ -238,6 +238,12 @@ class DefaultController extends Controller
 
 ## Create a custom key generator
 
+### NOTE
+
+**Note that this bundle by default does not perform rate-limiting based on user's IP.
+If you wish to enable IP-based rate limiting or any other strategy, custom key generators are the way to go.**
+
+
 If you need to create a custom key generator, you need to register a listener to listen to the `ratelimit.generate.key` event:
 
 ```yaml
@@ -268,6 +274,25 @@ class RateLimitGenerateKeyListener
 ```
 
 Make sure to generate a key based on what is rate limited in your controllers.
+
+And example of a IP-based key generator can be:  
+
+```php
+<?php
+
+namespace MyBundle\Listener;
+
+use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
+
+class IpBasedRateLimitGenerateKeyListener
+{
+    public function onGenerateKey(GenerateKeyEvent $event)
+    {
+        $request = $event->getRequest();
+        $event->addToKey($request->getClientIp());
+    }
+}
+```
 
 
 ## Throwing exceptions
