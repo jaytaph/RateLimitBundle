@@ -55,4 +55,17 @@ class RateLimitInfo
     {
         $this->resetTimestamp = $resetTimestamp;
     }
+
+    /**
+     * @return int
+     */
+    public function getRemainingAttempts()
+    {
+        $remaining = $this->getLimit() - $this->getCalls();
+        if ($remaining < 0) {
+            $remaining = 0;
+        }
+
+        return $remaining;
+    }
 }

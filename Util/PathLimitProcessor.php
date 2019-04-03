@@ -1,6 +1,5 @@
 <?php
 
-
 namespace Noxlogic\RateLimitBundle\Util;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;

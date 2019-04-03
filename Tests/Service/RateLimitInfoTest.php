@@ -2,15 +2,11 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Annotation;
 
-use Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener;
-use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
-use Symfony\Component\HttpFoundation\Request;
 
 class RateLimitInfoTest extends TestCase
 {
-
     public function testRateInfoSetters()
     {
         $rateInfo = new RateLimitInfo();
@@ -25,4 +21,20 @@ class RateLimitInfoTest extends TestCase
         $this->assertEquals(100000, $rateInfo->getResetTimestamp());
     }
 
+    public function testRemainingAttempts()
+    {
+        $rateInfo = new RateLimitInfo();
+
+        $rateInfo->setLimit(10);
+        $rateInfo->setCalls(9);
+        $this->assertEquals(1, $rateInfo->getRemainingAttempts());
+
+        $rateInfo->setLimit(10);
+        $rateInfo->setCalls(10);
+        $this->assertEquals(0, $rateInfo->getRemainingAttempts());
+
+        $rateInfo->setLimit(10);
+        $rateInfo->setCalls(20);
+        $this->assertEquals(0, $rateInfo->getRemainingAttempts());
+    }
 }
