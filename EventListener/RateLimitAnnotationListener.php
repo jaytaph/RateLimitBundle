@@ -7,14 +7,16 @@ use Noxlogic\RateLimitBundle\Events\CheckedRateLimitEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Exception\RateLimitExceptionInterface;
+use Noxlogic\RateLimitBundle\LimitProcessorInterface;
+use Noxlogic\RateLimitBundle\Service\RateLimitInfoManager;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
+use Noxlogic\RateLimitBundle\Util\AnnotationLimitProcessor;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\Routing\Route;
 
 class RateLimitAnnotationListener extends BaseListener
 {
@@ -64,7 +66,12 @@ class RateLimitAnnotationListener extends BaseListener
 
         // Find the best match
         $annotations = $event->getRequest()->attributes->get('_x-rate-limit', array());
+
         $rateLimit = $this->findBestMethodMatch($event->getRequest(), $annotations);
+        $limitProcessor = $this->pathLimitProcessor;
+        if ($annotations) {
+            $limitProcessor = new AnnotationLimitProcessor($annotations, $event->getController());
+        }
 
         // Another treatment before applying RateLimit ?
         $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
@@ -76,35 +83,19 @@ class RateLimitAnnotationListener extends BaseListener
             return;
         }
 
-        $key = $this->getKey($event, $rateLimit, $annotations);
+        $key = $this->getKey($limitProcessor, $rateLimit, $event->getRequest());
 
-        // Ratelimit the call
-        $rateLimitInfo = $this->rateLimitService->limitRate($key);
-        if (! $rateLimitInfo) {
-            // Create new rate limit entry for this call
-            $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
-            if (! $rateLimitInfo) {
-                // @codeCoverageIgnoreStart
-                return;
-                // @codeCoverageIgnoreEnd
-            }
+        $rateLimitManager = new RateLimitInfoManager($this->rateLimitService);
+        $rateLimitInfo = $rateLimitManager->getRateLimitInfo($key, $rateLimit);
+        if (!$rateLimitInfo) {
+            // @codeCoverageIgnoreStart
+            return;
+            // @codeCoverageIgnoreEnd
         }
-
 
         // Store the current rating info in the request attributes
         $request = $event->getRequest();
         $request->attributes->set('rate_limit_info', $rateLimitInfo);
-
-        // Reset the rate limits
-        if(time() >= $rateLimitInfo->getResetTimestamp()) {
-            $this->rateLimitService->resetRate($key);
-            $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
-            if (! $rateLimitInfo) {
-                // @codeCoverageIgnoreStart
-                return;
-                // @codeCoverageIgnoreEnd
-            }
-        }
 
         // When we exceeded our limit, return a custom error response
         if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
@@ -136,10 +127,16 @@ class RateLimitAnnotationListener extends BaseListener
 
 
     /**
+     * @param Request $request
      * @param RateLimit[] $annotations
+     * @return RateLimit|null
+     *
+     * @deprecated since 1.15, use the "\Noxlogic\RateLimitBundle\LimitProcessorInterface::getRateLimit()" method instead.
      */
     protected function findBestMethodMatch(Request $request, array $annotations)
     {
+        @trigger_error(sprintf('The "%s()" method is deprecated since version 1.15, use the "\Noxlogic\RateLimitBundle\LimitProcessorInterface::getRateLimit()" method instead.', __METHOD__), E_USER_DEPRECATED);
+
         // Empty array, check the path limits
         if (count($annotations) == 0) {
             return $this->pathLimitProcessor->getRateLimit($request);
@@ -163,48 +160,16 @@ class RateLimitAnnotationListener extends BaseListener
         return $best_match;
     }
 
-    private function getKey(FilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
+    private function getKey(LimitProcessorInterface $limitProcessor, RateLimit $rateLimit, Request $request)
     {
         // Let listeners manipulate the key
-        $keyEvent = new GenerateKeyEvent($event->getRequest(), '', $rateLimit->getPayload());
+        $keyEvent = new GenerateKeyEvent($request, '', $rateLimit->getPayload());
 
-        $rateLimitMethods = join('.', $rateLimit->getMethods());
-        $keyEvent->addToKey($rateLimitMethods);
-
-        $rateLimitAlias = count($annotations) === 0
-            ? str_replace('/', '.', $this->pathLimitProcessor->getMatchedPath($event->getRequest()))
-            : $this->getAliasForRequest($event);
-        $keyEvent->addToKey($rateLimitAlias);
+        $keyEvent->addToKey(join('.', $rateLimit->getMethods()));
+        $keyEvent->addToKey($limitProcessor->getRateLimitAlias($request));
 
         $this->eventDispatcher->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
 
         return $keyEvent->getKey();
-    }
-
-    private function getAliasForRequest(FilterControllerEvent $event)
-    {
-        if (($route = $event->getRequest()->attributes->get('_route'))) {
-            return $route;
-        }
-
-        $controller = $event->getController();
-
-        if (is_string($controller) && false !== strpos($controller, '::')) {
-            $controller = explode('::', $controller);
-        }
-
-        if (is_array($controller)) {
-            return str_replace('\\', '.', is_string($controller[0]) ? $controller[0] : get_class($controller[0])) . '.' . $controller[1];
-        }
-
-        if ($controller instanceof \Closure) {
-            return 'closure';
-        }
-
-        if (is_object($controller)) {
-            return str_replace('\\', '.', get_class($controller[0]));
-        }
-
-        return 'other';
     }
 }

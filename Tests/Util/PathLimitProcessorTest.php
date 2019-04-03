@@ -273,6 +273,25 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
+    function itReturnsTheMatchedPathAlias()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => 'api/users/email',
+                'methods' => array('GET', 'POST'),
+                'limit' => 1000,
+                'period' => 600
+            )
+        ));
+
+        $path = $plp->getRateLimitAlias(
+            Request::create('/api/users/email', 'POST')
+        );
+
+        $this->assertEquals('api.users.email', $path);
+    }
+
+    /** @test */
     function itReturnsTheCorrectPathForADifferentSetup()
     {
         $plp = new PathLimitProcessor(array(
@@ -298,11 +317,36 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
+    function itReturnsTheCorrectPathAliasForADifferentSetup()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => 'api',
+                'methods' => array('GET'),
+                'limit' => 5,
+                'period' => 1
+            ),
+            'api_emails' => array(
+                'path' => 'api/users/emails',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        ));
+
+        $path = $plp->getRateLimitAlias(
+            Request::create('/api/users/emails', 'GET')
+        );
+
+        $this->assertEquals('api.users.emails', $path);
+    }
+
+    /** @test */
     function itReturnsTheCorrectMatchedPathForSubPaths()
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
-                'path' => 'api/',
+                'path' => 'api/users',
                 'methods' => array('GET'),
                 'limit' => 100,
                 'period' => 60
@@ -313,7 +357,25 @@ class PathLimitProcessorTest extends TestCase
             Request::create('/api/users/emails', 'GET')
         );
 
-        $this->assertEquals('api', $path);
+        $this->assertEquals('api/users', $path);
+    }
+
+    /** @test */
+    function itReturnsTheCorrectMatchedPathAliasForSubPaths()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => 'api/users',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        ));
+
+        $path = $plp->getRateLimitAlias(
+            Request::create('/api/users/emails', 'GET')
+        );
+
+        $this->assertEquals('api.users', $path);
     }
 }
- 
