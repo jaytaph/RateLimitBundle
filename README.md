@@ -16,7 +16,8 @@ This bundle is partially inspired by a GitHub gist from Ruud Kamphuis: https://g
 
 ## Features
 
- * Simple usage through annotations
+ * Simple usage through annotations, configuration file
+ * Multilayer rules. General rules with redeclaration
  * Customize rates per controller, action and even per HTTP method
  * Multiple storage backends: Redis, Memcached and Doctrine cache
 
@@ -293,6 +294,11 @@ class IpBasedRateLimitGenerateKeyListener
     }
 }
 ```
+
+## Using with other frameworks
+Package can be integrated in any framework based on ``Symfony\Component\HttpFoundation\Request``.
+
+[Example integration in Laravel middleware](docs/laravel-middleware-example.md) 
 
 
 ## Throwing exceptions
