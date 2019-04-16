@@ -69,7 +69,7 @@ class RateLimit
         $rateLimitInfo = $this->rateLimitService->getRateLimitInfo($key, $rateLimit);
 
         // When we exceeded our limit, return a custom error response
-        if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
+        if ($rateLimitInfo->isExceeded()) {
             throw new ThrottleRequestsException(
                 'Too Many Attempts.',
                 null,
