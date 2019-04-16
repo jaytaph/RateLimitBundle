@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Service;
 
+use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\Service\Storage\StorageInterface;
 
 class RateLimitService
@@ -53,5 +54,28 @@ class RateLimitService
     public function resetRate($key)
     {
         return $this->storage->resetRate($key);
+    }
+
+
+    /**
+     * @param string $key
+     * @param RateLimit $rateLimit
+     * @return RateLimitInfo|null
+     */
+    public function getRateLimitInfo($key, RateLimit $rateLimit)
+    {
+        $rateLimitInfo = $this->limitRate($key);
+        if (!$rateLimitInfo) {
+            // Create new rate limit entry for this call
+            return $this->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
+        }
+
+        // Reset the rate limits
+        if (time() >= $rateLimitInfo->getResetTimestamp()) {
+            $this->resetRate($key);
+            $rateLimitInfo = $this->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
+        }
+
+        return $rateLimitInfo;
     }
 }

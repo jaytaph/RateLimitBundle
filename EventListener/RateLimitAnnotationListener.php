@@ -8,7 +8,6 @@ use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Exception\RateLimitExceptionInterface;
 use Noxlogic\RateLimitBundle\LimitProcessorInterface;
-use Noxlogic\RateLimitBundle\Service\RateLimitInfoManager;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Util\AnnotationLimitProcessor;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
@@ -37,7 +36,9 @@ class RateLimitAnnotationListener extends BaseListener
     protected $pathLimitProcessor;
 
     /**
-     * @param RateLimitService                    $rateLimitService
+     * @param EventDispatcherInterface $eventDispatcher
+     * @param RateLimitService $rateLimitService
+     * @param PathLimitProcessor $pathLimitProcessor
      */
     public function __construct(
         EventDispatcherInterface $eventDispatcher,
@@ -85,8 +86,7 @@ class RateLimitAnnotationListener extends BaseListener
 
         $key = $this->getKey($limitProcessor, $rateLimit, $event->getRequest());
 
-        $rateLimitManager = new RateLimitInfoManager($this->rateLimitService);
-        $rateLimitInfo = $rateLimitManager->getRateLimitInfo($key, $rateLimit);
+        $rateLimitInfo = $this->rateLimitService->getRateLimitInfo($key, $rateLimit);
         if (!$rateLimitInfo) {
             // @codeCoverageIgnoreStart
             return;
