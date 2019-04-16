@@ -28,7 +28,6 @@ use Closure;
 use Illuminate\Http\Exceptions\ThrottleRequestsException;
 use Illuminate\Redis\RedisManager;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
-use Noxlogic\RateLimitBundle\Service\RateLimitInfoManager;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Service\Storage\Redis;
 use Symfony\Component\HttpFoundation\Response;
@@ -67,8 +66,7 @@ class RateLimit
 
         $key = trim(join('.', $rateLimit->getMethods()) . '.' . $this->pathLimitProcessor->getRateLimitAlias($request) . '.' . $request->getClientIp(), '.');
 
-        $rateLimitManager = new RateLimitInfoManager($this->rateLimitService);
-        $rateLimitInfo = $rateLimitManager->getRateLimitInfo($key, $rateLimit);
+        $rateLimitInfo = $this->rateLimitService->getRateLimitInfo($key, $rateLimit);
 
         // When we exceeded our limit, return a custom error response
         if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
