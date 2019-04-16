@@ -98,7 +98,7 @@ class RateLimitAnnotationListener extends BaseListener
         $request->attributes->set('rate_limit_info', $rateLimitInfo);
 
         // When we exceeded our limit, return a custom error response
-        if ($rateLimitInfo->getCalls() > $rateLimitInfo->getLimit()) {
+        if ($rateLimitInfo->isExceeded()) {
 
             // Throw an exception if configured.
             if ($this->getParameter('rate_response_exception')) {

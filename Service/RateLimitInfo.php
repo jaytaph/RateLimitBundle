@@ -68,4 +68,12 @@ class RateLimitInfo
 
         return $remaining;
     }
+
+    /**
+     * @return bool
+     */
+    public function isExceeded()
+    {
+        return $this->getCalls() > $this->getLimit();
+    }
 }

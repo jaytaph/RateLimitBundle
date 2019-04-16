@@ -37,4 +37,25 @@ class RateLimitInfoTest extends TestCase
         $rateInfo->setCalls(20);
         $this->assertEquals(0, $rateInfo->getRemainingAttempts());
     }
+
+    public function testIsExceededLimit()
+    {
+        $rateInfo = new RateLimitInfo();
+
+        $rateInfo->setLimit(10);
+        $rateInfo->setCalls(9);
+        $this->assertFalse($rateInfo->isExceeded());
+
+        $rateInfo->setLimit(10);
+        $rateInfo->setCalls(10);
+        $this->assertFalse($rateInfo->isExceeded());
+
+        $rateInfo->setLimit(10);
+        $rateInfo->setCalls(11);
+        $this->assertTrue($rateInfo->isExceeded());
+
+        $rateInfo->setLimit(10);
+        $rateInfo->setCalls(20);
+        $this->assertTrue($rateInfo->isExceeded());
+    }
 }
