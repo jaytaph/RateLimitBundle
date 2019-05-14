@@ -59,10 +59,10 @@ class NoxlogicRateLimitExtension extends Extension
                 break;
             case 'redis':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Redis');
-                if (isset($config['redis_client'])) {
-                    $service = 'snc_redis.' . $config['redis_client'];
-                } else {
+                if (isset($config['redis_service'])) {
                     $service = $config['redis_service'];
+                } else {
+                    $service = 'snc_redis.' . $config['redis_client'];
                 }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
