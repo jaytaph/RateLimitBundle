@@ -12,7 +12,7 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class MockController {
@@ -71,7 +71,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
         $request = new Request();
-        $event = new FilterControllerEvent($kernel, function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
+        $event = new ControllerEvent($kernel, function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
 
         $listener->onKernelController($event);
     }
@@ -308,7 +308,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
     /**
-     * @return FilterControllerEvent
+     * @return ControllerEvent
      */
     protected function createEvent($type = HttpKernelInterface::MASTER_REQUEST, Request $request = null)
     {
@@ -318,7 +318,7 @@ class RateLimitAnnotationListenerTest extends TestCase
         $action = 'mockAction';
 
         $request = $request === null ? new Request() : $request;
-        $event = new FilterControllerEvent($kernel, array($controller, $action), $request, $type);
+        $event = new ControllerEvent($kernel, array($controller, $action), $request, $type);
         return $event;
     }
 

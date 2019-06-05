@@ -2,7 +2,6 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Annotation;
 
-use Noxlogic\RateLimitBundle\Annotation;
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 
