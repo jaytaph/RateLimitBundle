@@ -181,7 +181,7 @@ use Sensio\Bundle\FrameworkExtraBundle\Configuration\Route;
 /**
  * @Route(...)
  *
- * @RateLimit(limit=1000, period=3600)
+ * @RateLimit(limit=1000, period=3600, failOpen=true)
  */
 public function someApiAction()
 {

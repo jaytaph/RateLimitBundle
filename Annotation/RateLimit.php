@@ -32,6 +32,11 @@ class RateLimit extends ConfigurationAnnotation
     protected $payload;
 
     /**
+     * @var bool allow the ratelimiter to fail open on any request where an exception is thrown
+     */
+    protected $failOpen = false;
+
+    /**
      * Returns the alias name for an annotated configuration.
      *
      * @return string
@@ -113,6 +118,22 @@ class RateLimit extends ConfigurationAnnotation
     public function setPayload($payload)
     {
         $this->payload = $payload;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getFailOpen()
+    {
+        return $this->failOpen;
+    }
+
+    /**
+     * @param bool $failOpen
+     */
+    public function setFailOpen($failOpen)
+    {
+        $this->failOpen = $failOpen;
     }
 
 }
