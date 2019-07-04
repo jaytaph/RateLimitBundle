@@ -374,15 +374,42 @@ class RateLimitAnnotationListenerTest extends TestCase
         $mockDispatcher
             ->expects($this->any())
             ->method('dispatch')
-            ->willReturnCallback(function ($name, $event) use ($request, &$generated) {
-                if ($name !== RateLimitEvents::GENERATE_KEY) {
-                    return;
+            ->willReturnCallback(function ($name, $event = null) use ($request, &$generated) {
+                if(Kernel::VERSION_ID >= 40300) {
+                    if(!is_null(event)) {
+                        // Used if old Event names are used instead of the event object
+                        $swap = $name;
+                        $name = $event;
+                        $event = $swap;
+                        if ($name !== RateLimitEvents::GENERATE_KEY) {
+                            return;
+                        }
+                        $generated = true;
+                        $this->assertSame(RateLimitEvents::GENERATE_KEY, $name);
+                        $this->assertSame($request, $event->getRequest());
+                        $this->assertSame(['foo'], $event->getPayload());
+                        $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
+                    } else {
+                        $event = $name;
+                        if (get_class($event) !== GenerateKeyEvent::class) {
+                            return;
+                        }
+                        $generated = true;
+                        $this->assertSame(GenerateKeyEvent::class, get_class($event));
+                        $this->assertSame($request, $event->getRequest());
+                        $this->assertSame(['foo'], $event->getPayload());
+                        $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
+                    }
+                } else {
+                    if ($name !== RateLimitEvents::GENERATE_KEY) {
+                        return;
+                    }
+                    $generated = true;
+                    $this->assertSame(RateLimitEvents::GENERATE_KEY, $name);
+                    $this->assertSame($request, $event->getRequest());
+                    $this->assertSame(['foo'], $event->getPayload());
+                    $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
                 }
-                $generated = true;
-                $this->assertSame(RateLimitEvents::GENERATE_KEY, $name);
-                $this->assertSame($request, $event->getRequest());
-                $this->assertSame(['foo'], $event->getPayload());
-                $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
             });
 
         $storage = $this->getMockStorage();
