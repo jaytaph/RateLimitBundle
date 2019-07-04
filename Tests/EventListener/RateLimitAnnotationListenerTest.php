@@ -4,7 +4,6 @@ namespace Noxlogic\RateLimitBundle\EventListener\Tests;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
-use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
@@ -391,11 +390,11 @@ class RateLimitAnnotationListenerTest extends TestCase
                         $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
                     } else {
                         $event = $name;
-                        if (get_class($event) !== GenerateKeyEvent::class) {
+                        if (get_class($event) !== 'Noxlogic\RateLimitBundle\Events\GenerateKeyEvent') {
                             return;
                         }
                         $generated = true;
-                        $this->assertSame(GenerateKeyEvent::class, get_class($event));
+                        $this->assertSame('Noxlogic\RateLimitBundle\Events\GenerateKeyEvent', get_class($event));
                         $this->assertSame($request, $event->getRequest());
                         $this->assertSame(['foo'], $event->getPayload());
                         $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
