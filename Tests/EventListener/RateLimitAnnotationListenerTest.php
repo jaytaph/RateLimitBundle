@@ -14,6 +14,7 @@ use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
+use Symfony\Component\HttpKernel\Kernel;
 
 class MockController {
     function mockAction() { }
@@ -67,7 +68,11 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     public function testReturnedWhenNoControllerFound()
     {
-        $listener = $this->createListener($this->once());
+        if(Kernel::VERSION_ID >= 40300) {
+            $listener = $this->createListener($this->exactly(2));
+        } else {
+            $listener = $this->createListener($this->once());
+        }
 
         $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
         $request = new Request();
@@ -79,7 +84,11 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     public function testReturnedWhenNoAnnotationsFound()
     {
-        $listener = $this->createListener($this->once());
+        if(Kernel::VERSION_ID >= 40300) {
+            $listener = $this->createListener($this->exactly(2));
+        } else {
+            $listener = $this->createListener($this->once());
+        }
 
         $event = $this->createEvent();
         $listener->onKernelController($event);
@@ -90,7 +99,11 @@ class RateLimitAnnotationListenerTest extends TestCase
         $request = new Request();
         $event = $this->createEvent(HttpKernelInterface::MASTER_REQUEST, $request);
 
-        $listener = $this->createListener($this->once());
+        if(Kernel::VERSION_ID >= 40300) {
+            $listener = $this->createListener($this->exactly(2));
+        } else {
+            $listener = $this->createListener($this->once());
+        }
 
         $this->mockPathLimitProcessor->expects($this->once())
                                      ->method('getRateLimit')
@@ -101,7 +114,11 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     public function testDispatchIsCalled()
     {
-        $listener = $this->createListener($this->exactly(2));
+        if(Kernel::VERSION_ID >= 40300) {
+            $listener = $this->createListener($this->exactly(4));
+        } else {
+            $listener = $this->createListener($this->exactly(2));
+        }
 
         $event = $this->createEvent();
         $event->getRequest()->attributes->set('_x-rate-limit', array(
@@ -115,7 +132,11 @@ class RateLimitAnnotationListenerTest extends TestCase
     {
         $event = $this->createEvent(HttpKernelInterface::MASTER_REQUEST);
 
-        $listener = $this->createListener($this->exactly(2));
+        if(Kernel::VERSION_ID >= 40300) {
+            $listener = $this->createListener($this->exactly(4));
+        } else {
+            $listener = $this->createListener($this->exactly(2));
+        }
 
         $rateLimit = new RateLimit(array(
             'limit' => 100,
