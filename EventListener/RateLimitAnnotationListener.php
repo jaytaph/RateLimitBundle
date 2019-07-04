@@ -70,7 +70,9 @@ class RateLimitAnnotationListener extends BaseListener
         // Another treatment before applying RateLimit ?
         $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
         if(Kernel::VERSION_ID >= 40300) {
+            // Support for symfony listeners which are using the old event name.
             $this->eventDispatcher->dispatch($checkedRateLimitEvent, RateLimitEvents::CHECKED_RATE_LIMIT);
+            $this->eventDispatcher->dispatch($checkedRateLimitEvent);
         } else {
             $this->eventDispatcher->dispatch(RateLimitEvents::CHECKED_RATE_LIMIT, $checkedRateLimitEvent);
         }
@@ -180,8 +182,13 @@ class RateLimitAnnotationListener extends BaseListener
             ? str_replace('/', '.', $this->pathLimitProcessor->getMatchedPath($event->getRequest()))
             : $this->getAliasForRequest($event);
         $keyEvent->addToKey($rateLimitAlias);
-
-        $this->eventDispatcher->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
+        if(Kernel::VERSION_ID >= 40300) {
+            // Support for symfony listeners which are using the old event name.
+            $this->eventDispatcher->dispatch($keyEvent, RateLimitEvents::GENERATE_KEY);
+            $this->eventDispatcher->dispatch($keyEvent);
+        } else {
+            $this->eventDispatcher->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
+        }
 
         return $keyEvent->getKey();
     }
