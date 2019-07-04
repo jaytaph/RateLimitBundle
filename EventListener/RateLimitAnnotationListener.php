@@ -68,7 +68,11 @@ class RateLimitAnnotationListener extends BaseListener
 
         // Another treatment before applying RateLimit ?
         $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
-        $this->eventDispatcher->dispatch(RateLimitEvents::CHECKED_RATE_LIMIT, $checkedRateLimitEvent);
+        if(Kernel::VERSION_ID >= 40300) {
+            $this->eventDispatcher->dispatch($checkedRateLimitEvent, RateLimitEvents::CHECKED_RATE_LIMIT);
+        } else {
+            $this->eventDispatcher->dispatch(RateLimitEvents::CHECKED_RATE_LIMIT, $checkedRateLimitEvent);
+        }
         $rateLimit = $checkedRateLimitEvent->getRateLimit();
 
         // No matching annotation found
