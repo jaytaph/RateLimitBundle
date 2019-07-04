@@ -376,7 +376,7 @@ class RateLimitAnnotationListenerTest extends TestCase
             ->method('dispatch')
             ->willReturnCallback(function ($name, $event = null) use ($request, &$generated) {
                 if(Kernel::VERSION_ID >= 40300) {
-                    if(!is_null(event)) {
+                    if(!is_null($event)) {
                         // Used if old Event names are used instead of the event object
                         $swap = $name;
                         $name = $event;
