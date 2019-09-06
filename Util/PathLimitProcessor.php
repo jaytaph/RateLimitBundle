@@ -1,12 +1,12 @@
 <?php
 
-
 namespace Noxlogic\RateLimitBundle\Util;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
+use Noxlogic\RateLimitBundle\LimitProcessorInterface;
 use Symfony\Component\HttpFoundation\Request;
 
-class PathLimitProcessor
+class PathLimitProcessor implements LimitProcessorInterface
 {
     private $pathLimits;
 
@@ -44,18 +44,21 @@ class PathLimitProcessor
         return null;
     }
 
+    /**
+     * @deprecated since version 1.15, use getRateLimitAlias method instead.
+     *
+     * @param Request $request
+     * @return string
+     */
     public function getMatchedPath(Request $request)
     {
-        $path = trim($request->getPathInfo(), '/');
-        $method = $request->getMethod();
+        @trigger_error(sprintf('The "%s()" method is deprecated since version 1.15, use the "getRateLimitAlias()" method instead.', __METHOD__), E_USER_DEPRECATED);
+        return $this->getMatchedLimitPath($request);
+    }
 
-        foreach ($this->pathLimits as $pathLimit) {
-            if ($this->requestMatched($pathLimit, $path, $method)) {
-                return $pathLimit['path'];
-            }
-        }
-
-        return '';
+    public function getRateLimitAlias(Request $request)
+    {
+        return str_replace('/', '.', $this->getMatchedLimitPath($request));
     }
 
     private function requestMatched($pathLimit, $path, $method)
@@ -92,4 +95,22 @@ class PathLimitProcessor
 
         return true;
     }
-} 
+
+    /**
+     * @param Request $request
+     * @return string
+     */
+    private function getMatchedLimitPath(Request $request)
+    {
+        $path = trim($request->getPathInfo(), '/');
+        $method = $request->getMethod();
+
+        foreach ($this->pathLimits as $pathLimit) {
+            if ($this->requestMatched($pathLimit, $path, $method)) {
+                return $pathLimit['path'];
+            }
+        }
+
+        return '';
+    }
+}

@@ -35,15 +35,9 @@ class HeaderModificationListener extends BaseListener
         }
 
         /** @var RateLimitInfo $rateLimitInfo */
-
-        $remaining = $rateLimitInfo->getLimit() - $rateLimitInfo->getCalls();
-        if ($remaining < 0) {
-            $remaining = 0;
-        }
-
         $response = $event->getResponse();
         $response->headers->set($this->getParameter('header_limit_name'), $rateLimitInfo->getLimit());
-        $response->headers->set($this->getParameter('header_remaining_name'), $remaining);
+        $response->headers->set($this->getParameter('header_remaining_name'), $rateLimitInfo->getRemainingAttempts());
         $response->headers->set($this->getParameter('header_reset_name'), $rateLimitInfo->getResetTimestamp());
     }
 }
