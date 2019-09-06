@@ -126,7 +126,6 @@ class RateLimitAnnotationListener extends BaseListener
 
     }
 
-
     /**
      * @param Request $request
      * @param RateLimit[] $annotations
