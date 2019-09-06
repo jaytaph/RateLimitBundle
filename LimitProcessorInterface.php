@@ -9,7 +9,7 @@ interface LimitProcessorInterface
 {
     /**
      * @param Request $request
-     * @return mixed|RateLimit|null
+     * @return RateLimit|null
      */
     public function getRateLimit(Request $request);
 
