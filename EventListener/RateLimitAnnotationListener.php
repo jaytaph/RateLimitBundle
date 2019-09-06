@@ -68,11 +68,12 @@ class RateLimitAnnotationListener extends BaseListener
         // Find the best match
         $annotations = $event->getRequest()->attributes->get('_x-rate-limit', array());
 
-        $rateLimit = $this->findBestMethodMatch($event->getRequest(), $annotations);
         $limitProcessor = $this->pathLimitProcessor;
         if ($annotations) {
             $limitProcessor = new AnnotationLimitProcessor($annotations, $event->getController());
         }
+
+        $rateLimit = $limitProcessor->getRateLimit($event->getRequest());
 
         // Another treatment before applying RateLimit ?
         $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
