@@ -49,6 +49,7 @@ class RateLimitAnnotationListener extends BaseListener
 
     /**
      * @param FilterControllerEvent $event
+     * @throws \Exception
      */
     public function onKernelController(FilterControllerEvent $event)
     {
@@ -87,6 +88,7 @@ class RateLimitAnnotationListener extends BaseListener
             if ($rateLimit->getFailOpen()) {
                 return;
             }
+            throw $exception;
         }
 
         if (! $rateLimitInfo) {
