@@ -123,7 +123,7 @@ class RateLimit extends ConfigurationAnnotation
     /**
      * @return bool
      */
-    public function getFailOpen()
+    public function failOpen()
     {
         return $this->failOpen;
     }

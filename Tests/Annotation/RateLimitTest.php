@@ -35,7 +35,7 @@ class RateLimitTest extends TestCase
 
     public function testConstructionWithMethods()
     {
-        $annot = new RateLimit(array('limit' => 1234, 'period' => 1000, 'methods' => array('POST', 'GET')));
+        $annot = new RateLimit(array('limit' => 1234, 'period' => 1000, 'failOpen' => 'false', 'methods' => array('POST', 'GET')));
         $this->assertCount(2, $annot->getMethods());
 
         $annot->setMethods(array());

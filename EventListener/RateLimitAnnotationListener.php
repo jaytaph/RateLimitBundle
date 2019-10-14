@@ -84,11 +84,11 @@ class RateLimitAnnotationListener extends BaseListener
         try {
             // Ratelimit the call
             $rateLimitInfo = $this->rateLimitService->limitRate($key);
-        } catch (\Exception $exception) {
-            if ($rateLimit->getFailOpen()) {
+        } catch (\Throwable $throwable) {
+            if ($rateLimit->failOpen()) {
                 return;
             }
-            throw $exception;
+            throw $throwable;
         }
 
         if (! $rateLimitInfo) {
