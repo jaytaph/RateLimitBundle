@@ -4,7 +4,7 @@
         <body>
             <trans-unit id="1">
                 <source>Symfony2 is great</source>
-                <target>Ik houd van Symfony2</target>
+                <target>J'aime Symfony2</target>
             </trans-unit>
         </body>
     </file>
