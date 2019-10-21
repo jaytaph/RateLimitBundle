@@ -471,7 +471,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     {
         $listener = $this->createListener($this->any(), false);
         $this->expectException(\Throwable::class);
-        
+
         $event = $this->createEvent();
         $event->getRequest()->attributes->set('_x-rate-limit', array(
             new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => false)),
