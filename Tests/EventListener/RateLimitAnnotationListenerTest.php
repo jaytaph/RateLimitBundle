@@ -323,7 +323,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
-    protected function createListener($expects)
+    protected function createListener($expects, $setStorage = true)
     {
         $mockDispatcher = $this->getMockBuilder('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
         $mockDispatcher
@@ -331,7 +331,9 @@ class RateLimitAnnotationListenerTest extends TestCase
             ->method('dispatch');
 
         $rateLimitService = new RateLimitService();
-        $rateLimitService->setStorage($this->getMockStorage());
+        if ($setStorage) {
+            $rateLimitService->setStorage($this->getMockStorage());
+        }
 
         return new RateLimitAnnotationListener(
             $mockDispatcher,
@@ -455,7 +457,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     public function testRateLimitThrottlingWithFailOpen()
     {
-        $listener = $this->createListener($this->any());
+        $listener = $this->createListener($this->any(), false);
         $listener->setParameter('rate_response_code', 200);
         $listener->setParameter('rate_response_message', 'a message');
 
@@ -464,9 +466,23 @@ class RateLimitAnnotationListenerTest extends TestCase
             new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => true)),
         ));
 
-        $this->expectException('\Exception');
-
-        /** @var Response $response */
         $listener->onKernelController($event);
+    }
+
+    public function testRateLimitThrottlingWithFailOpenFalse()
+    {
+        $listener = $this->createListener($this->any(), false);
+        $listener->setParameter('rate_response_exception', '\RuntimeException');
+        $listener->setParameter('rate_response_code', 123);
+        $listener->setParameter('rate_response_message', 'a message');
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => false)),
+        ));
+
+        $listener->onKernelController($event);
+
+        $this->expectException(\Throwable::class);
     }
 }
