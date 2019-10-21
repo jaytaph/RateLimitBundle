@@ -458,8 +458,6 @@ class RateLimitAnnotationListenerTest extends TestCase
     public function testRateLimitThrottlingWithFailOpen()
     {
         $listener = $this->createListener($this->any(), false);
-        $listener->setParameter('rate_response_code', 200);
-        $listener->setParameter('rate_response_message', 'a message');
 
         $event = $this->createEvent();
         $event->getRequest()->attributes->set('_x-rate-limit', array(
@@ -472,10 +470,8 @@ class RateLimitAnnotationListenerTest extends TestCase
     public function testRateLimitThrottlingWithFailOpenFalse()
     {
         $listener = $this->createListener($this->any(), false);
-        $listener->setParameter('rate_response_exception', '\RuntimeException');
-        $listener->setParameter('rate_response_code', 123);
-        $listener->setParameter('rate_response_message', 'a message');
-
+        $this->expectException(\Throwable::class);
+        
         $event = $this->createEvent();
         $event->getRequest()->attributes->set('_x-rate-limit', array(
             new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => false)),
@@ -483,6 +479,6 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $listener->onKernelController($event);
 
-        $this->expectException(\Throwable::class);
+
     }
 }
