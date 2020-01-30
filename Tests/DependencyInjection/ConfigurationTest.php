@@ -3,7 +3,7 @@
 namespace Noxlogic\RateLimitBundle\Tests\DependencyInjection;
 
 use Noxlogic\RateLimitBundle\DependencyInjection\Configuration;
-use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
+use Noxlogic\RateLimitBundle\Tests\WebTestCase;
 use Symfony\Component\Config\Definition\Processor;
 
 /**
