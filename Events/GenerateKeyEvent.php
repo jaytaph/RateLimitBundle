@@ -2,10 +2,9 @@
 
 namespace Noxlogic\RateLimitBundle\Events;
 
-use Symfony\Component\EventDispatcher\Event;
 use Symfony\Component\HttpFoundation\Request;
 
-class GenerateKeyEvent extends Event
+class GenerateKeyEvent extends AbstractEvent
 {
 
     /** @var Request */

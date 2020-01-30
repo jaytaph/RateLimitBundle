@@ -4,7 +4,7 @@ namespace Noxlogic\RateLimitBundle\EventListener\Tests;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
-use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
+use Noxlogic\RateLimitBundle\Events\AbstractEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
@@ -23,6 +23,18 @@ class MockController {
 class RateLimitAnnotationListenerTest extends TestCase
 {
 
+    static $usedDispatcher;
+
+    public static function setUpBeforeClass()
+    {
+        parent::setUpBeforeClass();
+        if (!class_exists('Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface')) {
+            self::$usedDispatcher = 'Symfony\\Component\\EventDispatcher\\EventDispatcherInterface';
+        } else {
+            self::$usedDispatcher = 'Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface';
+        }
+    }
+
     /**
      * @var MockStorage
      */
@@ -31,7 +43,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $mockPathLimitProcessor;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockStorage = new MockStorage();
         $this->mockPathLimitProcessor = $this->getMockBuilder('Noxlogic\RateLimitBundle\Util\PathLimitProcessor')
@@ -325,7 +337,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     protected function createListener($expects)
     {
-        $mockDispatcher = $this->getMockBuilder('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
+        $mockDispatcher = $this->getMockBuilder(self::$usedDispatcher)->getMock();
         $mockDispatcher
             ->expects($expects)
             ->method('dispatch');
@@ -349,19 +361,26 @@ class RateLimitAnnotationListenerTest extends TestCase
         ));
 
         $generated = false;
-        $mockDispatcher = $this->getMockBuilder('Symfony\\Component\\EventDispatcher\\EventDispatcherInterface')->getMock();
+        $mockDispatcher = $this->getMockBuilder(self::$usedDispatcher)->getMock();
+        $generatedCallback = function ($name, $event) use ($request, &$generated) {
+            if ($name !== RateLimitEvents::GENERATE_KEY) {
+                return;
+            }
+            $generated = true;
+            $this->assertSame(RateLimitEvents::GENERATE_KEY, $name);
+            $this->assertSame($request, $event->getRequest());
+            $this->assertSame(['foo'], $event->getPayload());
+            $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
+        };
         $mockDispatcher
             ->expects($this->any())
             ->method('dispatch')
-            ->willReturnCallback(function ($name, $event) use ($request, &$generated) {
-                if ($name !== RateLimitEvents::GENERATE_KEY) {
-                    return;
+            ->willReturnCallback(function ($arg1, $arg2) use ($generatedCallback) {
+                if ($arg1 instanceof AbstractEvent) {
+                    $generatedCallback($arg2,$arg1);
+                } else {
+                    $generatedCallback($arg1,$arg2);
                 }
-                $generated = true;
-                $this->assertSame(RateLimitEvents::GENERATE_KEY, $name);
-                $this->assertSame($request, $event->getRequest());
-                $this->assertSame(['foo'], $event->getPayload());
-                $this->assertSame('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', $event->getKey());
             });
 
         $storage = $this->getMockStorage();

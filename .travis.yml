@@ -80,6 +80,12 @@ matrix:
           env: SYMFONY_VERSION=4.1.*
         - php: 7.1
           env: SYMFONY_VERSION=4.2.*
+        - php: 7.1
+          env: SYMFONY_VERSION=4.3.*
+        - php: 7.1
+          env: SYMFONY_VERSION=4.4.*
+        - php: 7.1
+          env: SYMFONY_VERSION=5.0.*
     allow_failures:
         - php: 5.6
 
