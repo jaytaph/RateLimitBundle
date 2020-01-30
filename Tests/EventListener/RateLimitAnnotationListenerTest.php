@@ -43,7 +43,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     /** @var \PHPUnit_Framework_MockObject_MockObject */
     protected $mockPathLimitProcessor;
 
-    protected function setUp(): void
+    protected function setUp()
     {
         $this->mockStorage = new MockStorage();
         $this->mockPathLimitProcessor = $this->getMockBuilder('Noxlogic\RateLimitBundle\Util\PathLimitProcessor')
