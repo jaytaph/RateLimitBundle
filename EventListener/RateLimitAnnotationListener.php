@@ -3,6 +3,7 @@
 namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
+use Noxlogic\RateLimitBundle\Events\AbstractFilterControllerEvent;
 use Noxlogic\RateLimitBundle\Events\CheckedRateLimitEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
@@ -12,9 +13,7 @@ use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as LegacyEventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\Routing\Route;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RateLimitAnnotationListener extends BaseListener
@@ -49,9 +48,9 @@ class RateLimitAnnotationListener extends BaseListener
     }
 
     /**
-     * @param FilterControllerEvent $event
+     * @param AbstractFilterControllerEvent $event
      */
-    public function onKernelController(FilterControllerEvent $event)
+    public function onKernelController(AbstractFilterControllerEvent $event)
     {
         // Skip if the bundle isn't enabled (for instance in test environment)
         if( ! $this->getParameter('enabled', true)) {
@@ -164,7 +163,7 @@ class RateLimitAnnotationListener extends BaseListener
         return $best_match;
     }
 
-    private function getKey(FilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
+    private function getKey(AbstractFilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
     {
         // Let listeners manipulate the key
         $keyEvent = new GenerateKeyEvent($event->getRequest(), '', $rateLimit->getPayload());
@@ -182,7 +181,7 @@ class RateLimitAnnotationListener extends BaseListener
         return $keyEvent->getKey();
     }
 
-    private function getAliasForRequest(FilterControllerEvent $event)
+    private function getAliasForRequest(AbstractFilterControllerEvent $event)
     {
         if (($route = $event->getRequest()->attributes->get('_route'))) {
             return $route;
