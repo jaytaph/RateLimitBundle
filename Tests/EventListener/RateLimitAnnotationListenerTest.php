@@ -13,7 +13,6 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class MockController {
@@ -173,21 +172,21 @@ class RateLimitAnnotationListenerTest extends TestCase
         ));
 
         $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
+        $this->assertIsArray($event->getController());
         $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
+        $this->assertIsArray( $event->getController());
         $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
+        $this->assertIsArray($event->getController());
         $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
+        $this->assertIsArray($event->getController());
         $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
+        $this->assertIsArray($event->getController());
         $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
+        $this->assertIsNotArray($event->getController());
         $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
+        $this->assertIsNotArray($event->getController());
         $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
+        $this->assertIsNotArray($event->getController());
     }
 
     public function testRateLimitThrottling()
@@ -203,7 +202,7 @@ class RateLimitAnnotationListenerTest extends TestCase
         $storage = $this->getMockStorage();
         $storage->createMockRate('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', 5, 10, 6);
         $listener->onKernelController($event);
-        $this->assertNotInternalType('array', $event->getController());
+        $this->assertIsNotArray($event->getController());
     }
 
     public function testRateLimitExpiring()
@@ -219,7 +218,7 @@ class RateLimitAnnotationListenerTest extends TestCase
         $storage = $this->getMockStorage();
         $storage->createMockRate('Noxlogic.RateLimitBundle.EventListener.Tests.MockController.mockAction', 5, -10, 12);
         $listener->onKernelController($event);
-        $this->assertInternalType('array', $event->getController());
+        $this->assertIsArray($event->getController());
     }
 
     public function testBestMethodMatch()
@@ -424,13 +423,11 @@ class RateLimitAnnotationListenerTest extends TestCase
         }
     }
 
-    /**
-     * @expectedException \BadFunctionCallException
-     * @expectedExceptionCode 123
-     * @expectedExceptionMessage a message
-     */
     public function testRateLimitThrottlingWithException()
     {
+        $this->expectException(\BadFunctionCallException::class);
+        $this->expectExceptionCode(123);
+        $this->expectDeprecationMessage('a message');
         $listener = $this->createListener($this->any());
         $listener->setParameter('rate_response_exception', '\BadFunctionCallException');
         $listener->setParameter('rate_response_code', 123);

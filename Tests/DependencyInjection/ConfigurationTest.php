@@ -4,6 +4,7 @@ namespace Noxlogic\RateLimitBundle\Tests\DependencyInjection;
 
 use Noxlogic\RateLimitBundle\DependencyInjection\Configuration;
 use Noxlogic\RateLimitBundle\Tests\WebTestCase;
+use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 
 /**
@@ -136,11 +137,9 @@ class ConfigurationTest extends WebTestCase
         $this->assertEquals($pathLimits, $configuration['path_limits']);
     }
 
-    /**
-     * @expectedException \Symfony\Component\Config\Definition\Exception\InvalidConfigurationException
-     */
     public function testMustBeBasedOnExceptionClass()
     {
+        $this->expectException(InvalidConfigurationException::class);
         $configuration = $this->getConfigs(array('rate_response_exception' => '\StdClass'));
     }
 
