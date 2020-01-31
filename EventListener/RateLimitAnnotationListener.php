@@ -210,7 +210,7 @@ class RateLimitAnnotationListener extends BaseListener
 
     private function dispatch($eventName, $event)
     {
-        if (get_class($this->eventDispatcher) === 'Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface') {
+        if ($this->eventDispatcher instanceof EventDispatcherInterface) {
             // Symfony >= 4.3
             $this->eventDispatcher->dispatch($event, $eventName);
         } else {
