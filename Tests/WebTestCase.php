@@ -7,14 +7,14 @@ use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase as LegacyWebTest
 
 if (!class_exists('Symfony\\Bundle\\FrameworkBundle\\Test\WebTestCase')) {
     /**
-     * Old PHPUnit
+     * Old Framework Bundle
      */
     abstract class WebTestCase extends LegacyWebTestCase
     {
     }
 } else {
     /**
-     * New PHPUnit
+     * New Framework Bundle
      */
     abstract class WebTestCase extends CurrentWebTestCase
     {

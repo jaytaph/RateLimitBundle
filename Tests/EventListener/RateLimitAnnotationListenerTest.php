@@ -5,6 +5,7 @@ namespace Noxlogic\RateLimitBundle\EventListener\Tests;
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
 use Noxlogic\RateLimitBundle\Events\AbstractEvent;
+use Noxlogic\RateLimitBundle\Events\ProxyFilterControllerEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
@@ -25,7 +26,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     static $usedDispatcher;
 
-    public static function setUpBeforeClass()
+    public static function setUpBeforeClass(): void
     {
         parent::setUpBeforeClass();
         if (!class_exists('Symfony\\Contracts\\EventDispatcher\\EventDispatcherInterface')) {
@@ -40,10 +41,10 @@ class RateLimitAnnotationListenerTest extends TestCase
      */
     protected $mockStorage;
 
-    /** @var \PHPUnit_Framework_MockObject_MockObject */
+    /** @var \PHPUnit\Framework\MockObject\MockObject */
     protected $mockPathLimitProcessor;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->mockStorage = new MockStorage();
         $this->mockPathLimitProcessor = $this->getMockBuilder('Noxlogic\RateLimitBundle\Util\PathLimitProcessor')
@@ -83,7 +84,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
         $request = new Request();
-        $event = new FilterControllerEvent($kernel, function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
+        $event = new ProxyFilterControllerEvent($kernel, function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
 
         $listener->onKernelController($event);
     }
@@ -320,7 +321,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
     /**
-     * @return FilterControllerEvent
+     * @return ProxyFilterControllerEvent
      */
     protected function createEvent($type = HttpKernelInterface::MASTER_REQUEST, Request $request = null)
     {
@@ -330,7 +331,7 @@ class RateLimitAnnotationListenerTest extends TestCase
         $action = 'mockAction';
 
         $request = $request === null ? new Request() : $request;
-        $event = new FilterControllerEvent($kernel, array($controller, $action), $request, $type);
+        $event = new ProxyFilterControllerEvent($kernel, array($controller, $action), $request, $type);
         return $event;
     }
 

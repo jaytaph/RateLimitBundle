@@ -9,14 +9,14 @@ if (!class_exists('Symfony\\Component\HttpKernel\\Event\\ControllerEvent')) {
     /**
      * Symfony 3.4
      */
-    abstract class AbstractFilterControllerEvent extends LegacyEvent
+    class ProxyFilterControllerEvent extends LegacyEvent
     {
     }
 } else {
     /**
      * Symfony >= 4.3
      */
-    abstract class AbstractFilterControllerEvent extends ControllerEvent
+    class ProxyFilterControllerEvent extends ControllerEvent
     {
     }
 }

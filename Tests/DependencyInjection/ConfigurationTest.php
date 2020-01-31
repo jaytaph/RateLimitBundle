@@ -16,7 +16,7 @@ class ConfigurationTest extends WebTestCase
      */
     private $processor;
 
-    public function setUp()
+    public function setUp():void
     {
         $this->processor = new Processor();
     }
