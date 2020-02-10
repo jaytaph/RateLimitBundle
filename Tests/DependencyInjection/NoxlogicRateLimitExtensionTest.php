@@ -68,7 +68,7 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $containerBuilder = new ContainerBuilder(new ParameterBag());
         $extension->load(array('enabled' => false), $containerBuilder);
 
-        $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code');
+        $this->assertEquals(429, $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code'));
     }
 
     public function testPathLimitsParameter()

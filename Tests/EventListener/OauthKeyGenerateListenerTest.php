@@ -17,6 +17,10 @@ class OauthKeyGenerateListenerTest extends TestCase
         } else {
             $this->mockContext = $this->getMockBuilder('Symfony\Component\Security\Core\SecurityContextInterface')->getMock();
         }
+
+        if (! class_exists('FOS\\OAuthServerBundle\\Security\\Authentication\\Token\\OAuthToken')) {
+            $this->markTestSkipped("OAuth not found");
+        }
     }
 
     public function testListener()
