@@ -1,3 +1,8 @@
+## 1.15.0
+2020-02-10 jaytaph
+- Added support for Symfony 5.x and removed support for < 3.4 and < 4.3 (kai)
+- Dropped support for PHP 7.2 or lower
+
 ## 1.14.0
 2019-02-19 goetas
 - Added Payload to RateLimit to allow better exceptions
