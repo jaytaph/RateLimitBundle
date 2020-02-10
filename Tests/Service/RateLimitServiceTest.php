@@ -22,11 +22,9 @@ class RateLimitServiceTest extends TestCase
         $this->assertEquals($mockStorage, $service->getStorage());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testRuntimeExceptionWhenNoStorageIsSet()
     {
+        $this->expectException(\RuntimeException::class);
         $service = new RateLimitService();
         $service->getStorage();
     }

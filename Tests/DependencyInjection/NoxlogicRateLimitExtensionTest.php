@@ -5,7 +5,7 @@ namespace Noxlogic\RateLimitBundle\Tests\DependencyInjection;
 use Noxlogic\RateLimitBundle\DependencyInjection\Configuration;
 use Noxlogic\RateLimitBundle\DependencyInjection\NoxlogicRateLimitExtension;
 use Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache;
-use Symfony\Bundle\FrameworkBundle\Tests\Functional\WebTestCase;
+use Noxlogic\RateLimitBundle\Tests\WebTestCase;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;

@@ -11,7 +11,7 @@ class OauthKeyGenerateListenerTest extends TestCase
 {
     protected $mockContext;
 
-    public function setUp() {
+    public function setUp(): void {
         if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
             $this->mockContext = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')->getMock();
         } else {
@@ -36,7 +36,7 @@ class OauthKeyGenerateListenerTest extends TestCase
 
         $this->assertEquals('foo.mocktoken', $event->getKey());
     }
-    
+
     public function testListenerWithoutOAuthToken()
     {
         $mockContext = $this->mockContext;

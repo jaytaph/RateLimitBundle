@@ -5,6 +5,7 @@ namespace Noxlogic\RateLimitBundle\Tests\Annotation;
 use Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener;
 use Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
+use Noxlogic\RateLimitBundle\Events\ProxyFilterResponseEvent;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use Symfony\Component\EventDispatcher\EventDispatcher;
@@ -143,7 +144,7 @@ class HeaderModificationListenerTest extends TestCase
         $request = new Request();
         $response = new Response();
 
-        $event = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\Event\\FilterResponseEvent')
+        $event = $this->getMockBuilder(ProxyFilterResponseEvent::class)
             ->disableOriginalConstructor()
             ->getMock();
         $event
