@@ -50,7 +50,7 @@ class RateLimitAnnotationListener extends BaseListener
     /**
      * @param ProxyFilterControllerEvent $event
      */
-    public function onKernelController(ProxyFilterControllerEvent $event)
+    public function onKernelController($event)
     {
         // Skip if the bundle isn't enabled (for instance in test environment)
         if( ! $this->getParameter('enabled', true)) {
@@ -163,7 +163,10 @@ class RateLimitAnnotationListener extends BaseListener
         return $best_match;
     }
 
-    private function getKey(ProxyFilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
+    /**
+     * @param $event ProxyFilterControllerEvent
+     */
+    private function getKey($event, RateLimit $rateLimit, array $annotations)
     {
         // Let listeners manipulate the key
         $keyEvent = new GenerateKeyEvent($event->getRequest(), '', $rateLimit->getPayload());
@@ -181,7 +184,10 @@ class RateLimitAnnotationListener extends BaseListener
         return $keyEvent->getKey();
     }
 
-    private function getAliasForRequest(ProxyFilterControllerEvent $event)
+    /**
+     * @param $event ProxyFilterControllerEvent
+     */
+    private function getAliasForRequest($event)
     {
         if (($route = $event->getRequest()->attributes->get('_route'))) {
             return $route;

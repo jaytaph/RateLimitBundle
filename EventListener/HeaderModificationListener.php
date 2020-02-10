@@ -19,7 +19,7 @@ class HeaderModificationListener extends BaseListener
     /**
      * @param ProxyFilterResponseEvent $event
      */
-    public function onKernelResponse(ProxyFilterResponseEvent $event)
+    public function onKernelResponse($event)
     {
         $request = $event->getRequest();
 
