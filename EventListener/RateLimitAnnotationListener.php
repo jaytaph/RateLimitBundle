@@ -3,7 +3,6 @@
 namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
-use Noxlogic\RateLimitBundle\Events\ProxyFilterControllerEvent;
 use Noxlogic\RateLimitBundle\Events\CheckedRateLimitEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
@@ -13,6 +12,8 @@ use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
 use Symfony\Component\EventDispatcher\EventDispatcherInterface as LegacyEventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
@@ -48,7 +49,7 @@ class RateLimitAnnotationListener extends BaseListener
     }
 
     /**
-     * @param ProxyFilterControllerEvent $event
+     * @param ControllerEvent|FilterControllerEvent $event
      */
     public function onKernelController($event)
     {
@@ -164,7 +165,10 @@ class RateLimitAnnotationListener extends BaseListener
     }
 
     /**
-     * @param $event ProxyFilterControllerEvent
+     * @param ControllerEvent|FilterControllerEvent $event
+     * @param RateLimit $rateLimit
+     * @param array $annotations
+     * @return string
      */
     private function getKey($event, RateLimit $rateLimit, array $annotations)
     {
@@ -185,7 +189,9 @@ class RateLimitAnnotationListener extends BaseListener
     }
 
     /**
-     * @param $event ProxyFilterControllerEvent
+     * @param string $route
+     * @param ControllerEvent|FilterControllerEvent $controller
+     * @return mixed|string
      */
     private function getAliasForRequest($event)
     {

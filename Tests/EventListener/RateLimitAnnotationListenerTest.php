@@ -5,7 +5,6 @@ namespace Noxlogic\RateLimitBundle\EventListener\Tests;
 use Noxlogic\RateLimitBundle\Annotation\RateLimit;
 use Noxlogic\RateLimitBundle\EventListener\RateLimitAnnotationListener;
 use Noxlogic\RateLimitBundle\Events\AbstractEvent;
-use Noxlogic\RateLimitBundle\Events\ProxyFilterControllerEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Tests\EventListener\MockStorage;
@@ -13,6 +12,8 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 use ReflectionMethod;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
+use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class MockController {
@@ -63,7 +64,6 @@ class RateLimitAnnotationListenerTest extends TestCase
         $listener->setParameter('enabled', false);
 
         $event = $this->createEvent();
-
         $listener->onKernelController($event);
     }
 
@@ -83,7 +83,12 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
         $request = new Request();
-        $event = new ProxyFilterControllerEvent($kernel, function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
+
+        if (class_exists('Symfony\\Component\\HttpKernel\\Event\\ControllerEvent')) {
+            $event = new ControllerEvent($kernel, function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
+        } else {
+            $event = new FilterControllerEvent($kernel, function () {}, $request, HttpKernelInterface::MASTER_REQUEST);
+        }
 
         $listener->onKernelController($event);
     }
@@ -320,9 +325,11 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
     /**
-     * @return ProxyFilterControllerEvent
+     * @param int $requestType
+     * @param Request|null $request
+     * @return ControllerEvent|FilterControllerEvent
      */
-    protected function createEvent($type = HttpKernelInterface::MASTER_REQUEST, Request $request = null)
+    protected function createEvent($requestType = HttpKernelInterface::MASTER_REQUEST, Request $request = null)
     {
         $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
 
@@ -330,8 +337,12 @@ class RateLimitAnnotationListenerTest extends TestCase
         $action = 'mockAction';
 
         $request = $request === null ? new Request() : $request;
-        $event = new ProxyFilterControllerEvent($kernel, array($controller, $action), $request, $type);
-        return $event;
+
+        if (class_exists('Symfony\\Component\\HttpKernel\\Event\\ControllerEvent')) {
+            return new ControllerEvent($kernel, array($controller, $action), $request, $requestType);
+        }
+
+        return new FilterControllerEvent($kernel, array($controller, $action), $request, $requestType);
     }
 
 
@@ -377,9 +388,11 @@ class RateLimitAnnotationListenerTest extends TestCase
             ->method('dispatch')
             ->willReturnCallback(function ($arg1, $arg2) use ($generatedCallback) {
                 if ($arg1 instanceof AbstractEvent) {
-                    $generatedCallback($arg2,$arg1);
+                    $generatedCallback($arg2, $arg1);
+                    return $arg1;
                 } else {
-                    $generatedCallback($arg1,$arg2);
+                    $generatedCallback($arg1, $arg2);
+                    return $arg2;
                 }
             });
 
