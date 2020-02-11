@@ -42,7 +42,6 @@ matrix:
           env: SYMFONY_VERSION=5.0.*
     allow_failures:
       - env: COMPOSER_FLAGS="--prefer-lowest"
-      - env: SYMFONY_VERSION=5.0.*
 before_install:
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
 
