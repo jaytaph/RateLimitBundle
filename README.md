@@ -113,7 +113,7 @@ noxlogic_rate_limit:
     redis_service:    null # Example: project.predis
 
     # The Redis client to use for the php_redis storage engine
-    # Should be an instance of \Redis
+    # Depending on storage_engine an instance of \Redis or \RedisCluster
     php_redis_service:    null # Example: project.redis
 
     # The memcache client to use for the memcache storage engine
