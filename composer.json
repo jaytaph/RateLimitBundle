@@ -31,7 +31,7 @@
     },
     "autoload": {
         "psr-4": {
-            "Noxlogic\\RateLimitBundle\\": "src/"
+            "Noxlogic\\RateLimitBundle\\": ""
         }
     },
     "target-dir": "Noxlogic/RateLimitBundle"

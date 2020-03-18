@@ -1,6 +1,6 @@
 <?php
 
-namespace Noxlogic\RateLimitBundle\Tests\Annotation;
+namespace Noxlogic\RateLimitBundle\Tests\EventListener;
 
 use Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener;
 use Noxlogic\RateLimitBundle\Events\ProxyFilterResponseEvent;
