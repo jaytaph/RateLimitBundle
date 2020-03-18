@@ -30,7 +30,9 @@
         "friendsofsymfony/oauth-server-bundle": "Throttle using OAuth access tokens."
     },
     "autoload": {
-        "psr-0": { "Noxlogic\\RateLimitBundle": "" }
+        "psr-4": {
+            "Noxlogic\\RateLimitBundle\\": "src/"
+        }
     },
     "target-dir": "Noxlogic/RateLimitBundle"
 }
