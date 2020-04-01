@@ -103,7 +103,7 @@ noxlogic_rate_limit:
     enabled:              true
 
     # The storage engine where all the rates will be stored
-    storage_engine:       ~ # One of "redis"; "memcache"; "doctrine"; "php_redis"
+    storage_engine:       ~ # One of "redis"; "memcache"; "doctrine"; "php_redis"; "php_redis_cluster"
 
     # The redis client to use for the redis storage engine
     redis_client:         default_client
@@ -113,7 +113,7 @@ noxlogic_rate_limit:
     redis_service:    null # Example: project.predis
 
     # The Redis client to use for the php_redis storage engine
-    # Should be an instance of \Redis
+    # Depending on storage_engine an instance of \Redis or \RedisCluster
     php_redis_service:    null # Example: project.redis
 
     # The memcache client to use for the memcache storage engine

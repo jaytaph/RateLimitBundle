@@ -88,6 +88,13 @@ class NoxlogicRateLimitExtension extends Extension
                     new Reference($config['php_redis_service'])
                 );
                 break;
+            case 'php_redis_cluster':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PhpRedisCluster');
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference($config['php_redis_service'])
+                );
+                break;
             case 'simple_cache':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\SimpleCache');
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
