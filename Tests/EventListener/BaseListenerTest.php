@@ -1,12 +1,8 @@
 <?php
 
-namespace Noxlogic\RateLimitBundle\Tests\Annotation;
+namespace Noxlogic\RateLimitBundle\Tests\EventListener;
 
-use Noxlogic\RateLimitBundle\EventListener\BaseListener;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
-
-class MockListener extends BaseListener {
-}
 
 class BaseListenerTest extends TestCase
 {
