@@ -33,6 +33,5 @@
         "psr-4": {
             "Noxlogic\\RateLimitBundle\\": ""
         }
-    },
-    "target-dir": "Noxlogic/RateLimitBundle"
+    }
 }
