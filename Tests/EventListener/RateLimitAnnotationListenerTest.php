@@ -464,21 +464,24 @@ class RateLimitAnnotationListenerTest extends TestCase
             new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => true)),
         ));
 
-        $listener->onKernelController($event);
+        $response = $listener->onKernelController($event);
+
+        $this->assertNull($response);
     }
 
     public function testRateLimitThrottlingWithFailOpenFalse()
     {
         $listener = $this->createListener($this->any(), false);
-        $this->expectException(\Throwable::class);
+        $request = new Request();
 
-        $event = $this->createEvent();
+        $event = $this->createEvent(HttpKernelInterface::MASTER_REQUEST, $request);
         $event->getRequest()->attributes->set('_x-rate-limit', array(
             new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => false)),
         ));
 
         $listener->onKernelController($event);
-
+        $a = $event->getController();
+        $response = $a();
 
     }
 }

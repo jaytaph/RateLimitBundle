@@ -171,7 +171,7 @@ noxlogic_rate_limit:
 ### Simple rate limiting
 
 To enable rate limiting, you only need to add the annotation to the docblock of the specified action. 
-Additionally, a failOpen parameter can be set that will allow an endpoint to respond normally if any 
+Additionally, a `failOpen` parameter can be set that will allow an endpoint to respond normally if any 
 exception occurs while processing the rate limit logic. For example, failure to connect to the server.
 
 
