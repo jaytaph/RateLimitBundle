@@ -9,18 +9,19 @@ use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Exception\RateLimitExceptionInterface;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface;
+use Symfony\Component\EventDispatcher\EventDispatcherInterface as LegacyEventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
-use Symfony\Component\Routing\Route;
+use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RateLimitAnnotationListener extends BaseListener
 {
 
     /**
-     * @var eventDispatcherInterface
+     * @var EventDispatcherInterface | LegacyEventDispatcherInterface
      */
     protected $eventDispatcher;
 
@@ -38,7 +39,7 @@ class RateLimitAnnotationListener extends BaseListener
      * @param RateLimitService                    $rateLimitService
      */
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
+        $eventDispatcher,
         RateLimitService $rateLimitService,
         PathLimitProcessor $pathLimitProcessor
     ) {
@@ -48,10 +49,9 @@ class RateLimitAnnotationListener extends BaseListener
     }
 
     /**
-     * @param FilterControllerEvent $event
-     * @throws \Exception
+     * @param ControllerEvent|FilterControllerEvent $event
      */
-    public function onKernelController(FilterControllerEvent $event)
+    public function onKernelController($event)
     {
         // Skip if the bundle isn't enabled (for instance in test environment)
         if( ! $this->getParameter('enabled', true)) {
@@ -69,7 +69,7 @@ class RateLimitAnnotationListener extends BaseListener
 
         // Another treatment before applying RateLimit ?
         $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
-        $this->eventDispatcher->dispatch(RateLimitEvents::CHECKED_RATE_LIMIT, $checkedRateLimitEvent);
+        $this->dispatch(RateLimitEvents::CHECKED_RATE_LIMIT, $checkedRateLimitEvent);
         $rateLimit = $checkedRateLimitEvent->getRateLimit();
 
         // No matching annotation found
@@ -174,12 +174,18 @@ class RateLimitAnnotationListener extends BaseListener
         return $best_match;
     }
 
-    private function getKey(FilterControllerEvent $event, RateLimit $rateLimit, array $annotations)
+    /**
+     * @param ControllerEvent|FilterControllerEvent $event
+     * @param RateLimit $rateLimit
+     * @param array $annotations
+     * @return string
+     */
+    private function getKey($event, RateLimit $rateLimit, array $annotations)
     {
         // Let listeners manipulate the key
         $keyEvent = new GenerateKeyEvent($event->getRequest(), '', $rateLimit->getPayload());
 
-        $rateLimitMethods = join('.', $rateLimit->getMethods());
+        $rateLimitMethods = implode('.', $rateLimit->getMethods());
         $keyEvent->addToKey($rateLimitMethods);
 
         $rateLimitAlias = count($annotations) === 0
@@ -187,12 +193,17 @@ class RateLimitAnnotationListener extends BaseListener
             : $this->getAliasForRequest($event);
         $keyEvent->addToKey($rateLimitAlias);
 
-        $this->eventDispatcher->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
+        $this->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
 
         return $keyEvent->getKey();
     }
 
-    private function getAliasForRequest(FilterControllerEvent $event)
+    /**
+     * @param string $route
+     * @param ControllerEvent|FilterControllerEvent $controller
+     * @return mixed|string
+     */
+    private function getAliasForRequest($event)
     {
         if (($route = $event->getRequest()->attributes->get('_route'))) {
             return $route;
@@ -218,4 +229,16 @@ class RateLimitAnnotationListener extends BaseListener
 
         return 'other';
     }
+
+    private function dispatch($eventName, $event)
+    {
+        if ($this->eventDispatcher instanceof EventDispatcherInterface) {
+            // Symfony >= 4.3
+            $this->eventDispatcher->dispatch($event, $eventName);
+        } else {
+            // Symfony 3.4
+            $this->eventDispatcher->dispatch($eventName, $event);
+        }
+    }
+
 }

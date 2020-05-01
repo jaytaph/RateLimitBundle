@@ -1,93 +1,54 @@
 language: php
 
 php:
-  - 5.4
-  - 5.5
-  - 5.6
-  - 7.0
-  - 7.1
+  - 7.2
+  - 7.3
+  - 7.4
 
 sudo: false
 
 matrix:
     fast_finish: true
     include:
-        - php: 5.4
+        - php: 7.2
           env: COMPOSER_FLAGS="--prefer-lowest"
-        - php: 5.5
-          env: COMPOSER_FLAGS="--prefer-lowest"
-        - php: 5.6
-          env: SYMFONY_VERSION=2.3.*
-        - php: 5.6
-          env: SYMFONY_VERSION=2.6.*
-        - php: 5.6
-          env: SYMFONY_VERSION=2.7.*
-        - php: 5.6
-          env: SYMFONY_VERSION=2.8.*
-        - php: 5.6
-          env: SYMFONY_VERSION=3.0.*
-        - php: 5.6
-          env: SYMFONY_VERSION=3.1.*
-        - php: 5.6
-          env: SYMFONY_VERSION=3.2.*
-        - php: 5.6
-          env: SYMFONY_VERSION=3.3.*
-        - php: 5.6
+        - php: 7.2
           env: SYMFONY_VERSION=3.4.*
-        - php: 7.0
+        - php: 7.2
+          env: SYMFONY_VERSION=4.3.*
+        - php: 7.2
+          env: SYMFONY_VERSION=4.4.*
+        - php: 7.2
+          env: SYMFONY_VERSION=5.0.*
+        - php: 7.3
           env: COMPOSER_FLAGS="--prefer-lowest"
-        - php: 7.0
-          env: SYMFONY_VERSION=2.3.*
-        - php: 7.0
-          env: SYMFONY_VERSION=2.6.*
-        - php: 7.0
-          env: SYMFONY_VERSION=2.7.*
-        - php: 7.0
-          env: SYMFONY_VERSION=2.8.*
-        - php: 7.0
-          env: SYMFONY_VERSION=3.0.*
-        - php: 7.0
-          env: SYMFONY_VERSION=3.1.*
-        - php: 7.0
-          env: SYMFONY_VERSION=3.2.*
-        - php: 7.0
-          env: SYMFONY_VERSION=3.3.*
-        - php: 7.0
+        - php: 7.3
           env: SYMFONY_VERSION=3.4.*
-        - php: 7.1
+        - php: 7.3
+          env: SYMFONY_VERSION=4.3.*
+        - php: 7.3
+          env: SYMFONY_VERSION=4.4.*
+        - php: 7.3
+          env: SYMFONY_VERSION=5.0.*
+        - php: 7.4
           env: COMPOSER_FLAGS="--prefer-lowest"
-        - php: 7.1
-          env: SYMFONY_VERSION=2.3.*
-        - php: 7.1
-          env: SYMFONY_VERSION=2.6.*
-        - php: 7.1
-          env: SYMFONY_VERSION=2.7.*
-        - php: 7.1
-          env: SYMFONY_VERSION=2.8.*
-        - php: 7.1
-          env: SYMFONY_VERSION=3.0.*
-        - php: 7.1
-          env: SYMFONY_VERSION=3.1.*
-        - php: 7.1
-          env: SYMFONY_VERSION=3.2.*
-        - php: 7.1
-          env: SYMFONY_VERSION=3.3.*
-        - php: 7.1
+        - php: 7.4
           env: SYMFONY_VERSION=3.4.*
-        - php: 7.1
-          env: SYMFONY_VERSION=4.0.*
-        - php: 7.1
-          env: SYMFONY_VERSION=4.1.*
-        - php: 7.1
-          env: SYMFONY_VERSION=4.2.*
+        - php: 7.4
+          env: SYMFONY_VERSION=4.3.*
+        - php: 7.4
+          env: SYMFONY_VERSION=4.4.*
+        - php: 7.4
+          env: SYMFONY_VERSION=5.0.*
     allow_failures:
-        - php: 5.6
-
+      - env: COMPOSER_FLAGS="--prefer-lowest"
 before_install:
     - echo "extension = redis.so" >> ~/.phpenv/versions/$(phpenv version-name)/etc/php.ini
+
 before_script:
     - composer self-update
     - if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
+    - if [ "$SYMFONY_VERSION" = "5.0.*" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
     - COMPOSER_MEMORY_LIMIT=-1 travis_retry composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
 
 script: php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover

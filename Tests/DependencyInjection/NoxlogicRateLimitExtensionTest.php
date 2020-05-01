@@ -5,7 +5,7 @@ namespace Noxlogic\RateLimitBundle\Tests\DependencyInjection;
 use Noxlogic\RateLimitBundle\DependencyInjection\Configuration;
 use Noxlogic\RateLimitBundle\DependencyInjection\NoxlogicRateLimitExtension;
 use Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache;
-use Symfony\Bundle\FrameworkBundle\Test\WebTestCase;
+use Noxlogic\RateLimitBundle\Tests\WebTestCase;
 use Symfony\Component\Config\Definition\Processor;
 use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
@@ -68,7 +68,7 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $containerBuilder = new ContainerBuilder(new ParameterBag());
         $extension->load(array('enabled' => false), $containerBuilder);
 
-        $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code');
+        $this->assertEquals(429, $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code'));
     }
 
     public function testPathLimitsParameter()

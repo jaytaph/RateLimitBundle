@@ -59,10 +59,10 @@ class NoxlogicRateLimitExtension extends Extension
                 break;
             case 'redis':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Redis');
-                if (isset($config['redis_client'])) {
-                    $service = 'snc_redis.' . $config['redis_client'];
-                } else {
+                if (isset($config['redis_service'])) {
                     $service = $config['redis_service'];
+                } else {
+                    $service = 'snc_redis.' . $config['redis_client'];
                 }
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
                     0,
@@ -88,6 +88,13 @@ class NoxlogicRateLimitExtension extends Extension
                     new Reference($config['php_redis_service'])
                 );
                 break;
+            case 'php_redis_cluster':
+                $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\PhpRedisCluster');
+                $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
+                    0,
+                    new Reference($config['php_redis_service'])
+                );
+                break;
             case 'simple_cache':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\SimpleCache');
                 $container->getDefinition('noxlogic_rate_limit.storage')->replaceArgument(
@@ -105,13 +112,7 @@ class NoxlogicRateLimitExtension extends Extension
         }
 
         if ($config['fos_oauth_key_listener']) {
-            // Set the SecurityContext for Symfony < 2.6
-            // Replace with xml when < 2.6 is dropped.
-            if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
-                $tokenStorageReference = new Reference('security.token_storage');
-            } else {
-                $tokenStorageReference = new Reference('security.context');
-            }
+            $tokenStorageReference = new Reference('security.token_storage');
             $container->getDefinition('noxlogic_rate_limit.oauth_key_generate_listener')->replaceArgument(0, $tokenStorageReference);
         } else {
             $container->removeDefinition('noxlogic_rate_limit.oauth_key_generate_listener');

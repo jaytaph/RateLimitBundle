@@ -1,17 +1,17 @@
 <?php
 
-namespace Noxlogic\RateLimitBundle\Tests\Annotation;
+namespace Noxlogic\RateLimitBundle\Tests\EventListener;
 
 use Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener;
-use Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener;
-use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
+use Noxlogic\RateLimitBundle\Events\ProxyFilterResponseEvent;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
-use Symfony\Component\EventDispatcher\EventDispatcher;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpKernel\Event\ControllerEvent;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
-use Symfony\Component\HttpKernel\HttpKernel;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
+use Symfony\Component\HttpKernel\HttpKernelInterface;
 
 class HeaderModificationListenerTest extends TestCase
 {
@@ -136,22 +136,19 @@ class HeaderModificationListenerTest extends TestCase
     }
 
     /**
-     * @return FilterResponseEvent
+     * @return FilterResponseEvent|ControllerEvent
      */
     protected function createEvent()
     {
+        $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
         $request = new Request();
         $response = new Response();
 
-        $event = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\Event\\FilterResponseEvent')
-            ->disableOriginalConstructor()
-            ->getMock();
-        $event
-            ->method('getRequest')
-            ->willReturn($request);
-        $event
-            ->method('getResponse')
-            ->willReturn($response);
+        if (class_exists('Symfony\\Component\\HttpKernel\\Event\\ControllerEvent')) {
+            $event = new ResponseEvent($kernel, $request, HttpKernelInterface::MASTER_REQUEST, $response);
+        } else {
+            $event = new FilterResponseEvent($kernel, $request, HttpKernelInterface::MASTER_REQUEST, $response);
+        }
 
         return $event;
     }

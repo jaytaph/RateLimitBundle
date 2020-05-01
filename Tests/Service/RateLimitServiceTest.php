@@ -1,6 +1,6 @@
 <?php
 
-namespace Noxlogic\RateLimitBundle\Tests\Annotation;
+namespace Noxlogic\RateLimitBundle\Tests\Service;
 
 use Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
@@ -22,11 +22,9 @@ class RateLimitServiceTest extends TestCase
         $this->assertEquals($mockStorage, $service->getStorage());
     }
 
-    /**
-     * @expectedException \RuntimeException
-     */
     public function testRuntimeExceptionWhenNoStorageIsSet()
     {
+        $this->expectException(\RuntimeException::class);
         $service = new RateLimitService();
         $service->getStorage();
     }

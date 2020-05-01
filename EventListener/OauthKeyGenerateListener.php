@@ -3,13 +3,12 @@
 namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
-use Symfony\Component\Security\Core\SecurityContextInterface;
 use Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface;
 
 class OauthKeyGenerateListener
 {
     /**
-     * @var SecurityContextInterface|TokenStorageInterface
+     * @var TokenStorageInterface
      */
     protected $tokenStorage;
 

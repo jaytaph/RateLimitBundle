@@ -1,6 +1,6 @@
 <?php
 
-namespace Noxlogic\RateLimitBundle\Tests\Annotation;
+namespace Noxlogic\RateLimitBundle\Tests\EventListener;
 
 use Noxlogic\RateLimitBundle\EventListener\OauthKeyGenerateListener;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
@@ -11,11 +11,15 @@ class OauthKeyGenerateListenerTest extends TestCase
 {
     protected $mockContext;
 
-    public function setUp() {
+    public function setUp(): void {
         if (interface_exists('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')) {
             $this->mockContext = $this->getMockBuilder('Symfony\Component\Security\Core\Authentication\Token\Storage\TokenStorageInterface')->getMock();
         } else {
             $this->mockContext = $this->getMockBuilder('Symfony\Component\Security\Core\SecurityContextInterface')->getMock();
+        }
+
+        if (! class_exists('FOS\\OAuthServerBundle\\Security\\Authentication\\Token\\OAuthToken')) {
+            $this->markTestSkipped("OAuth not found");
         }
     }
 
@@ -36,7 +40,7 @@ class OauthKeyGenerateListenerTest extends TestCase
 
         $this->assertEquals('foo.mocktoken', $event->getKey());
     }
-    
+
     public function testListenerWithoutOAuthToken()
     {
         $mockContext = $this->mockContext;

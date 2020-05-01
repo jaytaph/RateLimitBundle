@@ -4,6 +4,7 @@ namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
+use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class HeaderModificationListener extends BaseListener
 {
@@ -17,9 +18,9 @@ class HeaderModificationListener extends BaseListener
     }
 
     /**
-     * @param FilterResponseEvent $event
+     * @param FilterResponseEvent|ResponseEvent $event
      */
-    public function onKernelResponse(FilterResponseEvent $event)
+    public function onKernelResponse($event)
     {
         $request = $event->getRequest();
 
