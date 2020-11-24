@@ -1,3 +1,16 @@
+## 1.16.2
+2021-03-13 jaytaph
+ - Issue #115: Reserved characters in redis are sanitized (fixes IPv6 issues)
+ 
+## 1.16.1
+2021-03-12 jaytaph
+- Added support for framework extra bundle 6.0 in the requirements
+
+## 1.16.0
+2021-02-01 jaytaph
+- Moved from PSR-0 to PSR-4 to keep composer2 compatibility (Maxime Horcholle)
+- Added redis cluster functionality (DemigodCode)
+
 ## 1.15.1
 2020-02-11 jaytaph
 - Fixed Symfony5 compatibility issues
