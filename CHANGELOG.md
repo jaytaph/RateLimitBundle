@@ -1,3 +1,8 @@
+## 1.16.0
+2021-02-01 jaytapg
+- Moved from PSR-0 to PSR-4 to keep composer2 compatibility (Maxime Horcholle)
+- Added redis cluster functionality (DemigodCode)
+
 ## 1.15.1
 2020-02-11 jaytaph
 - Fixed Symfony5 compatibility issues
