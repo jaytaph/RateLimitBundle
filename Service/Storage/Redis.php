@@ -19,6 +19,8 @@ class Redis implements StorageInterface
 
     public function getRateInfo($key)
     {
+        $key = $this->sanitizeRedisKey($key);
+
         $info = $this->client->hgetall($key);
         if (!isset($info['limit']) || !isset($info['calls']) || !isset($info['reset'])) {
             return false;
@@ -34,6 +36,8 @@ class Redis implements StorageInterface
 
     public function limitRate($key)
     {
+        $key = $this->sanitizeRedisKey($key);
+
         $info = $this->getRateInfo($key);
         if (!$info) {
             return false;
@@ -47,6 +51,8 @@ class Redis implements StorageInterface
 
     public function createRate($key, $limit, $period)
     {
+        $key = $this->sanitizeRedisKey($key);
+
         $reset = time() + $period;
 
         $this->client->hset($key, 'limit', $limit);
@@ -64,9 +70,21 @@ class Redis implements StorageInterface
 
     public function resetRate($key)
     {
+        $key = $this->sanitizeRedisKey($key);
+
         $this->client->del($key);
 
         return true;
+    }
+
+    /**
+     * Sanitizies key so it can be used safely in REDIS
+     *
+     * @param $key
+     * @return string|string[]
+     */
+    protected function sanitizeRedisKey($key) {
+        return str_replace(str_split('@{}()/\:'), '_', $key);
     }
 
 }
