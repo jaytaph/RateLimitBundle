@@ -37,7 +37,7 @@ jobs:
             - name: Run tests
               run: |
                 # hack to make sure --prefer-lowest can fail
-                if [ "COMPOSER_FLAGS" == "--prefer-lowest" ]; then
+                if [ "$COMPOSER_FLAGS" == "--prefer-lowest" ]; then
                   php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover || true
                 else
                   php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
