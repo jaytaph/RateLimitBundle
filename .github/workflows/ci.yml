@@ -1,0 +1,49 @@
+name: CI Tests
+
+on:
+    push:
+    pull_request:
+
+jobs:
+    run-tests:
+        runs-on: ubuntu-20.04
+        strategy:
+            fail-fast: false
+            matrix:
+                php: [ "7.2", "7.3", "7.4" ]
+                composer_flags: [ "", "--prefer-lowest" ]
+                symfony_version: [ "3.4.*", "4.3.*", "4.4.*", "5.0.*"]
+        name: PHP ${{ matrix.php }} SF ${{ matrix.symfony_version }} ${{ matrix.composer_flags}}
+        env:
+            PHP: ${{ matrix.os }}
+            COMPOSER_MEMORY_LIMIT: -1
+            COMPOSER_FLAGS: ${{ matrix.composer_flags }}
+            SYMFONY_VERSION: ${{ matrix.symfony_version }}
+        steps:
+            - name: Setup PHP
+              uses: shivammathur/setup-php@v2
+              with:
+                php-version: ${{ matrix.php }}
+                extensions: redis
+                ini-values: memory_limit=256M,post_max_size=256M
+            - name: Checkout ratelimit bundle
+              uses: actions/checkout@v2
+            - name: Install dependencies
+              run: |
+                composer self-update
+                if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
+                if [ "$SYMFONY_VERSION" = "5.0.*" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
+                COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
+            - name: Run tests
+              run: |
+                # hack to make sure --prefer-lowest can fail
+                if [ "COMPOSER_FLAGS" == "--prefer-lowest" ]; then
+                  php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover || true
+                else
+                  php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
+                fi
+            - name: Upload coverage
+              if: ${{ matrix.php == '7.4' }}
+              run: |
+                wget https://scrutinizer-ci.com/ocular.phar
+                php ocular.phar code-coverage:upload --format=php-clover coverage.clover
