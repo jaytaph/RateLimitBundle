@@ -97,4 +97,17 @@ class RedisTest extends TestCase
         $this->assertTrue($storage->resetRate('foo'));
     }
 
+    public function testSanitizeKey()
+    {
+        $client = $this->getMockBuilder('Predis\\Client')
+            ->setMethods(array('del'))
+            ->getMock();
+        $client->expects($this->once())
+              ->method('del')
+              ->with('PUT.POST.api_foo.2800_xxx_yyyy_zzzz_d1__41_zz_zz_x_xx_yyyy');
+
+        $storage = new Redis($client);
+        $this->assertTrue($storage->resetRate('PUT.POST.api_foo.2800:xxx:yyyy:zzzz:d1@@41:zz{zz:x}xx:yyyy'));
+    }
+
 }
