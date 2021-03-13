@@ -36,12 +36,7 @@ jobs:
                 COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
             - name: Run tests
               run: |
-                # hack to make sure --prefer-lowest can fail
-                if [ "$COMPOSER_FLAGS" == "--prefer-lowest" ]; then
-                  php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover || true
-                else
-                  php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
-                fi
+                php vendor/bin/phpunit --coverage-text --coverage-clover=coverage.clover
             - name: Upload coverage
               if: ${{ matrix.php == '7.4' }}
               run: |
