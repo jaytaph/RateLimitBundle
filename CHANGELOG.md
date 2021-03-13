@@ -1,3 +1,7 @@
+## 1.16.2
+2021-03-13 jaytaph
+ - Issue #115: Reserved characters in redis are sanitized (fixes IPv6 issues)
+ 
 ## 1.16.1
 2021-03-12 jaytaph
 - Added support for framework extra bundle 6.0 in the requirements
