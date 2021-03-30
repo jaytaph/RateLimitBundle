@@ -78,6 +78,11 @@ class RateLimitAnnotationListener extends BaseListener
         }
 
         $key = $this->getKey($event, $rateLimit, $annotations);
+        
+        // Skip if falsey key is returned
+        if (! $key) {
+            return;
+        }
 
         // Ratelimit the call
         $rateLimitInfo = $this->rateLimitService->limitRate($key);
