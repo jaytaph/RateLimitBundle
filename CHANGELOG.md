@@ -1,3 +1,7 @@
+## 1.17.0
+2021-04-06 jaytaph
+  - PHP8 compatibility added.
+
 ## 1.16.2
 2021-03-13 jaytaph
  - Issue #115: Reserved characters in redis are sanitized (fixes IPv6 issues)
