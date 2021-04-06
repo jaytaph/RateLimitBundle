@@ -434,7 +434,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     {
         $this->expectException(\BadFunctionCallException::class);
         $this->expectExceptionCode(123);
-        $this->expectDeprecationMessage('a message');
+        $this->expectExceptionMessage('a message');
         $listener = $this->createListener($this->any());
         $listener->setParameter('rate_response_exception', '\BadFunctionCallException');
         $listener->setParameter('rate_response_code', 123);

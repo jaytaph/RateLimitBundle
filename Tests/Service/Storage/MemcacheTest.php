@@ -48,7 +48,7 @@ class MemcacheTest extends TestCase
     public function testLimitRateNoKey()
     {
         $client = @$this->getMockBuilder('\\Memcached')
-            ->setMethods(array('get','cas','getResultCode'))
+            ->setMethods(array('get','getResultCode'))
             ->getMock();
         $client->expects($this->any())
                 ->method('getResultCode')
@@ -57,10 +57,6 @@ class MemcacheTest extends TestCase
               ->method('get')
               ->with('foo')
               ->will($this->returnValue(array('limit' => 100, 'calls' => 1, 'reset' => 1234)));
-        $client->expects($this->exactly(1))
-              ->method('cas')
-              ->with(null, 'foo')
-              ->will($this->returnValue(true));
 
         $storage = new Memcache($client);
         $storage->limitRate('foo');

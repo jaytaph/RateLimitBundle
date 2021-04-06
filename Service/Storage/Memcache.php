@@ -28,7 +28,13 @@ class Memcache implements StorageInterface
         $cas = null;
         $i = 0;
         do {
-            $info = $this->client->get($key, null, $cas);
+            if (defined('Memcached::GET_EXTENDED')) {
+                $_o = $this->client->get($key, null, \Memcached::GET_EXTENDED);
+                $info = $_o['value'] ?? null;
+                $cas = $_o['cas'] ?? null;
+            } else {
+                $info = $this->client->get($key, null, $cas);
+            }
             if (!$info) {
                 return false;
             }
