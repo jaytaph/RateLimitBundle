@@ -187,6 +187,37 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
+    function itMatchesAstrixAsAnyPath()
+    {
+        $plp = new PathLimitProcessor(array(
+            'api' => array(
+                'path' => '*',
+                'methods' => array('GET'),
+                'limit' => 100,
+                'period' => 60
+            )
+        ));
+
+        $result = $plp->getRateLimit(Request::create('/api'));
+
+        $this->assertEquals(100, $result->getLimit());
+        $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('GET'), $result->getMethods());
+
+        $result = $plp->getRateLimit(Request::create('/api/users'));
+
+        $this->assertEquals(100, $result->getLimit());
+        $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('GET'), $result->getMethods());
+
+        $result = $plp->getRateLimit(Request::create('/api/users/emails'));
+
+        $this->assertEquals(100, $result->getLimit());
+        $this->assertEquals(60, $result->getPeriod());
+        $this->assertEquals(array('GET'), $result->getMethods());
+    }
+
+    /** @test */
     function itMatchesWhenAccessSubPaths()
     {
         $plp = new PathLimitProcessor(array(
