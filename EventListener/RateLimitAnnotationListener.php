@@ -79,8 +79,18 @@ class RateLimitAnnotationListener extends BaseListener
 
         $key = $this->getKey($event, $rateLimit, $annotations);
 
-        // Ratelimit the call
-        $rateLimitInfo = $this->rateLimitService->limitRate($key);
+        $rateLimitInfo = null;
+        // rate limit fails for any reason we can allow the endpoint to respond normally
+        try {
+            // Ratelimit the call
+            $rateLimitInfo = $this->rateLimitService->limitRate($key);
+        } catch (\Throwable $throwable) {
+            if ($rateLimit->failOpen()) {
+                return;
+            }
+            throw $throwable;
+        }
+
         if (! $rateLimitInfo) {
             // Create new rate limit entry for this call
             $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());

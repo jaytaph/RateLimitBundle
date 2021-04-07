@@ -340,7 +340,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
 
-    protected function createListener($expects)
+    protected function createListener($expects, $setStorage = true)
     {
         $mockDispatcher = $this->getMockBuilder(self::$usedDispatcher)->getMock();
         $mockDispatcher
@@ -348,7 +348,9 @@ class RateLimitAnnotationListenerTest extends TestCase
             ->method('dispatch');
 
         $rateLimitService = new RateLimitService();
-        $rateLimitService->setStorage($this->getMockStorage());
+        if ($setStorage) {
+            $rateLimitService->setStorage($this->getMockStorage());
+        }
 
         return new RateLimitAnnotationListener(
             $mockDispatcher,
@@ -475,5 +477,35 @@ class RateLimitAnnotationListenerTest extends TestCase
 
         $this->assertEquals($response->getStatusCode(), 123);
         $this->assertEquals($response->getContent(), "a message");
+    }
+
+    public function testRateLimitThrottlingWithFailOpen()
+    {
+        $listener = $this->createListener($this->any(), false);
+
+        $event = $this->createEvent();
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => true)),
+        ));
+
+        $response = $listener->onKernelController($event);
+
+        $this->assertNull($response);
+    }
+
+    public function testRateLimitThrottlingWithFailOpenFalse()
+    {
+        $listener = $this->createListener($this->any(), false);
+        $request = new Request();
+
+        $event = $this->createEvent(HttpKernelInterface::MASTER_REQUEST, $request);
+        $event->getRequest()->attributes->set('_x-rate-limit', array(
+            new RateLimit(array('limit' => 5, 'period' => 3, 'failOpen' => false)),
+        ));
+
+        $listener->onKernelController($event);
+        $a = $event->getController();
+        $response = $a();
+
     }
 }
