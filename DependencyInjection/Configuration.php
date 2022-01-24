@@ -17,7 +17,7 @@ class Configuration implements ConfigurationInterface
     /**
      * {@inheritDoc}
      */
-    public function getConfigTreeBuilder()
+    public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('noxlogic_rate_limit');
         // Keep compatibility with symfony/config < 4.2
