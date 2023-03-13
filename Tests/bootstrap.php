@@ -1,5 +1,7 @@
 <?php
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
+
 function includeIfExists($file)
 {
     if (file_exists($file)) {
