@@ -1,5 +1,7 @@
 <?php
 
+use Doctrine\Common\Annotations\AnnotationRegistry;
+
 function includeIfExists($file)
 {
     if (file_exists($file)) {
@@ -16,8 +18,8 @@ if ((!$loader = includeIfExists(__DIR__.'/../vendor/autoload.php')) &&
         'php composer.phar install'.PHP_EOL);
 }
 
-if (class_exists('Doctrine\Common\Annotations\AnnotationRegistry')) {
-    \Doctrine\Common\Annotations\AnnotationRegistry::registerLoader(array($loader, 'loadClass'));
+if (method_exists(AnnotationRegistry::class, 'registerLoader')) {
+    AnnotationRegistry::registerLoader('class_exists');
 }
 
 // force loading the XRateLimit annotation since the composer target-dir autoloader does not run through $loader::loadClass
