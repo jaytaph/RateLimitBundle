@@ -10,16 +10,21 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php: [ "7.2", "7.3", "7.4", "8.0" ]
+                php: [ "7.2", "7.3", "7.4", "8.0", "8.1" ]
                 composer_flags: [ "", "--prefer-lowest" ]
-                symfony_version: [ "3.4.*", "4.3.*", "4.4.*", "5.0.*"]
+                symfony_version: [ "^3.4", "^4.4", "^5.4", '^6.1']
                 exclude:
+#                  - php: "8.0"
+#                    symfony_version: "^3.4"
+
+                  - php: "7.2"
+                    symfony_version: "^6.1"
+                  - php: "7.3"
+                    symfony_version: "^6.1"
+                  - php: "7.4"
+                    symfony_version: "^6.1"
                   - php: "8.0"
-                    symfony_version: "3.4.*"
-                  - php: "8.0"
-                    symfony_version: "4.3.*"
-                  - php: "8.0"
-                    composer_flags: "--prefer-lowest"
+                    symfony_version: "^6.1"
         name: PHP ${{ matrix.php }} SF ${{ matrix.symfony_version }} ${{ matrix.composer_flags}}
         env:
             PHP: ${{ matrix.os }}
@@ -40,8 +45,9 @@ jobs:
               run: |
                 composer self-update
                 if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
-                if [ "$SYMFONY_VERSION" = "5.0.*" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
-                if [ "$PHP_VERSION" = "8.0" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
+                if [ "$SYMFONY_VERSION" = "^5.4" ] || [ "$SYMFONY_VERSION" = "^6.1" ] ||  [ "$PHP_VERSION" = "8.0" ] || [ "$PHP_VERSION" = "8.1" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
+                if [ "$PHP_VERSION" = "8.1" ] && [ "$SYMFONY_VERSION" = "^6.1" ]; then composer require --dev "phpunit/phpunit:^9.5" --no-update; fi;
+                if [ "$PHP_VERSION" = "8.1" ] && [ "$SYMFONY_VERSION" = "^6.1" ]; then composer require --dev "nikic/php-parser:^4.14" --no-update; fi;
                 COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
             - name: Run tests
               run: |
