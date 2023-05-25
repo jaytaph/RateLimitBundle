@@ -13,7 +13,7 @@ class PathLimitProcessorTest extends TestCase
 {
 
     /** @test */
-    function itReturnsNullIfThereAreNoPathLimits()
+    public function itReturnsNullIfThereAreNoPathLimits(): void
     {
         $plp = new PathLimitProcessor(array());
 
@@ -23,7 +23,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itReturnARateLimitIfItMatchesPathAndMethod()
+    public function itReturnARateLimitIfItMatchesPathAndMethod(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -39,7 +39,7 @@ class PathLimitProcessorTest extends TestCase
         );
 
         $this->assertInstanceOf(
-            'Noxlogic\RateLimitBundle\Annotation\RateLimit',
+            'Noxlogic\RateLimitBundle\Attribute\RateLimit',
             $result
         );
 
@@ -49,7 +49,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itReturnARateLimitIfItMatchesSubPathWithUrlEncodedString()
+    public function itReturnARateLimitIfItMatchesSubPathWithUrlEncodedString()
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -65,7 +65,7 @@ class PathLimitProcessorTest extends TestCase
         );
 
         $this->assertInstanceOf(
-            'Noxlogic\RateLimitBundle\Annotation\RateLimit',
+            'Noxlogic\RateLimitBundle\Attribute\RateLimit',
             $result
         );
 
@@ -75,7 +75,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itWorksWhenMultipleMethodsAreSpecified()
+    public function itWorksWhenMultipleMethodsAreSpecified(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -96,7 +96,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itReturnsTheCorrectRateLimitWithMultiplePathLimits()
+    public function itReturnsTheCorrectRateLimitWithMultiplePathLimits(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -123,7 +123,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itWorksWithLimitsOnSamePathButDifferentMethods()
+    public function itWorksWithLimitsOnSamePathButDifferentMethods(): void
     {
         $plp = new PathLimitProcessor(array(
             'api_get' => array(
@@ -150,7 +150,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itMatchesAstrixAsAnyMethod()
+    public function itMatchesAstrixAsAnyMethod(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -218,7 +218,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itMatchesWhenAccessSubPaths()
+    public function itMatchesWhenAccessSubPaths(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -239,7 +239,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itReturnsNullIfThereIsNoMatchingPath()
+    public function itReturnsNullIfThereIsNoMatchingPath(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -258,7 +258,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itMatchesTheMostSpecificPathFirst()
+    public function itMatchesTheMostSpecificPathFirst(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -285,7 +285,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itReturnsTheMatchedPath()
+    public function itReturnsTheMatchedPath(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -304,7 +304,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itReturnsTheCorrectPathForADifferentSetup()
+    public function itReturnsTheCorrectPathForADifferentSetup(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(
@@ -329,7 +329,7 @@ class PathLimitProcessorTest extends TestCase
     }
 
     /** @test */
-    function itReturnsTheCorrectMatchedPathForSubPaths()
+    public function itReturnsTheCorrectMatchedPathForSubPaths(): void
     {
         $plp = new PathLimitProcessor(array(
             'api' => array(

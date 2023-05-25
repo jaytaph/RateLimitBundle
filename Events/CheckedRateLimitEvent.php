@@ -2,21 +2,15 @@
 
 namespace Noxlogic\RateLimitBundle\Events;
 
-use Noxlogic\RateLimitBundle\Annotation\RateLimit;
+use Noxlogic\RateLimitBundle\Attribute\RateLimit;
 use Symfony\Component\HttpFoundation\Request;
+use Symfony\Contracts\EventDispatcher\Event;
 
-class CheckedRateLimitEvent extends AbstractEvent
+class CheckedRateLimitEvent extends Event
 {
+    protected Request $request;
 
-    /**
-     * @var Request
-     */
-    protected $request;
-
-    /**
-     * @var RateLimit|null
-     */
-    protected $rateLimit;
+    protected ?RateLimit $rateLimit;
 
     public function __construct(Request $request, RateLimit $rateLimit = null)
     {
@@ -24,26 +18,17 @@ class CheckedRateLimitEvent extends AbstractEvent
         $this->rateLimit = $rateLimit;
     }
 
-    /**
-     * @return RateLimit|null
-     */
-    public function getRateLimit()
+    public function getRateLimit(): ?RateLimit
     {
         return $this->rateLimit;
     }
 
-    /**
-     * @param RateLimit|null $rateLimit
-     */
-    public function setRateLimit(RateLimit $rateLimit = null)
+    public function setRateLimit(?RateLimit $rateLimit = null): void
     {
         $this->rateLimit = $rateLimit;
     }
 
-    /**
-     * @return Request
-     */
-    public function getRequest()
+    public function getRequest(): Request
     {
         return $this->request;
     }
