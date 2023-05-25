@@ -32,6 +32,8 @@ jobs:
                 ini-values: memory_limit=256M,post_max_size=256M
             - name: Checkout ratelimit bundle
               uses: actions/checkout@v2
+              with:
+                  fetch-depth: 2
             - name: Install dependencies
               run: |
                 composer self-update
@@ -43,6 +45,6 @@ jobs:
                 SYMFONY_DEPRECATIONS_HELPER=weak vendor/bin/simple-phpunit --coverage-text --coverage-clover=coverage.clover
             - name: Upload coverage
               if: ${{ matrix.php == '8.1' && github.repository == 'jaytaph/RateLimitBundle' }}
-              run: |
-                wget https://scrutinizer-ci.com/ocular.phar
-                php ocular.phar code-coverage:upload --format=php-clover coverage.clover
+              uses: sudo-bot/action-scrutinizer@latest
+              with:
+                  cli-args: "--format=php-clover coverage.clover"
