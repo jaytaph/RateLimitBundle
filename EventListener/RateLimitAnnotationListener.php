@@ -47,16 +47,17 @@ class RateLimitAnnotationListener extends BaseListener
 
         // RateLimits used to be set by sensio/framework-extra-bundle by reading annotations
         // Tests also use that mechanism, we should probably keep it for retrocompatibility
-        if ($event->getRequest()->attributes->has('_x-rate-limit')) {
+        $request = $event->getRequest();
+        if ($request->attributes->has('_x-rate-limit')) {
             /** @var RateLimit[] $rateLimits */
-            $rateLimits = $event->getRequest()->attributes->get('_x-rate-limit', []);
+            $rateLimits = $request->attributes->get('_x-rate-limit', []);
         } else {
             $rateLimits = $this->getRateLimitsFromAttributes($event->getController());
         }
-        $rateLimit = $this->findBestMethodMatch($event->getRequest(), $rateLimits);
+        $rateLimit = $this->findBestMethodMatch($request, $rateLimits);
 
         // Another treatment before applying RateLimit ?
-        $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
+        $checkedRateLimitEvent = new CheckedRateLimitEvent($request, $rateLimit);
         $this->eventDispatcher->dispatch($checkedRateLimitEvent, RateLimitEvents::CHECKED_RATE_LIMIT);
         $rateLimit = $checkedRateLimitEvent->getRateLimit();
 
@@ -81,7 +82,6 @@ class RateLimitAnnotationListener extends BaseListener
 
 
         // Store the current rating info in the request attributes
-        $request = $event->getRequest();
         $request->attributes->set('rate_limit_info', $rateLimitInfo);
 
         // Reset the rate limits
@@ -153,13 +153,14 @@ class RateLimitAnnotationListener extends BaseListener
     private function getKey(ControllerEvent $event, RateLimit $rateLimit, array $rateLimits): string
     {
         // Let listeners manipulate the key
-        $keyEvent = new GenerateKeyEvent($event->getRequest(), '', $rateLimit->getPayload());
+        $request = $event->getRequest();
+        $keyEvent = new GenerateKeyEvent($request, '', $rateLimit->getPayload());
 
         $rateLimitMethods = implode('.', $rateLimit->getMethods());
         $keyEvent->addToKey($rateLimitMethods);
 
         $rateLimitAlias = count($rateLimits) === 0
-            ? str_replace('/', '.', $this->pathLimitProcessor->getMatchedPath($event->getRequest()))
+            ? str_replace('/', '.', $this->pathLimitProcessor->getMatchedPath($request))
             : $this->getAliasForRequest($event);
         $keyEvent->addToKey($rateLimitAlias);
         $this->eventDispatcher->dispatch($keyEvent, RateLimitEvents::GENERATE_KEY);
@@ -198,7 +199,7 @@ class RateLimitAnnotationListener extends BaseListener
     /**
      * @return RateLimit[]
      */
-    public function getRateLimitsFromAttributes(string|array|object $controller): array
+    private function getRateLimitsFromAttributes(string|array|object $controller): array
     {
         $rClass = $rMethod = null;
         if (\is_array($controller) && method_exists(...$controller)) {
