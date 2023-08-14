@@ -10,20 +10,12 @@ jobs:
         strategy:
             fail-fast: false
             matrix:
-                php: [ "7.2", "7.3", "7.4", "8.0", "8.1", "8.2" ]
+                php: [ "8.0", "8.1", "8.2" ]
                 composer_flags: [ "", "--prefer-lowest" ]
-                symfony_version: [ "^3.4", "^4.4", "^5.4", "^6.3"]
+                symfony_version: [ "^5.4", "^6.1"]
                 exclude:
-                  - php: "7.2"
-                    symfony_version: "^6.3"
-                  - php: "7.3"
-                    symfony_version: "^6.3"
-                  - php: "7.4"
-                    symfony_version: "^6.3"
                   - php: "8.0"
-                    symfony_version: "^6.3"
-                  - php: "8.2"
-                    symfony_version: "^4.4"
+                    symfony_version: "^6.1"
         name: PHP ${{ matrix.php }} SF ${{ matrix.symfony_version }} ${{ matrix.composer_flags}}
         env:
             PHP: ${{ matrix.os }}
@@ -40,6 +32,8 @@ jobs:
                 ini-values: memory_limit=256M,post_max_size=256M
             - name: Checkout ratelimit bundle
               uses: actions/checkout@v2
+              with:
+                  fetch-depth: 2
             - name: Install dependencies
               run: |
                 composer self-update
@@ -48,4 +42,9 @@ jobs:
                 COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
             - name: Run tests
               run: |
-                SYMFONY_DEPRECATIONS_HELPER=weak vendor/bin/simple-phpunit
+                SYMFONY_DEPRECATIONS_HELPER=weak vendor/bin/simple-phpunit --coverage-text --coverage-clover=coverage.clover
+            - name: Upload coverage
+              if: ${{ matrix.php == '8.1' && github.repository == 'jaytaph/RateLimitBundle' }}
+              uses: sudo-bot/action-scrutinizer@latest
+              with:
+                  cli-args: "--format=php-clover coverage.clover"

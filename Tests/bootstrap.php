@@ -23,4 +23,4 @@ if (method_exists(AnnotationRegistry::class, 'registerLoader')) {
 }
 
 // force loading the XRateLimit annotation since the composer target-dir autoloader does not run through $loader::loadClass
-class_exists('Noxlogic\RateLimitBundle\Annotation\RateLimit');
+class_exists('Noxlogic\RateLimitBundle\Attribute\RateLimit');

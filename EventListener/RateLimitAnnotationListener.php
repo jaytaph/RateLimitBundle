@@ -2,44 +2,29 @@
 
 namespace Noxlogic\RateLimitBundle\EventListener;
 
-use Noxlogic\RateLimitBundle\Annotation\RateLimit;
+use Noxlogic\RateLimitBundle\Attribute\RateLimit;
 use Noxlogic\RateLimitBundle\Events\CheckedRateLimitEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Exception\RateLimitExceptionInterface;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
-use Symfony\Component\EventDispatcher\EventDispatcherInterface as LegacyEventDispatcherInterface;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use Symfony\Component\HttpKernel\Event\FilterControllerEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RateLimitAnnotationListener extends BaseListener
 {
+    protected EventDispatcherInterface $eventDispatcher;
 
-    /**
-     * @var EventDispatcherInterface | LegacyEventDispatcherInterface
-     */
-    protected $eventDispatcher;
+    protected RateLimitService $rateLimitService;
 
-    /**
-     * @var \Noxlogic\RateLimitBundle\Service\RateLimitService
-     */
-    protected $rateLimitService;
+    protected PathLimitProcessor $pathLimitProcessor;
 
-    /**
-     * @var \Noxlogic\RateLimitBundle\Util\PathLimitProcessor
-     */
-    protected $pathLimitProcessor;
-
-    /**
-     * @param RateLimitService                    $rateLimitService
-     */
     public function __construct(
-        $eventDispatcher,
+        EventDispatcherInterface $eventDispatcher,
         RateLimitService $rateLimitService,
         PathLimitProcessor $pathLimitProcessor
     ) {
@@ -48,10 +33,7 @@ class RateLimitAnnotationListener extends BaseListener
         $this->pathLimitProcessor = $pathLimitProcessor;
     }
 
-    /**
-     * @param ControllerEvent|FilterControllerEvent $event
-     */
-    public function onKernelController($event)
+    public function onKernelController(ControllerEvent $event): void
     {
         // Skip if the bundle isn't enabled (for instance in test environment)
         if( ! $this->getParameter('enabled', true)) {
@@ -59,25 +41,32 @@ class RateLimitAnnotationListener extends BaseListener
         }
 
         // Skip if we aren't the main request
-        if ($event->getRequestType() != HttpKernelInterface::MASTER_REQUEST) {
+        if ($event->getRequestType() !== HttpKernelInterface::MASTER_REQUEST) {
             return;
         }
 
-        // Find the best match
-        $annotations = $event->getRequest()->attributes->get('_x-rate-limit', array());
-        $rateLimit = $this->findBestMethodMatch($event->getRequest(), $annotations);
+        // RateLimits used to be set by sensio/framework-extra-bundle by reading annotations
+        // Tests also use that mechanism, we should probably keep it for retrocompatibility
+        $request = $event->getRequest();
+        if ($request->attributes->has('_x-rate-limit')) {
+            /** @var RateLimit[] $rateLimits */
+            $rateLimits = $request->attributes->get('_x-rate-limit', []);
+        } else {
+            $rateLimits = $this->getRateLimitsFromAttributes($event->getController());
+        }
+        $rateLimit = $this->findBestMethodMatch($request, $rateLimits);
 
         // Another treatment before applying RateLimit ?
-        $checkedRateLimitEvent = new CheckedRateLimitEvent($event->getRequest(), $rateLimit);
-        $this->dispatch(RateLimitEvents::CHECKED_RATE_LIMIT, $checkedRateLimitEvent);
+        $checkedRateLimitEvent = new CheckedRateLimitEvent($request, $rateLimit);
+        $this->eventDispatcher->dispatch($checkedRateLimitEvent, RateLimitEvents::CHECKED_RATE_LIMIT);
         $rateLimit = $checkedRateLimitEvent->getRateLimit();
 
-        // No matching annotation found
+        // No matching RateLimit found
         if (! $rateLimit) {
             return;
         }
 
-        $key = $this->getKey($event, $rateLimit, $annotations);
+        $key = $this->getKey($event, $rateLimit, $rateLimits);
 
         // Ratelimit the call
         $rateLimitInfo = $this->rateLimitService->limitRate($key);
@@ -93,7 +82,6 @@ class RateLimitAnnotationListener extends BaseListener
 
 
         // Store the current rating info in the request attributes
-        $request = $event->getRequest();
         $request->attributes->set('rate_limit_info', $rateLimitInfo);
 
         // Reset the rate limits
@@ -137,71 +125,59 @@ class RateLimitAnnotationListener extends BaseListener
 
 
     /**
-     * @param RateLimit[] $annotations
+     * @param RateLimit[] $rateLimits
      */
-    protected function findBestMethodMatch(Request $request, array $annotations)
+    protected function findBestMethodMatch(Request $request, array $rateLimits): ?RateLimit
     {
         // Empty array, check the path limits
-        if (count($annotations) == 0) {
+        if (count($rateLimits) === 0) {
             return $this->pathLimitProcessor->getRateLimit($request);
         }
 
         $best_match = null;
-        foreach ($annotations as $annotation) {
-            // cast methods to array, even method holds a string
-            $methods = is_array($annotation->getMethods()) ? $annotation->getMethods() : array($annotation->getMethods());
-
-            if (in_array($request->getMethod(), $methods)) {
-                $best_match = $annotation;
+        foreach ($rateLimits as $rateLimit) {
+            if (in_array($request->getMethod(), $rateLimit->getMethods(), true)) {
+                $best_match = $rateLimit;
             }
 
             // Only match "default" annotation when we don't have a best match
-            if (count($annotation->getMethods()) == 0 && $best_match == null) {
-                $best_match = $annotation;
+            if ($best_match === null && count($rateLimit->methods) === 0) {
+                $best_match = $rateLimit;
             }
         }
 
         return $best_match;
     }
 
-    /**
-     * @param ControllerEvent|FilterControllerEvent $event
-     * @param RateLimit $rateLimit
-     * @param array $annotations
-     * @return string
-     */
-    private function getKey($event, RateLimit $rateLimit, array $annotations)
+    /** @param RateLimit[] $rateLimits */
+    private function getKey(ControllerEvent $event, RateLimit $rateLimit, array $rateLimits): string
     {
         // Let listeners manipulate the key
-        $keyEvent = new GenerateKeyEvent($event->getRequest(), '', $rateLimit->getPayload());
+        $request = $event->getRequest();
+        $keyEvent = new GenerateKeyEvent($request, '', $rateLimit->getPayload());
 
         $rateLimitMethods = implode('.', $rateLimit->getMethods());
         $keyEvent->addToKey($rateLimitMethods);
 
-        $rateLimitAlias = count($annotations) === 0
-            ? str_replace('/', '.', $this->pathLimitProcessor->getMatchedPath($event->getRequest()))
+        $rateLimitAlias = count($rateLimits) === 0
+            ? str_replace('/', '.', $this->pathLimitProcessor->getMatchedPath($request))
             : $this->getAliasForRequest($event);
         $keyEvent->addToKey($rateLimitAlias);
-
-        $this->dispatch(RateLimitEvents::GENERATE_KEY, $keyEvent);
+        $this->eventDispatcher->dispatch($keyEvent, RateLimitEvents::GENERATE_KEY);
 
         return $keyEvent->getKey();
     }
 
-    /**
-     * @param string $route
-     * @param ControllerEvent|FilterControllerEvent $controller
-     * @return mixed|string
-     */
-    private function getAliasForRequest($event)
+    private function getAliasForRequest(ControllerEvent $event): string
     {
-        if (($route = $event->getRequest()->attributes->get('_route'))) {
+        $route = $event->getRequest()->attributes->get('_route');
+        if ($route) {
             return $route;
         }
 
         $controller = $event->getController();
 
-        if (is_string($controller) && false !== strpos($controller, '::')) {
+        if (is_string($controller) && str_contains($controller, '::')) {
             $controller = explode('::', $controller);
         }
 
@@ -220,15 +196,30 @@ class RateLimitAnnotationListener extends BaseListener
         return 'other';
     }
 
-    private function dispatch($eventName, $event)
+    /**
+     * @return RateLimit[]
+     */
+    private function getRateLimitsFromAttributes(string|array|object $controller): array
     {
-        if ($this->eventDispatcher instanceof EventDispatcherInterface) {
-            // Symfony >= 4.3
-            $this->eventDispatcher->dispatch($event, $eventName);
+        $rClass = $rMethod = null;
+        if (\is_array($controller) && method_exists(...$controller)) {
+            $rClass = new \ReflectionClass($controller[0]);
+            $rMethod = new \ReflectionMethod($controller[0], $controller[1]);
+        } elseif (\is_string($controller) && false !== $i = strpos($controller, '::')) {
+            $rClass = new \ReflectionClass(substr($controller, 0, $i));
+        } elseif (\is_object($controller) && \is_callable([$controller, '__invoke'])) {
+            $rMethod = new \ReflectionMethod($controller, '__invoke');
         } else {
-            // Symfony 3.4
-            $this->eventDispatcher->dispatch($eventName, $event);
+            $rMethod = new \ReflectionFunction($controller);
         }
-    }
 
+        $attributes = [];
+        foreach (array_merge($rClass?->getAttributes() ?? [], $rMethod?->getAttributes() ?? []) as $attribute) {
+            if (RateLimit::class === $attribute->getName()) {
+                $attributes[] = $attribute->newInstance();
+            }
+        }
+
+        return $attributes;
+    }
 }
