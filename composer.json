@@ -32,5 +32,10 @@
         "psr-4": {
             "Noxlogic\\RateLimitBundle\\": ""
         }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
+        }
     }
 }
