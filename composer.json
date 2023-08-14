@@ -20,7 +20,7 @@
         "doctrine/cache": "^1.5",
         "psr/cache": "^1.0|^2.0",
         "predis/predis": "^0.8|^1.1|^2.0",
-        "friendsofsymfony/oauth-server-bundle": "^1.5"
+        "friendsofsymfony/oauth-server-bundle": "^1.5|^2.0@dev"
     },
     "suggest": {
         "snc/redis-bundle": "Use Redis as a storage engine.",
@@ -31,6 +31,11 @@
     "autoload": {
         "psr-4": {
             "Noxlogic\\RateLimitBundle\\": ""
+        }
+    },
+    "extra": {
+        "branch-alias": {
+            "dev-main": "2.x-dev"
         }
     }
 }

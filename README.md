@@ -24,57 +24,45 @@ This bundle is partially inspired by a GitHub gist from Ruud Kamphuis: https://g
 
 Installation takes just few easy steps:
 
-### Step 1: Add the bundle to your composer.json
+### Step 1: Install the bundle using composer
 
 If you're not yet familiar with Composer see http://getcomposer.org.
-Add the NoxlogicRateLimitBundle in your composer.json:
-
-```json
-{
-    "require": {
-        "noxlogic/ratelimit-bundle": "2.x"
-    }
-}
-```
-
-Now tell composer to download the bundle by running the command:
+Tell composer to download the bundle by running the command:
 
 ``` bash
-php composer.phar update noxlogic/ratelimit-bundle
+composer require noxlogic/ratelimit-bundle
 ```
 
 ### Step 2: Enable the bundle
 
-Enable the bundle in the kernel:
+If you are using `symfony/flex` you can skip this step, the bundle will be enabled automatically, 
+otherwise you need to enable the bundle by adding it to the `bundles.php` file of your project.
 
 ``` php
-<?php
-// app/AppKernel.php
+<?php // bundles.php
 
-public function registerBundles()
-{
-    $bundles = array(
-        // ...
-        new Noxlogic\RateLimitBundle\NoxlogicRateLimitBundle(),
-    );
-}
+return [
+    // ..
+    Noxlogic\RateLimitBundle\NoxlogicRateLimitBundle::class => ['all' => true],
+    // ..
+];
 ```
 
-## Step 3: Install a storage engine
+### Step 3: Install a storage engine
 
-### Redis
+#### Redis
 
 If you want to use Redis as your storage engine, you might want  to install `SncRedisBundle`:
 
 * https://github.com/snc/SncRedisBundle
 
-### Memcache
+#### Memcache
 
 If you want to use Memcache, you might want to install `LswMemcacheBundle`
 
 * https://github.com/LeaseWeb/LswMemcacheBundle
 
-### Doctrine cache
+#### Doctrine cache
 
 If you want to use Doctrine cache as your storage engine, you might want to install `DoctrineCacheBundle`:
 
@@ -296,29 +284,5 @@ allows you to easily handle the rate limit on another level, for instance by cap
 If you want to run the tests use:
 
 ```
-./vendor/bin/phpunit ./Tests
+./vendor/bin/simple-phpunit
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-https://github.com/jaytaph/RateLimitBundle/issues/130
