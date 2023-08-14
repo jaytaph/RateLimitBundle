@@ -12,7 +12,7 @@ jobs:
             matrix:
                 php: [ "8.0", "8.1", "8.2" ]
                 composer_flags: [ "", "--prefer-lowest" ]
-                symfony_version: [ "^5.4", "^6.1"]
+                symfony_version: [ "^5.4", "^6.1" ]
                 exclude:
                   - php: "8.0"
                     symfony_version: "^6.1"
@@ -38,13 +38,13 @@ jobs:
               run: |
                 composer self-update
                 if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
-                if [ "$SYMFONY_VERSION" = "^5.4" ] || [ "$SYMFONY_VERSION" = "^6.3" ] ||  [ "$PHP_VERSION" = "8.0" ] || [ "$PHP_VERSION" = "8.1" ] || [ "$PHP_VERSION" = "8.2" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
+                if [ "$SYMFONY_VERSION" = "^6.1" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
                 COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
             - name: Run tests
               run: |
                 SYMFONY_DEPRECATIONS_HELPER=weak vendor/bin/simple-phpunit --coverage-text --coverage-clover=coverage.clover
             - name: Upload coverage
-              if: ${{ matrix.php == '8.1' && github.repository == 'jaytaph/RateLimitBundle' }}
+              if: ${{ matrix.php == '8.2' && github.repository == 'jaytaph/RateLimitBundle' }}
               uses: sudo-bot/action-scrutinizer@latest
               with:
                   cli-args: "--format=php-clover coverage.clover"
