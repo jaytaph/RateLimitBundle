@@ -1,0 +1,13 @@
+parameters:
+    level: 1
+    paths:
+        - Attribute/
+        - DependencyInjection/
+        - EventListener/
+        - Events/
+        - Exception/
+        - Resources/
+        - Service/
+        - Util/
+    excludePaths:
+        - EventListener/OauthKeyGenerateListener.php

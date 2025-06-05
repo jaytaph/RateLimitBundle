@@ -20,7 +20,8 @@
         "doctrine/cache": "^1.5",
         "psr/cache": "^1.0|^2.0",
         "predis/predis": "^0.8|^1.1|^2.0",
-        "friendsofsymfony/oauth-server-bundle": "^1.5|^2.0@dev"
+        "friendsofsymfony/oauth-server-bundle": "^1.5|^2.0@dev",
+        "phpstan/phpstan": "^2.1"
     },
     "suggest": {
         "snc/redis-bundle": "Use Redis as a storage engine.",

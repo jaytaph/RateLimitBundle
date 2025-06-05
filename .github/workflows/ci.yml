@@ -6,16 +6,16 @@ on:
 
 jobs:
     run-tests:
-        runs-on: ubuntu-20.04
+        runs-on: ubuntu-24.04
         strategy:
             fail-fast: false
             matrix:
-                php: [ "8.0", "8.1", "8.2" ]
+                php: [ "8.0", "8.1", "8.2", "8.3", "8.4" ]
                 composer_flags: [ "", "--prefer-lowest" ]
-                symfony_version: [ "^5.4", "^6.1" ]
+                symfony_version: [ "^5.4", "^6.4" ]
                 exclude:
                   - php: "8.0"
-                    symfony_version: "^6.1"
+                    symfony_version: "^6.4"
         name: PHP ${{ matrix.php }} SF ${{ matrix.symfony_version }} ${{ matrix.composer_flags}}
         env:
             PHP: ${{ matrix.os }}
@@ -38,8 +38,11 @@ jobs:
               run: |
                 composer self-update
                 if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
-                if [ "$SYMFONY_VERSION" = "^6.1" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
+                if [ "$SYMFONY_VERSION" = "^6.4" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
                 COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
+            - name: Static analysis
+              run: |
+                ./vendor/bin/phpstan --memory-limit=-1
             - name: Run tests
               run: |
                 SYMFONY_DEPRECATIONS_HELPER=weak vendor/bin/simple-phpunit --coverage-text --coverage-clover=coverage.clover
