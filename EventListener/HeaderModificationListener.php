@@ -43,7 +43,7 @@ class HeaderModificationListener extends BaseListener
 
         $response = $event->getResponse();
         $response->headers->set($this->getParameter('header_limit_name'), $rateLimitInfo->getLimit());
-        $response->headers->set($this->getParameter('header_remaining_name'), $remaining);
+        $response->headers->set($this->getParameter('header_remaining_name'), (string) $remaining);
         $response->headers->set($this->getParameter('header_reset_name'), $rateLimitInfo->getResetTimestamp());
     }
 }

@@ -55,9 +55,9 @@ class Redis implements StorageInterface
 
         $reset = time() + $period;
 
-        $this->client->hset($key, 'limit', $limit);
-        $this->client->hset($key, 'calls', 1);
-        $this->client->hset($key, 'reset', $reset);
+        $this->client->hset($key, 'limit', (string) $limit);
+        $this->client->hset($key, 'calls', '1');
+        $this->client->hset($key, 'reset', (string) $reset);
         $this->client->expire($key, $period);
 
         $rateLimitInfo = new RateLimitInfo();
