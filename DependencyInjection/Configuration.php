@@ -20,13 +20,9 @@ class Configuration implements ConfigurationInterface
     public function getConfigTreeBuilder(): TreeBuilder
     {
         $treeBuilder = new TreeBuilder('noxlogic_rate_limit');
-        // Keep compatibility with symfony/config < 4.2
-        if (\method_exists($treeBuilder, 'getRootNode')) {
-            $rootNode = $treeBuilder->getRootNode();
-        } else {
-            $rootNode = $treeBuilder->root('noxlogic_rate_limit');
-        }
-        $rootNode
+        $rootNode = $treeBuilder->getRootNode();
+
+        $rootNode // @phpstan-ignore method.notFound
             ->canBeDisabled()
             ->children()
                 ->enumNode('storage_engine')

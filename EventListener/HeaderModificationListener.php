@@ -3,7 +3,6 @@
 namespace Noxlogic\RateLimitBundle\EventListener;
 
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class HeaderModificationListener extends BaseListener
@@ -18,7 +17,7 @@ class HeaderModificationListener extends BaseListener
     }
 
     /**
-     * @param FilterResponseEvent|ResponseEvent $event
+     * @param ResponseEvent $event
      */
     public function onKernelResponse($event)
     {

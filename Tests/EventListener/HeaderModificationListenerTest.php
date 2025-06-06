@@ -3,13 +3,11 @@
 namespace Noxlogic\RateLimitBundle\Tests\EventListener;
 
 use Noxlogic\RateLimitBundle\EventListener\HeaderModificationListener;
-use Noxlogic\RateLimitBundle\Events\ProxyFilterResponseEvent;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\HttpKernel\Event\ControllerEvent;
-use Symfony\Component\HttpKernel\Event\FilterResponseEvent;
 use Symfony\Component\HttpKernel\Event\ResponseEvent;
 use Symfony\Component\HttpKernel\HttpKernelInterface;
 
@@ -136,19 +134,15 @@ class HeaderModificationListenerTest extends TestCase
     }
 
     /**
-     * @return FilterResponseEvent|ControllerEvent
+     * @return ResponseEvent
      */
     protected function createEvent()
     {
-        $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
+        $kernel = $this->getMockBuilder(HttpKernelInterface::class)->getMock();
         $request = new Request();
         $response = new Response();
 
-        if (class_exists('Symfony\\Component\\HttpKernel\\Event\\ControllerEvent')) {
-            $event = new ResponseEvent($kernel, $request, HttpKernelInterface::MASTER_REQUEST, $response);
-        } else {
-            $event = new FilterResponseEvent($kernel, $request, HttpKernelInterface::MASTER_REQUEST, $response);
-        }
+        $event = new ResponseEvent($kernel, $request, HttpKernelInterface::MAIN_REQUEST, $response);
 
         return $event;
     }
