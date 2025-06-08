@@ -12,7 +12,7 @@ class CheckedRateLimitEvent extends Event
 
     protected ?RateLimit $rateLimit;
 
-    public function __construct(Request $request, RateLimit $rateLimit = null)
+    public function __construct(Request $request, ?RateLimit $rateLimit = null)
     {
         $this->request = $request;
         $this->rateLimit = $rateLimit;

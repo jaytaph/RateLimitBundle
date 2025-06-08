@@ -7,7 +7,7 @@ use Noxlogic\RateLimitBundle\Service\Storage\StorageInterface;
 class RateLimitService
 {
     /**
-     * @var Storage\StorageInterface
+     * @var ?Storage\StorageInterface
      */
     protected $storage;
 
@@ -20,7 +20,7 @@ class RateLimitService
     }
 
     /**
-     * @return StorageInterface
+     * @return ?StorageInterface
      */
     public function getStorage()
     {

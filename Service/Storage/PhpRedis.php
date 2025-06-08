@@ -9,7 +9,7 @@ use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 class PhpRedis implements StorageInterface
 {
     /**
-    * @var \Redis
+    * @var \Redis|\RedisCluster
     */
     protected $client;
 

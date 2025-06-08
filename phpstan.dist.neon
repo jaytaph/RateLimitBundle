@@ -1,0 +1,15 @@
+parameters:
+    level: 6
+    paths:
+        - Attribute/
+        - DependencyInjection/
+        - EventListener/
+        - Events/
+        - Exception/
+        - Resources/
+        - Service/
+        - Util/
+    excludePaths:
+        - EventListener/OauthKeyGenerateListener.php
+includes:
+    - phpstan-baseline.neon

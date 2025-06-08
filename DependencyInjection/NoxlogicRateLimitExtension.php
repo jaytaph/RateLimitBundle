@@ -17,6 +17,7 @@ class NoxlogicRateLimitExtension extends Extension
 {
     /**
      * {@inheritDoc}
+     * @param mixed[][] $configs
      */
     public function load(array $configs, ContainerBuilder $container): void
     {

@@ -9,16 +9,18 @@ interface StorageInterface
     /**
      * Get information about the current rate
      *
-     * @param  string        $key
-     * @return RateLimitInfo Rate limit information
-     */
+     * @param  string               $key
+     * @return RateLimitInfo|bool   Rate limit information
+     * @todo: Replace return type with RateLimitInfo|false when PHP 8.2 is the minimum version
+ */
     public function getRateInfo($key);
 
     /**
      * Limit the rate by one
      *
-     * @param  string        $key
-     * @return RateLimitInfo Rate limit info
+     * @param  string               $key
+     * @return RateLimitInfo|bool   Rate limit info
+     * @todo: Replace return type with RateLimitInfo|false when PHP 8.2 is the minimum version
      */
     public function limitRate($key);
 
