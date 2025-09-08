@@ -41,7 +41,7 @@ class RateLimitAnnotationListener extends BaseListener
         }
 
         // Skip if we aren't the main request
-        if ($event->getRequestType() !== HttpKernelInterface::MASTER_REQUEST) {
+        if ($event->getRequestType() !== HttpKernelInterface::MAIN_REQUEST) {
             return;
         }
 

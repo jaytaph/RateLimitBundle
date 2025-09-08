@@ -37,12 +37,27 @@ class PsrCacheTest extends TestCase
     {
         $item = $this->getMockBuilder('Psr\\Cache\\CacheItemInterface')
             ->getMock();
-        $item->expects($this->once())
-            ->method('set')
-            ->willReturn(true);
-        $item->expects($this->once())
-            ->method('expiresAfter')
-            ->willReturn(true);
+
+        /**
+         * psr/cache 3.0 changed the return type of set() and expiresAfter() to return self.
+         * @TODO NEXT_MAJOR: Remove this check and the first conditional block when psr/cache <3 support is dropped.
+         */
+        $psrCacheVersion = \Composer\InstalledVersions::getVersion('psr/cache');
+        if (version_compare($psrCacheVersion, '3.0', '<')) {
+            $item->expects($this->once())
+                ->method('set')
+                ->willReturn(true);
+            $item->expects($this->once())
+                ->method('expiresAfter')
+                ->willReturn(true);
+        } else {
+            $item->expects($this->once())
+                ->method('set')
+                ->willReturnSelf();
+            $item->expects($this->once())
+                ->method('expiresAfter')
+                ->willReturnSelf();
+        }
 
         $client = $this->getMockBuilder('Psr\\Cache\\CacheItemPoolInterface')
             ->getMock();
@@ -121,4 +136,4 @@ class PsrCacheTest extends TestCase
         $storage = new PsrCache($client);
         $this->assertTrue($storage->resetRate('foo'));
     }
-} 
+}
