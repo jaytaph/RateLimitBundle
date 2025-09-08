@@ -64,7 +64,7 @@ class RateLimitAnnotationListenerTest extends TestCase
         $kernel = $this->getMockBuilder('Symfony\\Component\\HttpKernel\\HttpKernelInterface')->getMock();
         $request = new Request();
 
-        $event = new ControllerEvent($kernel, static function() {}, $request, HttpKernelInterface::MASTER_REQUEST);
+        $event = new ControllerEvent($kernel, static function() {}, $request, HttpKernelInterface::MAIN_REQUEST);
 
         $listener->onKernelController($event);
     }
@@ -81,7 +81,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     public function testDelegatesToPathLimitProcessorWhenNoAttributesFound(): void
     {
         $request = new Request();
-        $event = $this->createEvent(HttpKernelInterface::MASTER_REQUEST, $request);
+        $event = $this->createEvent(HttpKernelInterface::MAIN_REQUEST, $request);
 
         $listener = $this->createListener($this->once());
 
@@ -109,7 +109,7 @@ class RateLimitAnnotationListenerTest extends TestCase
         $listener = $this->createListener($this->exactly(2));
 
         $event = $this->createEvent(
-            HttpKernelInterface::MASTER_REQUEST,
+            HttpKernelInterface::MAIN_REQUEST,
             null,
             new MockControllerWithAttributes()
         );
@@ -119,7 +119,7 @@ class RateLimitAnnotationListenerTest extends TestCase
 
     public function testDispatchIsCalledIfThePathLimitProcessorReturnsARateLimit(): void
     {
-        $event = $this->createEvent(HttpKernelInterface::MASTER_REQUEST);
+        $event = $this->createEvent(HttpKernelInterface::MAIN_REQUEST);
 
         $listener = $this->createListener($this->exactly(2));
         $rateLimit = new RateLimit(
@@ -315,7 +315,7 @@ class RateLimitAnnotationListenerTest extends TestCase
     }
 
     protected function createEvent(
-        int $requestType = HttpKernelInterface::MASTER_REQUEST,
+        int $requestType = HttpKernelInterface::MAIN_REQUEST,
         ?Request $request = null,
         ?MockController $controller = null,
     ): ControllerEvent

@@ -12,10 +12,17 @@ jobs:
             matrix:
                 php: [ "8.0", "8.1", "8.2", "8.3", "8.4" ]
                 composer_flags: [ "", "--prefer-lowest" ]
-                symfony_version: [ "^5.4", "^6.4" ]
+                symfony_version: [ "^5.4", "^6.4", "^7.3" ]
                 exclude:
+                  # Symfony 6 requires PHP 8.1+
                   - php: "8.0"
                     symfony_version: "^6.4"
+                  # Symfony 7 requires PHP 8.2+
+                  - php: "8.0"
+                    symfony_version: "^7.3"
+                  - php: "8.1"
+                    symfony_version: "^7.3"
+
         name: PHP ${{ matrix.php }} SF ${{ matrix.symfony_version }} ${{ matrix.composer_flags}}
         env:
             PHP: ${{ matrix.os }}
@@ -38,7 +45,7 @@ jobs:
               run: |
                 composer self-update
                 if [ "$SYMFONY_VERSION" != "" ]; then composer require "symfony/symfony:${SYMFONY_VERSION}" --no-update; fi;
-                if [ "$SYMFONY_VERSION" = "^6.4" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
+                if [ "$SYMFONY_VERSION" != "^5.4" ]; then composer remove --dev "friendsofsymfony/oauth-server-bundle" --no-update; fi;
                 COMPOSER_MEMORY_LIMIT=-1 composer update --prefer-dist --no-interaction $COMPOSER_FLAGS
             - name: Static analysis
               run: |
