@@ -2,3 +2,4 @@ clover.xml
 html/
 vendor/*
 composer.lock
+/.idea
