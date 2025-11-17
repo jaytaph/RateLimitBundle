@@ -12,7 +12,7 @@ This is mostly useful in APIs.
 
 The bundle is prepared to work by default in cooperation with the `FOSOAuthServerBundle`. It contains a listener that adds the OAuth token to the cache-key. However, you can create your own key generator to allow custom rate limiting based on the request. See *Create a custom key generator* below.
 
-This bundle is partially inspired by a GitHub gist from Ruud Kamphuis: https://gist.github.com/ruudk/3350405
+This bundle is partially inspired by a GitHub gist from [Ruud Kamphuis](https://github.com/ruudk).
 
 ## Features
 
