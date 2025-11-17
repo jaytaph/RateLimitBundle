@@ -8,12 +8,11 @@ use Symfony\Component\HttpFoundation\Request;
 
 class PathLimitProcessor
 {
-    private array $pathLimits;
-
-    public function __construct(array $pathLimits)
+    /**
+     * @param array<array{path: string, methods: array<string>, limit: int<-1, max>, period: positive-int}> $pathLimits
+     */
+    public function __construct(private array $pathLimits)
     {
-        $this->pathLimits = $pathLimits;
-
         // Clean up any extra slashes from the config
         foreach ($this->pathLimits as &$pathLimit) {
             $pathLimit['path'] = trim($pathLimit['path'], '/');
@@ -21,7 +20,7 @@ class PathLimitProcessor
 
         // Order the configs so that the most specific paths
         // are matched first
-        usort($this->pathLimits, static function($a, $b) {
+        usort($this->pathLimits, static function($a, $b): int {
             return substr_count($b['path'], '/') - substr_count($a['path'], '/');
         });
     }
@@ -44,7 +43,7 @@ class PathLimitProcessor
         return null;
     }
 
-    public function getMatchedPath(Request $request)
+    public function getMatchedPath(Request $request): string
     {
         $path = trim($request->getPathInfo(), '/');
         $method = $request->getMethod();
