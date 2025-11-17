@@ -7,29 +7,23 @@ use Noxlogic\RateLimitBundle\Tests\WebTestCase;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 use Symfony\Component\Config\Definition\Processor;
 
-/**
- * ConfigurationTest
- */
 class ConfigurationTest extends WebTestCase
 {
-    /**
-     * @var Processor
-     */
-    private $processor;
+    private Processor $processor;
 
     public function setUp():void
     {
         $this->processor = new Processor();
     }
 
-    private function getConfigs(array $configArray)
+    private function getConfigs(array $configArray): array
     {
         $configuration = new Configuration();
 
         return $this->processor->processConfiguration($configuration, array($configArray));
     }
 
-    public function testUnconfiguredConfiguration()
+    public function testUnconfiguredConfiguration(): void
     {
         $configuration = $this->getConfigs(array());
 
@@ -59,7 +53,7 @@ class ConfigurationTest extends WebTestCase
         ), $configuration);
     }
 
-    public function testDisabledConfiguration()
+    public function testDisabledConfiguration(): void
     {
         $configuration = $this->getConfigs(array('enabled' => false));
 
@@ -67,7 +61,7 @@ class ConfigurationTest extends WebTestCase
         $this->assertFalse($configuration['enabled']);
     }
 
-    public function testPathLimitConfiguration()
+    public function testPathLimitConfiguration(): void
     {
         $pathLimits = array(
             'api' => array(
@@ -86,7 +80,7 @@ class ConfigurationTest extends WebTestCase
         $this->assertEquals($pathLimits, $configuration['path_limits']);
     }
 
-    public function testMultiplePathLimitConfiguration()
+    public function testMultiplePathLimitConfiguration(): void
     {
         $pathLimits = array(
             'api' => array(
@@ -111,7 +105,7 @@ class ConfigurationTest extends WebTestCase
         $this->assertEquals($pathLimits, $configuration['path_limits']);
     }
 
-    public function testDefaultPathLimitMethods()
+    public function testDefaultPathLimitMethods(): void
     {
         $pathLimits = array(
             'api' => array(
@@ -137,28 +131,50 @@ class ConfigurationTest extends WebTestCase
         $this->assertEquals($pathLimits, $configuration['path_limits']);
     }
 
-    public function testMustBeBasedOnExceptionClass()
+    public function testMustBeBasedOnExceptionClass(): void
     {
         $this->expectException(InvalidConfigurationException::class);
-        $configuration = $this->getConfigs(array('rate_response_exception' => '\StdClass'));
+        $this->getConfigs(array('rate_response_exception' => '\StdClass'));
+    }
+
+    /**
+     * @testWith [""]
+     *           [null]
+     */
+    public function testEmptyPathIsNotAllowed(mixed $path): void
+    {
+        $pathLimits = [
+            'api' => [
+                'path' => $path,
+                'methods' => ['GET'],
+                'limit' => 200,
+                'period' => 10
+            ],
+        ];
+
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->getConfigs([
+            'path_limits' => $pathLimits
+        ]);
     }
 
     /**
      *
      */
-    public function testMustBeBasedOnExceptionClass2()
+    public function testMustBeBasedOnExceptionClass2(): void
     {
-        $configuration = $this->getConfigs(array('rate_response_exception' => '\InvalidArgumentException'));
+        $this->getConfigs(array('rate_response_exception' => '\InvalidArgumentException'));
 
         # no exception triggered is ok.
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 
-    public function testMustBeBasedOnExceptionOrNull()
+    public function testMustBeBasedOnExceptionOrNull(): void
     {
-        $configuration = $this->getConfigs(array('rate_response_exception' => null));
+        $this->getConfigs(array('rate_response_exception' => null));
 
         # no exception triggered is ok.
-        $this->assertTrue(true);
+        $this->expectNotToPerformAssertions();
     }
 }
