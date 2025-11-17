@@ -154,9 +154,9 @@ class ConfigurationTest extends WebTestCase
 
         $this->expectException(InvalidConfigurationException::class);
 
-        $this->getConfigs(array(
+        $this->getConfigs([
             'path_limits' => $pathLimits
-        ));
+        ]);
     }
 
     /**
