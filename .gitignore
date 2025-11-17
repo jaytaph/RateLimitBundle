@@ -2,3 +2,5 @@ clover.xml
 html/
 vendor/*
 composer.lock
+/.idea
+/.phpunit.result.cache
