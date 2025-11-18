@@ -1,58 +1,10 @@
 parameters:
 	ignoreErrors:
 		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\Attribute\\RateLimit\:\:__construct\(\) has parameter \$methods with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: Attribute/RateLimit.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\Attribute\\RateLimit\:\:getMethods\(\) return type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: Attribute/RateLimit.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\Attribute\\RateLimit\:\:setMethods\(\) has parameter \$methods with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: Attribute/RateLimit.php
-
-		-
-			message: '#^Property Noxlogic\\RateLimitBundle\\Attribute\\RateLimit\:\:\$methods type has no value type specified in iterable type array\.$#'
-			identifier: missingType.iterableValue
-			count: 1
-			path: Attribute/RateLimit.php
-
-		-
 			message: '#^Method Noxlogic\\RateLimitBundle\\DependencyInjection\\NoxlogicRateLimitExtension\:\:loadServices\(\) has parameter \$config with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
 			path: DependencyInjection/NoxlogicRateLimitExtension.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\EventListener\\BaseListener\:\:getParameter\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: EventListener/BaseListener.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\EventListener\\BaseListener\:\:setParameter\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: EventListener/BaseListener.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\EventListener\\BaseListener\:\:setParameter\(\) has parameter \$name with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: EventListener/BaseListener.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\EventListener\\BaseListener\:\:setParameter\(\) has parameter \$value with no type specified\.$#'
-			identifier: missingType.parameter
-			count: 1
-			path: EventListener/BaseListener.php
 
 		-
 			message: '#^Property Noxlogic\\RateLimitBundle\\EventListener\\BaseListener\:\:\$parameters type has no value type specified in iterable type array\.$#'
@@ -63,12 +15,6 @@ parameters:
 		-
 			message: '#^Method Noxlogic\\RateLimitBundle\\EventListener\\HeaderModificationListener\:\:__construct\(\) has parameter \$defaultParameters with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
-			count: 1
-			path: EventListener/HeaderModificationListener.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\EventListener\\HeaderModificationListener\:\:onKernelResponse\(\) has no return type specified\.$#'
-			identifier: missingType.return
 			count: 1
 			path: EventListener/HeaderModificationListener.php
 
@@ -205,12 +151,6 @@ parameters:
 			path: Service/Storage/DoctrineCache.php
 
 		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\DoctrineCache\:\:createRateInfo\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Service/Storage/DoctrineCache.php
-
-		-
 			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\DoctrineCache\:\:createRateInfo\(\) has parameter \$info with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -230,12 +170,6 @@ parameters:
 
 		-
 			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\Memcache\:\:createRate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Service/Storage/Memcache.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\Memcache\:\:createRateInfo\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: Service/Storage/Memcache.php
@@ -289,12 +223,6 @@ parameters:
 			path: Service/Storage/PsrCache.php
 
 		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\PsrCache\:\:createRateInfo\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Service/Storage/PsrCache.php
-
-		-
 			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\PsrCache\:\:createRateInfo\(\) has parameter \$info with no value type specified in iterable type array\.$#'
 			identifier: missingType.iterableValue
 			count: 1
@@ -338,12 +266,6 @@ parameters:
 
 		-
 			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\SimpleCache\:\:createRate\(\) has no return type specified\.$#'
-			identifier: missingType.return
-			count: 1
-			path: Service/Storage/SimpleCache.php
-
-		-
-			message: '#^Method Noxlogic\\RateLimitBundle\\Service\\Storage\\SimpleCache\:\:createRateInfo\(\) has no return type specified\.$#'
 			identifier: missingType.return
 			count: 1
 			path: Service/Storage/SimpleCache.php

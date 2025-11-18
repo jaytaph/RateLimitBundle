@@ -17,26 +17,17 @@ use Symfony\Contracts\EventDispatcher\EventDispatcherInterface;
 
 class RateLimitAnnotationListener extends BaseListener
 {
-    protected EventDispatcherInterface $eventDispatcher;
-
-    protected RateLimitService $rateLimitService;
-
-    protected PathLimitProcessor $pathLimitProcessor;
-
     public function __construct(
-        EventDispatcherInterface $eventDispatcher,
-        RateLimitService $rateLimitService,
-        PathLimitProcessor $pathLimitProcessor
+        protected EventDispatcherInterface $eventDispatcher,
+        protected RateLimitService $rateLimitService,
+        protected PathLimitProcessor $pathLimitProcessor
     ) {
-        $this->eventDispatcher = $eventDispatcher;
-        $this->rateLimitService = $rateLimitService;
-        $this->pathLimitProcessor = $pathLimitProcessor;
     }
 
     public function onKernelController(ControllerEvent $event): void
     {
         // Skip if the bundle isn't enabled (for instance in test environment)
-        if( ! $this->getParameter('enabled', true)) {
+        if(! $this->getParameter('enabled', true)) {
             return;
         }
 
@@ -120,9 +111,7 @@ class RateLimitAnnotationListener extends BaseListener
             });
             $event->stopPropagation();
         }
-
     }
-
 
     /**
      * @param RateLimit[] $rateLimits
@@ -134,19 +123,19 @@ class RateLimitAnnotationListener extends BaseListener
             return $this->pathLimitProcessor->getRateLimit($request);
         }
 
-        $best_match = null;
+        $bestMatch = null;
         foreach ($rateLimits as $rateLimit) {
             if (in_array($request->getMethod(), $rateLimit->getMethods(), true)) {
-                $best_match = $rateLimit;
+                $bestMatch = $rateLimit;
             }
 
             // Only match "default" annotation when we don't have a best match
-            if ($best_match === null && count($rateLimit->methods) === 0) {
-                $best_match = $rateLimit;
+            if ($bestMatch === null && count($rateLimit->methods) === 0) {
+                $bestMatch = $rateLimit;
             }
         }
 
-        return $best_match;
+        return $bestMatch;
     }
 
     /** @param RateLimit[] $rateLimits */

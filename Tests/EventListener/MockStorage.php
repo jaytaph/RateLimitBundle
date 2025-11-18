@@ -7,15 +7,9 @@ use Noxlogic\RateLimitBundle\Service\Storage\StorageInterface;
 
 class MockStorage implements StorageInterface
 {
-    protected $rates;
+    private array $rates;
 
-    /**
-     * Get information about the current rate
-     *
-     * @param  string $key
-     * @return RateLimitInfo Rate limit information
-     */
-    public function getRateInfo($key)
+    public function getRateInfo($key): RateLimitInfo
     {
         $info = $this->rates[$key];
 
@@ -26,13 +20,7 @@ class MockStorage implements StorageInterface
         return $rateLimitInfo;
     }
 
-    /**
-     * Limit the rate by one
-     *
-     * @param  string $key
-     * @return RateLimitInfo Rate limit info
-     */
-    public function limitRate($key)
+    public function limitRate($key): ?RateLimitInfo
     {
         if (! isset($this->rates[$key])) {
             return null;
@@ -48,20 +36,14 @@ class MockStorage implements StorageInterface
      * @param  string $key
      * @param  integer $limit
      * @param  integer $period
-     * @return \Noxlogic\RateLimitBundle\Service\RateLimitInfo
      */
-    public function createRate($key, $limit, $period)
+    public function createRate($key, $limit, $period): RateLimitInfo
     {
         $this->rates[$key] = array('calls' => 1, 'limit' => $limit, 'reset' => (time() + $period));
         return $this->getRateInfo($key);
     }
 
-    /**
-     * Reset the rating
-     *
-     * @param $key
-     */
-    public function resetRate($key)
+    public function resetRate($key): void
     {
         unset($this->rates[$key]);
     }

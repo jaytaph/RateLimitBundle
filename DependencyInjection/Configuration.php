@@ -2,13 +2,13 @@
 
 namespace Noxlogic\RateLimitBundle\DependencyInjection;
 
+use Symfony\Component\Config\Definition\Builder\ArrayNodeDefinition;
 use Symfony\Component\Config\Definition\Builder\TreeBuilder;
 use Symfony\Component\Config\Definition\ConfigurationInterface;
 use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
- *
  */
 class Configuration implements ConfigurationInterface
 {
@@ -22,7 +22,11 @@ class Configuration implements ConfigurationInterface
         $treeBuilder = new TreeBuilder('noxlogic_rate_limit');
         $rootNode = $treeBuilder->getRootNode();
 
-        $rootNode // @phpstan-ignore method.notFound
+        if (!$rootNode instanceof ArrayNodeDefinition) {
+            throw new \InvalidArgumentException('The "noxlogic_rate_limit" config root node must be an array');
+        }
+
+        $rootNode // @phpstan-ignore-line
             ->canBeDisabled()
             ->children()
                 ->enumNode('storage_engine')

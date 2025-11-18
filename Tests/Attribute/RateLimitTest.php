@@ -43,7 +43,7 @@ class RateLimitTest extends TestCase
             1234,
             1000
         );
-        $this->assertCount(2, $attribute->methods);
+        self::assertCount(2, $attribute->methods);
     }
 
     public function testConstructWithStringAsMethods(): void
@@ -53,6 +53,6 @@ class RateLimitTest extends TestCase
             1234,
             1000
         );
-        $this->assertEquals(['POST'], $attribute->methods);
+        self::assertSame(['POST'], $attribute->methods);
     }
 }
