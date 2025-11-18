@@ -8,24 +8,15 @@ abstract class BaseListener
     /**
      * @var array Default parameters which can be used in the listener methods.
      */
-    protected $parameters;
+    protected array $parameters;
 
-    /**
-     * @param $name
-     * @param $value
-     */
-    public function setParameter($name, $value)
+    public function setParameter(string $name, mixed $value): void
     {
         $this->parameters[$name] = $value;
     }
 
-    /**
-     * @param  $name
-     * @param  mixed $default
-     * @return mixed
-     */
-    public function getParameter($name, $default = null)
+    public function getParameter(string $name, mixed $default = null): mixed
     {
-        return isset($this->parameters[$name]) ? $this->parameters[$name] : $default;
+        return $this->parameters[$name] ?? $default;
     }
 }

@@ -8,5 +8,11 @@ use Noxlogic\RateLimitBundle\Attribute\RateLimit;
 class MockControllerWithAttributes extends MockController {
 
     #[RateLimit(limit: 10, period: 100)]
-    function mockAction() { }
+    public function mockAction(): void { }
+
+    #[RateLimit(limit: 10, period: 100, failOpen: true)]
+    public function failOpenMockAction(): void { }
+
+    #[RateLimit(limit: 10, period: 100, failOpen: false)]
+    public function doNotFailOpenMockAction(): void { }
 }

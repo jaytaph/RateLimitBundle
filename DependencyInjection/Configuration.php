@@ -8,7 +8,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
- *
  */
 class Configuration implements ConfigurationInterface
 {
@@ -134,6 +133,11 @@ class Configuration implements ConfigurationInterface
                             ->end()
                         ->end()
                     ->end()
+                ->end()
+                ->booleanNode('fail_open')
+                    ->defaultFalse()
+                    ->treatNullLike(false)
+                    ->info('Defines if the rate limiter blocks the request when a technical problem occurs')
                 ->end()
                 ->booleanNode('fos_oauth_key_listener')
                     ->defaultTrue()

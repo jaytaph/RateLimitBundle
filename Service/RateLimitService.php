@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Service;
 
+use Noxlogic\RateLimitBundle\Exception\Storage\RateLimitStorageExceptionInterface;
 use Noxlogic\RateLimitBundle\Service\Storage\StorageInterface;
 
 class RateLimitService
@@ -32,7 +33,7 @@ class RateLimitService
     }
 
     /**
-     *
+     * @throws RateLimitStorageExceptionInterface
      */
     public function limitRate($key)
     {
@@ -40,7 +41,7 @@ class RateLimitService
     }
 
     /**
-     *
+     * @throws RateLimitStorageExceptionInterface
      */
     public function createRate($key, $limit, $period)
     {
@@ -48,7 +49,7 @@ class RateLimitService
     }
 
     /**
-     *
+     * @throws RateLimitStorageExceptionInterface
      */
     public function resetRate($key)
     {

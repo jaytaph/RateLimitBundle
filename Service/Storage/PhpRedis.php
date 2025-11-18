@@ -4,6 +4,10 @@
 namespace Noxlogic\RateLimitBundle\Service\Storage;
 
 
+use Noxlogic\RateLimitBundle\Exception\Storage\CreateRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\GetRateInfoRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\LimitRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\ResetRateRateLimitStorageException;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class PhpRedis implements StorageInterface
@@ -22,7 +26,12 @@ class PhpRedis implements StorageInterface
     {
         $key = $this->sanitizeRedisKey($key);
 
-        $info = $this->client->hgetall($key);
+        try {
+            $info = $this->client->hgetall($key);
+        } catch (\Throwable $e) {
+            throw new GetRateInfoRateLimitStorageException($e);
+        }
+
         if (!isset($info['limit']) || !isset($info['calls']) || !isset($info['reset'])) {
             return false;
         }
@@ -39,12 +48,22 @@ class PhpRedis implements StorageInterface
     {
         $key = $this->sanitizeRedisKey($key);
 
-        $info = $this->getRateInfo($key);
+        try {
+            $info = $this->getRateInfo($key);
+            // We want to make sure we throw the exception with the proper class
+        } catch (GetRateInfoRateLimitStorageException $e) {
+            throw new LimitRateRateLimitStorageException($e->getPrevious());
+        }
+
         if (!$info) {
             return false;
         }
 
-        $calls = $this->client->hincrby($key, 'calls', 1);
+        try {
+            $calls = $this->client->hincrby($key, 'calls', 1);
+        } catch (\Throwable $e) {
+            throw new LimitRateRateLimitStorageException($e);
+        }
         $info->setCalls($calls);
 
         return $info;
@@ -56,10 +75,14 @@ class PhpRedis implements StorageInterface
 
         $reset = time() + $period;
 
-        $this->client->hset($key, 'limit', $limit);
-        $this->client->hset($key, 'calls', 1);
-        $this->client->hset($key, 'reset', $reset);
-        $this->client->expire($key, $period);
+        try {
+            $this->client->hset($key, 'limit', $limit);
+            $this->client->hset($key, 'calls', 1);
+            $this->client->hset($key, 'reset', $reset);
+            $this->client->expire($key, $period);
+        } catch (\Throwable $e) {
+            throw new CreateRateRateLimitStorageException($e);
+        }
 
         $rateLimitInfo = new RateLimitInfo();
         $rateLimitInfo->setLimit($limit);
@@ -73,7 +96,11 @@ class PhpRedis implements StorageInterface
     {
         $key = $this->sanitizeRedisKey($key);
 
-        $this->client->del($key);
+        try {
+            $this->client->del($key);
+        } catch (\Throwable $e) {
+            throw new ResetRateRateLimitStorageException($e);
+        }
 
         return true;
     }

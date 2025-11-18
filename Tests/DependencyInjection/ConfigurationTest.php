@@ -25,9 +25,9 @@ class ConfigurationTest extends WebTestCase
 
     public function testUnconfiguredConfiguration(): void
     {
-        $configuration = $this->getConfigs(array());
+        $configuration = $this->getConfigs([]);
 
-        $this->assertSame(array(
+        $this->assertSame([
             'enabled' => true,
             'storage_engine' => 'redis',
             'redis_client' => 'default_client',
@@ -43,14 +43,15 @@ class ConfigurationTest extends WebTestCase
             'rate_response_exception' => null,
             'rate_response_message' => 'You exceeded the rate limit',
             'display_headers' => true,
-            'headers' => array(
+            'headers' => [
                 'limit' => 'X-RateLimit-Limit',
                 'remaining' => 'X-RateLimit-Remaining',
                 'reset' => 'X-RateLimit-Reset',
-            ),
-            'path_limits' => array(),
+            ],
+            'path_limits' => [],
+            'fail_open' => false,
             'fos_oauth_key_listener' => true
-        ), $configuration);
+        ], $configuration);
     }
 
     public function testDisabledConfiguration(): void
@@ -134,6 +135,7 @@ class ConfigurationTest extends WebTestCase
     public function testMustBeBasedOnExceptionClass(): void
     {
         $this->expectException(InvalidConfigurationException::class);
+
         $this->getConfigs(array('rate_response_exception' => '\StdClass'));
     }
 
@@ -176,5 +178,37 @@ class ConfigurationTest extends WebTestCase
 
         # no exception triggered is ok.
         $this->expectNotToPerformAssertions();
+    }
+
+    public function testFailOpen(): void
+    {
+        $config = $this->getConfigs(['fail_open' => true]);
+
+        self::assertTrue($config['fail_open']);
+    }
+
+    public function testFailOpen_false(): void
+    {
+        $config = $this->getConfigs(['fail_open' => false]);
+
+        self::assertFalse($config['fail_open']);
+    }
+
+    public function testFailOpen_nullShouldBeTreatedAsFalse(): void
+    {
+        $config = $this->getConfigs(['fail_open' => null]);
+
+        self::assertFalse($config['fail_open']);
+    }
+
+    /**
+     * @testWith ["not-a-boolean"]
+     *           [123]
+     */
+    public function testFailOpen_mustBeBool(mixed $value): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->getConfigs(['fail_open' => $value]);
     }
 }
