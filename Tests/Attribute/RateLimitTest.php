@@ -11,9 +11,10 @@ class RateLimitTest extends TestCase
     {
         $attribute = new RateLimit();
 
-        $this->assertEquals(-1, $attribute->limit);
-        $this->assertEmpty($attribute->methods);
-        $this->assertEquals(3600, $attribute->period);
+        self::assertSame(-1, $attribute->limit);
+        self::assertEmpty($attribute->methods);
+        self::assertSame(3600, $attribute->period);
+        self::assertNull($attribute->failOpen);
     }
 
     public function testConstructionWithValues(): void
@@ -21,19 +22,23 @@ class RateLimitTest extends TestCase
         $attribute = new RateLimit(
             [],
             1234,
-            1000
+            1000,
+            failOpen: true
         );
-        $this->assertEquals(1234, $attribute->limit);
-        $this->assertEquals(1000, $attribute->period);
+        self::assertSame(1234, $attribute->limit);
+        self::assertSame(1000, $attribute->period);
+        self::assertTrue($attribute->failOpen);
 
         $attribute = new RateLimit(
             ['POST'],
             1234,
-            1000
+            1000,
+            failOpen: false
         );
-        $this->assertEquals(1234, $attribute->limit);
-        $this->assertEquals(1000, $attribute->period);
-        $this->assertEquals(['POST'], $attribute->methods);
+        self::assertSame(1234, $attribute->limit);
+        self::assertSame(1000, $attribute->period);
+        self::assertSame(['POST'], $attribute->methods);
+        self::assertFalse($attribute->failOpen);
     }
 
     public function testConstructionWithMethods(): void

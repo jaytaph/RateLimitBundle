@@ -5,6 +5,10 @@ declare(strict_types=1);
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
 use Composer\InstalledVersions;
+use Noxlogic\RateLimitBundle\Exception\Storage\CreateRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\GetRateInfoRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\LimitRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\ResetRateRateLimitStorageException;
 use Noxlogic\RateLimitBundle\Service\Storage\PsrCache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
 use Psr\Cache\CacheItemPoolInterface;
@@ -43,7 +47,24 @@ class PsrCacheTest extends TestCase
 
     public function testGetRateInfo_exception(): void
     {
-        $item = $this->getMockBuilder('Psr\\Cache\\CacheItemInterface')
+        $client = $this->getMockBuilder(CacheItemPoolInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('getItem')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new PsrCache($client);
+
+        $this->expectException(GetRateInfoRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to get rate limit info: Storage error');
+
+        $storage->getRateInfo('foo');
+    }
+
+    public function testCreateRate(): void
+    {
+        $item = $this->getMockBuilder(CacheItemInterface::class)
             ->getMock();
 
         /**
@@ -82,8 +103,24 @@ class PsrCacheTest extends TestCase
         $storage->createRate('foo', 100, 123);
     }
 
+    public function testCreateRate_exception(): void
+    {
+        $client = $this->getMockBuilder(CacheItemPoolInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('getItem')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
 
-    public function testLimitRateNoKey()
+        $storage = new PsrCache($client);
+
+        $this->expectException(CreateRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to create rate limit: Storage error');
+
+        $storage->createRate('foo', 100, 123);
+    }
+
+    public function testLimitRateNoKey(): void
     {
         $item = $this->getMockBuilder(CacheItemInterface::class)
             ->getMock();
@@ -104,7 +141,24 @@ class PsrCacheTest extends TestCase
 
     public function testLimitRate_exception(): void
     {
-        $item = $this->getMockBuilder('Psr\\Cache\\CacheItemInterface')
+        $client = $this->getMockBuilder(CacheItemPoolInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('getItem')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new PsrCache($client);
+
+        $this->expectException(LimitRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to apply rate limit: Storage error');
+
+        $storage->limitRate('foo');
+    }
+
+    public function testLimitRateWithKey(): void
+    {
+        $item = $this->getMockBuilder(CacheItemInterface::class)
             ->getMock();
         $item->expects($this->once())
             ->method('isHit')
@@ -143,5 +197,22 @@ class PsrCacheTest extends TestCase
 
         $storage = new PsrCache($client);
         $this->assertTrue($storage->resetRate('foo'));
+    }
+
+    public function testResetRate_exception(): void
+    {
+        $client = $this->getMockBuilder(CacheItemPoolInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('deleteItem')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new PsrCache($client);
+
+        $this->expectException(ResetRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to reset rate: Storage error');
+
+        $storage->resetRate('foo');
     }
 }
