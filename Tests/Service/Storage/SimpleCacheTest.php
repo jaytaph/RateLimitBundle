@@ -1,24 +1,28 @@
 <?php
+/** @noinspection PhpUnhandledExceptionInspection */
+declare(strict_types=1);
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
 use Noxlogic\RateLimitBundle\Service\Storage\SimpleCache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
+use Psr\SimpleCache\CacheInterface;
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class SimpleCacheTest extends TestCase
 {
-    public function testGetRateInfo()
+    public function testGetRateInfo(): void
     {
-        $client = $this->getMockBuilder('Psr\\SimpleCache\\CacheInterface')
+        $client = $this->getMockBuilder(CacheInterface::class)
             ->getMock();
         $client->expects($this->once())
             ->method('get')
             ->with('foo')
-            ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
+            ->willReturn(['limit' => 100, 'calls' => 50, 'reset' => 1234]);
 
         $storage = new SimpleCache($client);
         $rli = $storage->getRateInfo('foo');
-        $this->assertInstanceOf('Noxlogic\\RateLimitBundle\\Service\\RateLimitInfo', $rli);
+        $this->assertInstanceOf(RateLimitInfo::class, $rli);
         $this->assertEquals(100, $rli->getLimit());
         $this->assertEquals(50, $rli->getCalls());
         $this->assertEquals(1234, $rli->getResetTimestamp());
@@ -43,7 +47,7 @@ class SimpleCacheTest extends TestCase
         $client->expects($this->once())
             ->method('get')
             ->with('foo')
-            ->will($this->returnValue(null));
+            ->willReturn(null);
 
         $storage = new SimpleCache($client);
         $this->assertFalse($storage->limitRate('foo'));
@@ -58,10 +62,10 @@ class SimpleCacheTest extends TestCase
         $info['calls'] = 50;
         $info['reset'] = 1234;
 
-        $client->expects($this->exactly(1))
+        $client->expects($this->once())
             ->method('get')
             ->with('foo')
-            ->will($this->returnValue($info));
+            ->willReturn($info);
         $client->expects($this->once())
             ->method('set');
 
@@ -69,9 +73,9 @@ class SimpleCacheTest extends TestCase
         $storage->limitRate('foo');
     }
 
-    public function testResetRate()
+    public function testResetRate(): void
     {
-        $client = $this->getMockBuilder('Psr\\SimpleCache\\CacheInterface')
+        $client = $this->getMockBuilder(CacheInterface::class)
             ->getMock();
         $client->expects($this->once())
             ->method('delete')

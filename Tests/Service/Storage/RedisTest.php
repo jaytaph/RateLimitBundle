@@ -1,31 +1,35 @@
 <?php
+/** @noinspection PhpUnhandledExceptionInspection */
+declare(strict_types=1);
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
 use Noxlogic\RateLimitBundle\Service\Storage\Redis;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
+use Predis\Client;
+use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class RedisTest extends TestCase
 {
-    public function testgetRateInfo()
+    public function testGetRateInfo(): void
     {
-        $client = $this->getMockBuilder('Predis\\Client')
-            ->setMethods(array('hgetall'))
+        $client = $this->getMockBuilder(Client::class)
+            ->addMethods(['hgetall'])
             ->getMock();
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
-              ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
+              ->willReturn(['limit' => 100, 'calls' => 50, 'reset' => 1234]);
 
         $storage = new Redis($client);
         $rli = $storage->getRateInfo('foo');
-        $this->assertInstanceOf('Noxlogic\\RateLimitBundle\\Service\\RateLimitInfo', $rli);
+        $this->assertInstanceOf(RateLimitInfo::class, $rli);
         $this->assertEquals(100, $rli->getLimit());
         $this->assertEquals(50, $rli->getCalls());
         $this->assertEquals(1234, $rli->getResetTimestamp());
     }
 
-    public function testcreateRate()
+    public function testGetRateInfo_exception(): void
     {
         $client = $this->getMockBuilder('Predis\\Client')
             ->setMethods(array('hset', 'expire', 'hgetall'))
@@ -45,8 +49,7 @@ class RedisTest extends TestCase
         $storage->createRate('foo', 100, 123);
     }
 
-
-    public function testLimitRateNoKey()
+    public function testCreateRate_exception(): void
     {
         $client = $this->getMockBuilder('Predis\\Client')
             ->setMethods(array('hgetall'))
@@ -54,7 +57,7 @@ class RedisTest extends TestCase
         $client->expects($this->once())
               ->method('hgetall')
               ->with('foo')
-              ->will($this->returnValue([]));
+              ->willReturn([]);
 
         $storage = new Redis($client);
         $this->assertFalse($storage->limitRate('foo'));
@@ -84,10 +87,10 @@ class RedisTest extends TestCase
 
 
 
-    public function testresetRate()
+    public function testResetRate(): void
     {
-        $client = $this->getMockBuilder('Predis\\Client')
-            ->setMethods(array('del'))
+        $client = $this->getMockBuilder(Client::class)
+            ->addMethods(array('del'))
             ->getMock();
         $client->expects($this->once())
               ->method('del')

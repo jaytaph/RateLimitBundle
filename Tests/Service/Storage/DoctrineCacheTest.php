@@ -8,24 +8,26 @@ use Noxlogic\RateLimitBundle\Tests\TestCase;
 
 class DoctrineCacheTest extends TestCase
 {
-    public function testGetRateInfo()
+    public function testGetRateInfo(): void
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
+        $client = $this->getMockBuilder(Cache::class)
             ->getMock();
         $client->expects($this->once())
             ->method('fetch')
             ->with('foo')
-            ->will($this->returnValue(array('limit' => 100, 'calls' => 50, 'reset' => 1234)));
+            ->willReturn(['limit' => 100, 'calls' => 50, 'reset' => 1234]);
 
         $storage = new DoctrineCache($client);
+
         $rli = $storage->getRateInfo('foo');
-        $this->assertInstanceOf('Noxlogic\\RateLimitBundle\\Service\\RateLimitInfo', $rli);
+
+        $this->assertInstanceOf(RateLimitInfo::class, $rli);
         $this->assertEquals(100, $rli->getLimit());
         $this->assertEquals(50, $rli->getCalls());
         $this->assertEquals(1234, $rli->getResetTimestamp());
     }
 
-    public function testCreateRate()
+    public function testGetRateInfo_exception(): void
     {
         $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();
@@ -36,33 +38,32 @@ class DoctrineCacheTest extends TestCase
         $storage->createRate('foo', 100, 123);
     }
 
-
-    public function testLimitRateNoKey()
+    public function testCreateRate_exception(): void
     {
         $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();
         $client->expects($this->once())
             ->method('fetch')
             ->with('foo')
-            ->will($this->returnValue(false));
+            ->willReturn(false);
 
         $storage = new DoctrineCache($client);
         $this->assertFalse($storage->limitRate('foo'));
     }
 
-    public function testLimitRateWithKey()
+    public function testLimitRateWithKey(): void
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
+        $client = $this->getMockBuilder(Cache::class)
             ->getMock();
 
         $info['limit'] = 100;
         $info['calls'] = 50;
         $info['reset'] = 1234;
 
-        $client->expects($this->exactly(1))
+        $client->expects($this->once())
             ->method('fetch')
             ->with('foo')
-            ->will($this->returnValue($info));
+            ->willReturn($info);
         $client->expects($this->once())
             ->method('save');
 
@@ -70,9 +71,7 @@ class DoctrineCacheTest extends TestCase
         $storage->limitRate('foo');
     }
 
-
-
-    public function testResetRate()
+    public function testLimitRate_exception(): void
     {
         $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
             ->getMock();

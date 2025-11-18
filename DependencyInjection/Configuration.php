@@ -8,7 +8,6 @@ use Symfony\Component\Config\Definition\Exception\InvalidConfigurationException;
 
 /**
  * This is the class that validates and merges configuration from your app/config files
- *
  */
 class Configuration implements ConfigurationInterface
 {
