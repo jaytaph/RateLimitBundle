@@ -11,12 +11,9 @@ use Symfony\Component\DependencyInjection\ContainerBuilder;
 use Symfony\Component\DependencyInjection\ParameterBag\ParameterBag;
 use Symfony\Component\DependencyInjection\Reference;
 
-/**
- * ConfigurationTest
- */
 class NoxlogicRateLimitExtensionTest extends WebTestCase
 {
-    public function testAreParametersSet()
+    public function testAreParametersSet(): void
     {
         $extension = new NoxlogicRateLimitExtension();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
@@ -28,59 +25,59 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.headers.reset.name'), 'X-RateLimit-Reset');
     }
 
-    public function testStorageEngineParameterProvider()
+    public function testStorageEngineParameterProvider(): void
     {
         $extension = new NoxlogicRateLimitExtension();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
-        $extension->load(array(
-            'noxlogic_rate_limit' => array(
+        $extension->load([
+            'noxlogic_rate_limit' => [
                 'storage_engine' => 'doctrine',
                 'doctrine_provider' => 'redis_cache',
-            )
-        ), $containerBuilder);
+            ]
+        ], $containerBuilder);
 
-        $this->assertEquals('Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache', $containerBuilder->getParameter('noxlogic_rate_limit.storage.class'));
+        self::assertSame(DoctrineCache::class, $containerBuilder->getParameter('noxlogic_rate_limit.storage.class'));
 
         $storageDef = $containerBuilder->getDefinition('noxlogic_rate_limit.storage');
-        $this->assertEquals('doctrine_cache.providers.redis_cache', (string)($storageDef->getArgument(0)));
+        self::assertSame('doctrine_cache.providers.redis_cache', (string)($storageDef->getArgument(0)));
     }
 
-    public function testStorageEngineParameterService()
+    public function testStorageEngineParameterService(): void
     {
         $extension = new NoxlogicRateLimitExtension();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
-        $extension->load(array(
-            'noxlogic_rate_limit' => array(
+        $extension->load([
+            'noxlogic_rate_limit' => [
                 'storage_engine' => 'doctrine',
                 'doctrine_service' => 'my.redis_cache',
-            )
-        ), $containerBuilder);
+            ]
+        ], $containerBuilder);
 
-        $this->assertEquals('Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache', $containerBuilder->getParameter('noxlogic_rate_limit.storage.class'));
+        self::assertSame(DoctrineCache::class, $containerBuilder->getParameter('noxlogic_rate_limit.storage.class'));
 
         $storageDef = $containerBuilder->getDefinition('noxlogic_rate_limit.storage');
-        $this->assertEquals('my.redis_cache', (string)($storageDef->getArgument(0)));
+        self::assertSame('my.redis_cache', (string)($storageDef->getArgument(0)));
     }
 
     public function testParametersWhenDisabled()
     {
         $extension = new NoxlogicRateLimitExtension();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
-        $extension->load(array('enabled' => false), $containerBuilder);
+        $extension->load(['enabled' => false], $containerBuilder);
 
-        $this->assertEquals(429, $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code'));
+        self::assertSame(429, $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code'));
     }
 
-    public function testPathLimitsParameter()
+    public function testPathLimitsParameter(): void
     {
-        $pathLimits = array(
-            'api' => array(
+        $pathLimits = [
+            'api' => [
                 'path' => 'api/',
-                'methods' => array('GET'),
+                'methods' => ['GET'],
                 'limit' => 100,
                 'period' => 60
-            )
-        );
+            ]
+        ];
 
         $extension = new NoxlogicRateLimitExtension();
         $containerBuilder = new ContainerBuilder(new ParameterBag());

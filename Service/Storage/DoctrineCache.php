@@ -62,7 +62,7 @@ class DoctrineCache implements StorageInterface {
         return true;
     }
 
-    private function createRateInfo(array $info)
+    private function createRateInfo(array $info): RateLimitInfo
     {
         $rateLimitInfo = new RateLimitInfo();
         $rateLimitInfo->setLimit($info['limit']);

@@ -7,19 +7,12 @@ use Symfony\Component\HttpKernel\Event\ResponseEvent;
 
 class HeaderModificationListener extends BaseListener
 {
-
-    /**
-     * @param array $defaultParameters
-     */
-    public function __construct($defaultParameters = array())
+    public function __construct(array $defaultParameters = [])
     {
         $this->parameters = $defaultParameters;
     }
 
-    /**
-     * @param ResponseEvent $event
-     */
-    public function onKernelResponse($event)
+    public function onKernelResponse(ResponseEvent $event): void
     {
         $request = $event->getRequest();
 
