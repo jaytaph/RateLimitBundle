@@ -2,8 +2,13 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Exception\Storage\CreateRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\GetRateInfoRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\LimitRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\ResetRateRateLimitStorageException;
 use Noxlogic\RateLimitBundle\Service\Storage\SimpleCache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
+use Psr\SimpleCache\CacheInterface;
 
 class SimpleCacheTest extends TestCase
 {
@@ -24,9 +29,26 @@ class SimpleCacheTest extends TestCase
         $this->assertEquals(1234, $rli->getResetTimestamp());
     }
 
-    public function testCreateRate()
+    public function testGetRateInfo_exception(): void
     {
-        $client = $this->getMockBuilder('Psr\\SimpleCache\\CacheInterface')
+        $client = $this->getMockBuilder(CacheInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('get')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new SimpleCache($client);
+
+        $this->expectException(GetRateInfoRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to get rate limit info: Storage error');
+
+        $storage->getRateInfo('foo');
+    }
+
+    public function testCreateRate(): void
+    {
+        $client = $this->getMockBuilder(CacheInterface::class)
             ->getMock();
         $client->expects($this->once())
             ->method('set');
@@ -35,10 +57,25 @@ class SimpleCacheTest extends TestCase
         $storage->createRate('foo', 100, 123);
     }
 
-
-    public function testLimitRateNoKey()
+    public function testCreateRate_exception(): void
     {
-        $client = $this->getMockBuilder('Psr\\SimpleCache\\CacheInterface')
+        $client = $this->getMockBuilder(CacheInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('set')
+            ->willThrowException(new \Exception('Storage error'));;
+
+        $storage = new SimpleCache($client);
+
+        $this->expectException(CreateRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to create rate limit: Storage error');
+
+        $storage->createRate('foo', 100, 123);
+    }
+
+    public function testLimitRateNoKey(): void
+    {
+        $client = $this->getMockBuilder(CacheInterface::class)
             ->getMock();
         $client->expects($this->once())
             ->method('get')
@@ -49,9 +86,26 @@ class SimpleCacheTest extends TestCase
         $this->assertFalse($storage->limitRate('foo'));
     }
 
-    public function testLimitRateWithKey()
+    public function testLimitRate_exception(): void
     {
-        $client = $this->getMockBuilder('Psr\\SimpleCache\\CacheInterface')
+        $client = $this->getMockBuilder(CacheInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('get')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new SimpleCache($client);
+
+        $this->expectException(LimitRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to apply rate limit: Storage error');
+
+        $storage->limitRate('foo');
+    }
+
+    public function testLimitRateWithKey(): void
+    {
+        $client = $this->getMockBuilder(CacheInterface::class)
             ->getMock();
 
         $info['limit'] = 100;
@@ -80,4 +134,21 @@ class SimpleCacheTest extends TestCase
         $storage = new SimpleCache($client);
         $this->assertTrue($storage->resetRate('foo'));
     }
-} 
+
+    public function testResetRate_exception(): void
+    {
+        $client = $this->getMockBuilder(CacheInterface::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('delete')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new SimpleCache($client);
+
+        $this->expectException(ResetRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to reset rate: Storage error');
+
+        $storage->resetRate('foo');
+    }
+}

@@ -2,6 +2,10 @@
 
 namespace Noxlogic\RateLimitBundle\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Exception\Storage\CreateRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\GetRateInfoRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\LimitRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\ResetRateRateLimitStorageException;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class Memcache implements StorageInterface
@@ -18,7 +22,11 @@ class Memcache implements StorageInterface
 
     public function getRateInfo($key)
     {
-        $info = $this->client->get($key);
+        try {
+            $info = $this->client->get($key);
+        } catch (\Throwable $e) {
+            throw new GetRateInfoRateLimitStorageException($e);
+        }
 
         return $this->createRateInfo($info);
     }
@@ -29,18 +37,31 @@ class Memcache implements StorageInterface
         $i = 0;
         do {
             if (defined('Memcached::GET_EXTENDED')) {
-                $_o = $this->client->get($key, null, \Memcached::GET_EXTENDED);
+                try {
+                    $_o = $this->client->get($key, null, \Memcached::GET_EXTENDED);
+                } catch (\Throwable $e) {
+                    throw new LimitRateRateLimitStorageException($e);
+                }
+
                 $info = $_o['value'] ?? null;
                 $cas = $_o['cas'] ?? null;
             } else {
-                $info = $this->client->get($key, null, $cas);
+                try {
+                    $info = $this->client->get($key, null, $cas);
+                } catch (\Throwable $e) {
+                    throw new LimitRateRateLimitStorageException($e);
+                }
             }
             if (!$info) {
                 return false;
             }
 
             $info['calls']++;
-            $this->client->cas($cas, $key, $info);
+            try {
+                $this->client->cas($cas, $key, $info);
+            } catch (\Throwable $e) {
+                throw new LimitRateRateLimitStorageException($e);
+            }
         } while ($this->client->getResultCode() == \Memcached::RES_DATA_EXISTS && $i++ < 5);
 
         return $this->createRateInfo($info);
@@ -53,14 +74,23 @@ class Memcache implements StorageInterface
         $info['calls'] = 1;
         $info['reset'] = time() + $period;
 
-        $this->client->set($key, $info, $period);
+        try {
+            $this->client->set($key, $info, $period);
+        } catch (\Throwable $e) {
+            throw new CreateRateRateLimitStorageException($e);
+        }
 
         return $this->createRateInfo($info);
     }
 
     public function resetRate($key)
     {
-        $this->client->delete($key);
+        try {
+            $this->client->delete($key);
+        } catch (\Throwable $e) {
+            throw new ResetRateRateLimitStorageException($e);
+        }
+
         return true;
     }
 

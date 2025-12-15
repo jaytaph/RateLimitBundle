@@ -149,6 +149,17 @@ noxlogic_rate_limit:
     # - { path: /api, limit: 1000, period: 3600 }
     # - { path: /dashboard, limit: 100, period: 3600, methods: ['GET', 'POST']}
 
+    # Defines if the rate limiter blocks the request when a technical problem occurs.
+    # For example, when the Redis database which is used as a rate limit storage is down.
+    #
+    # Possible values:
+    # false (default): The request is blocked when a storage error occurs
+    # true: The rate limit is ignored and the request is processed when a storage error occurs
+    #
+    # This config is used as a global default.
+    # It can be overridden for individual routes by setting the \Noxlogic\RateLimitBundle\Attribute\RateLimit::$failOpen attribute
+    fail_open: false
+
     # Should the FOS OAuthServerBundle listener be enabled 
     fos_oauth_key_listener: true
 ```
@@ -211,6 +222,43 @@ class DefaultController extends Controller
     public function indexAction()
     {
     }
+}
+```
+
+### Configure fail-open behaviour
+
+You can skip enforcing the rate limit when the rate limit storage is not available.
+
+> If you set `$failOpen` to `true` or `false`, it takes precedence over the globally configured value (`noxlogic_rate_limit.fail_open`).
+
+```php
+<?php
+
+use Noxlogic\RateLimitBundle\Attribute\RateLimit;
+use Symfony\Component\Routing\Annotation\Route;
+
+#[Route(...)]
+#[RateLimit(limit: 1000, period: 3600, failOpen: true)] // The rate limiting is skipped when the storage is not available
+public function rateLimitEnforcedIfPossibleAction()
+{
+}
+
+#[Route(...)]
+#[RateLimit(limit: 1000, period: 3600, failOpen: false)] // A rate limit error is returned when the storage is not available
+public function rateLimitAlwaysEnforcedAction()
+{
+}
+
+#[Route(...)]
+#[RateLimit(limit: 1000, period: 3600, failOpen: null)] // Will use the fail-open behaviour configured in "noxlogic_rate_limit.fail_open"
+public function defaultFailOpenAction()
+{
+}
+
+#[Route(...)]
+#[RateLimit(limit: 1000, period: 3600)] // Will use the fail-open behaviour configured in "noxlogic_rate_limit.fail_open"
+public function alsoDefaultFailOpenAction()
+{
 }
 ```
 

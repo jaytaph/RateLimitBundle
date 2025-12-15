@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Exception\Storage\RateLimitStorageExceptionInterface;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 interface StorageInterface
@@ -12,7 +13,9 @@ interface StorageInterface
      * @param  string               $key
      * @return RateLimitInfo|bool   Rate limit information
      * @todo: Replace return type with RateLimitInfo|false when PHP 8.2 is the minimum version
- */
+     *
+     * @throws RateLimitStorageExceptionInterface
+     */
     public function getRateInfo($key);
 
     /**
@@ -21,6 +24,8 @@ interface StorageInterface
      * @param  string               $key
      * @return RateLimitInfo|bool   Rate limit info
      * @todo: Replace return type with RateLimitInfo|false when PHP 8.2 is the minimum version
+     *
+     * @throws RateLimitStorageExceptionInterface
      */
     public function limitRate($key);
 
@@ -30,6 +35,8 @@ interface StorageInterface
      * @param  string        $key
      * @param  integer       $limit
      * @param  integer       $period
+     *
+     * @throws RateLimitStorageExceptionInterface
      */
     public function createRate($key, $limit, $period);
 
@@ -37,6 +44,8 @@ interface StorageInterface
      * Reset the rating
      *
      * @param $key
+     *
+     * @throws RateLimitStorageExceptionInterface
      */
     public function resetRate($key);
 }

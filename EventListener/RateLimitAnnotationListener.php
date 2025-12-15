@@ -7,6 +7,7 @@ use Noxlogic\RateLimitBundle\Events\CheckedRateLimitEvent;
 use Noxlogic\RateLimitBundle\Events\GenerateKeyEvent;
 use Noxlogic\RateLimitBundle\Events\RateLimitEvents;
 use Noxlogic\RateLimitBundle\Exception\RateLimitExceptionInterface;
+use Noxlogic\RateLimitBundle\Exception\Storage\RateLimitStorageExceptionInterface;
 use Noxlogic\RateLimitBundle\Service\RateLimitService;
 use Noxlogic\RateLimitBundle\Util\PathLimitProcessor;
 use Symfony\Component\HttpFoundation\Request;
@@ -33,6 +34,9 @@ class RateLimitAnnotationListener extends BaseListener
         $this->pathLimitProcessor = $pathLimitProcessor;
     }
 
+    /**
+     * @throws RateLimitStorageExceptionInterface
+     */
     public function onKernelController(ControllerEvent $event): void
     {
         // Skip if the bundle isn't enabled (for instance in test environment)
@@ -68,31 +72,39 @@ class RateLimitAnnotationListener extends BaseListener
 
         $key = $this->getKey($event, $rateLimit, $rateLimits);
 
-        // Ratelimit the call
-        $rateLimitInfo = $this->rateLimitService->limitRate($key);
-        if (! $rateLimitInfo) {
-            // Create new rate limit entry for this call
-            $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
+        $shouldFailOpenOnStorageError = $rateLimit->failOpen ?? $this->getParameter('fail_open', false);
+        try {
+            // Ratelimit the call
+            $rateLimitInfo = $this->rateLimitService->limitRate($key);
             if (! $rateLimitInfo) {
-                // @codeCoverageIgnoreStart
-                return;
-                // @codeCoverageIgnoreEnd
+                // Create new rate limit entry for this call
+                $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
+                if (! $rateLimitInfo) {
+                    // @codeCoverageIgnoreStart
+                    return;
+                    // @codeCoverageIgnoreEnd
+                }
             }
-        }
 
+            // Store the current rating info in the request attributes
+            $request->attributes->set('rate_limit_info', $rateLimitInfo);
 
-        // Store the current rating info in the request attributes
-        $request->attributes->set('rate_limit_info', $rateLimitInfo);
-
-        // Reset the rate limits
-        if(time() >= $rateLimitInfo->getResetTimestamp()) {
-            $this->rateLimitService->resetRate($key);
-            $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
-            if (! $rateLimitInfo) {
-                // @codeCoverageIgnoreStart
-                return;
-                // @codeCoverageIgnoreEnd
+            // Reset the rate limits
+            if(time() >= $rateLimitInfo->getResetTimestamp()) {
+                $this->rateLimitService->resetRate($key);
+                $rateLimitInfo = $this->rateLimitService->createRate($key, $rateLimit->getLimit(), $rateLimit->getPeriod());
+                if (! $rateLimitInfo) {
+                    // @codeCoverageIgnoreStart
+                    return;
+                    // @codeCoverageIgnoreEnd
+                }
             }
+        } catch (RateLimitStorageExceptionInterface $storageException) {
+            if ($shouldFailOpenOnStorageError) {
+                return;
+            }
+
+            throw $storageException;
         }
 
         // When we exceeded our limit, return a custom error response
