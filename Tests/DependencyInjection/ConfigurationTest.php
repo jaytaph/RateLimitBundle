@@ -49,6 +49,7 @@ class ConfigurationTest extends WebTestCase
                 'reset' => 'X-RateLimit-Reset',
             ),
             'path_limits' => array(),
+            'fail_open' => false,
             'fos_oauth_key_listener' => true
         ), $configuration);
     }
@@ -176,5 +177,37 @@ class ConfigurationTest extends WebTestCase
 
         # no exception triggered is ok.
         $this->expectNotToPerformAssertions();
+    }
+
+    public function testFailOpen(): void
+    {
+        $config = $this->getConfigs(['fail_open' => true]);
+
+        self::assertTrue($config['fail_open']);
+    }
+
+    public function testFailOpen_false(): void
+    {
+        $config = $this->getConfigs(['fail_open' => false]);
+
+        self::assertFalse($config['fail_open']);
+    }
+
+    public function testFailOpen_nullShouldBeTreatedAsFalse(): void
+    {
+        $config = $this->getConfigs(['fail_open' => null]);
+
+        self::assertFalse($config['fail_open']);
+    }
+
+    /**
+     * @testWith ["not-a-boolean"]
+     *           [123]
+     */
+    public function testFailOpen_mustBeBool(mixed $value): void
+    {
+        $this->expectException(InvalidConfigurationException::class);
+
+        $this->getConfigs(['fail_open' => $value]);
     }
 }

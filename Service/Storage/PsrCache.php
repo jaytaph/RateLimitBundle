@@ -2,8 +2,11 @@
 
 namespace Noxlogic\RateLimitBundle\Service\Storage;
 
+use Noxlogic\RateLimitBundle\Exception\Storage\CreateRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\GetRateInfoRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\LimitRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\ResetRateRateLimitStorageException;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
-use Noxlogic\RateLimitBundle\Service\Storage\StorageInterface;
 use Psr\Cache\CacheItemPoolInterface;
 
 class PsrCache implements StorageInterface
@@ -20,7 +23,12 @@ class PsrCache implements StorageInterface
 
     public function getRateInfo($key)
     {
-        $item = $this->client->getItem($key);
+        try {
+            $item = $this->client->getItem($key);
+        } catch (\Throwable $e) {
+            throw new GetRateInfoRateLimitStorageException($e);
+        }
+
         if (!$item->isHit()) {
             return false;
         }
@@ -30,7 +38,12 @@ class PsrCache implements StorageInterface
 
     public function limitRate($key)
     {
-        $item = $this->client->getItem($key);
+        try {
+            $item = $this->client->getItem($key);
+        } catch (\Throwable $e) {
+            throw new LimitRateRateLimitStorageException($e);
+        }
+
         if (!$item->isHit()) {
             return false;
         }
@@ -41,7 +54,11 @@ class PsrCache implements StorageInterface
         $item->set($info);
         $item->expiresAfter($info['reset'] - time());
 
-        $this->client->save($item);
+        try {
+            $this->client->save($item);
+        } catch (\Throwable $e) {
+            throw new LimitRateRateLimitStorageException($e);
+        }
 
         return $this->createRateInfo($info);
     }
@@ -53,18 +70,32 @@ class PsrCache implements StorageInterface
             'calls' => 1,
             'reset' => time() + $period,
         ];
-        $item = $this->client->getItem($key);
+
+        try {
+            $item = $this->client->getItem($key);
+        } catch (\Throwable $e) {
+            throw new CreateRateRateLimitStorageException($e);
+        }
+
         $item->set($info);
         $item->expiresAfter($period);
 
-        $this->client->save($item);
+        try {
+            $this->client->save($item);
+        } catch (\Throwable $e) {
+            throw new CreateRateRateLimitStorageException($e);
+        }
 
         return $this->createRateInfo($info);
     }
 
     public function resetRate($key)
     {
-        $this->client->deleteItem($key);
+        try {
+            $this->client->deleteItem($key);
+        } catch (\Throwable $e) {
+            throw new ResetRateRateLimitStorageException($e);
+        }
 
         return true;
     }

@@ -22,10 +22,11 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $containerBuilder = new ContainerBuilder(new ParameterBag());
         $extension->load(array(), $containerBuilder);
 
-        $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.enabled'), true);
-        $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code'), 429);
-        $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.display_headers'), true);
-        $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.headers.reset.name'), 'X-RateLimit-Reset');
+        self::assertTrue($containerBuilder->getParameter('noxlogic_rate_limit.enabled'));
+        self::assertSame(429, $containerBuilder->getParameter('noxlogic_rate_limit.rate_response_code'));
+        self::assertTrue($containerBuilder->getParameter('noxlogic_rate_limit.display_headers'));
+        self::assertSame('X-RateLimit-Reset', $containerBuilder->getParameter('noxlogic_rate_limit.headers.reset.name'));
+        self::assertFalse($containerBuilder->getParameter('noxlogic_rate_limit.fail_open'));
     }
 
     public function testStorageEngineParameterProvider()
@@ -62,7 +63,7 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
         $this->assertEquals('my.redis_cache', (string)($storageDef->getArgument(0)));
     }
 
-    public function testParametersWhenDisabled()
+    public function testParametersWhenDisabled(): void
     {
         $extension = new NoxlogicRateLimitExtension();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
@@ -84,8 +85,17 @@ class NoxlogicRateLimitExtensionTest extends WebTestCase
 
         $extension = new NoxlogicRateLimitExtension();
         $containerBuilder = new ContainerBuilder(new ParameterBag());
-        $extension->load(array(array('path_limits' => $pathLimits)), $containerBuilder);
+        $extension->load([['path_limits' => $pathLimits]], $containerBuilder);
 
-        $this->assertEquals($containerBuilder->getParameter('noxlogic_rate_limit.path_limits'), $pathLimits);
+        self::assertSame($pathLimits, $containerBuilder->getParameter('noxlogic_rate_limit.path_limits'));
+    }
+
+    public function testFailOpenParameter(): void
+    {
+        $extension = new NoxlogicRateLimitExtension();
+        $containerBuilder = new ContainerBuilder(new ParameterBag());
+        $extension->load([['fail_open' => true]], $containerBuilder);
+
+        self::assertTrue($containerBuilder->getParameter('noxlogic_rate_limit.fail_open'));
     }
 }

@@ -45,6 +45,8 @@ class NoxlogicRateLimitExtension extends Extension
 
         $container->setParameter('noxlogic_rate_limit.path_limits', $config['path_limits']);
 
+        $container->setParameter('noxlogic_rate_limit.fail_open', $config['fail_open']);
+
         switch ($config['storage_engine']) {
             case 'memcache':
                 $container->setParameter('noxlogic_rate_limit.storage.class', 'Noxlogic\RateLimitBundle\Service\Storage\Memcache');

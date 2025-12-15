@@ -39,6 +39,10 @@
                 <argument>%noxlogic_rate_limit.enabled%</argument>
             </call>
             <call method="setParameter">
+                <argument>fail_open</argument>
+                <argument>%noxlogic_rate_limit.fail_open%</argument>
+            </call>
+            <call method="setParameter">
                 <argument>rate_response_code</argument>
                 <argument>%noxlogic_rate_limit.rate_response_code%</argument>
             </call>

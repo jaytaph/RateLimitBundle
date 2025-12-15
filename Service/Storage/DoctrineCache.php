@@ -3,6 +3,10 @@
 namespace Noxlogic\RateLimitBundle\Service\Storage;
 
 use Doctrine\Common\Cache\Cache;
+use Noxlogic\RateLimitBundle\Exception\Storage\CreateRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\GetRateInfoRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\LimitRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\ResetRateRateLimitStorageException;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 
 class DoctrineCache implements StorageInterface {
@@ -19,7 +23,12 @@ class DoctrineCache implements StorageInterface {
 
     public function getRateInfo($key)
     {
-        $info = $this->client->fetch($key);
+        try {
+            $info = $this->client->fetch($key);
+        } catch (\Throwable $e) {
+            throw new GetRateInfoRateLimitStorageException($e);
+        }
+
         if ($info === false || !array_key_exists('limit', $info)) {
             return false;
         }
@@ -29,7 +38,12 @@ class DoctrineCache implements StorageInterface {
 
     public function limitRate($key)
     {
-        $info = $this->client->fetch($key);
+        try {
+            $info = $this->client->fetch($key);
+        } catch (\Throwable $e) {
+            throw new LimitRateRateLimitStorageException($e);
+        }
+
         if ($info === false || !array_key_exists('limit', $info)) {
             return false;
         }
@@ -38,7 +52,11 @@ class DoctrineCache implements StorageInterface {
 
         $expire = $info['reset'] - time();
 
-        $this->client->save($key, $info, $expire);
+        try {
+            $this->client->save($key, $info, $expire);
+        } catch (\Throwable $e) {
+            throw new LimitRateRateLimitStorageException($e);
+        }
 
         return $this->createRateInfo($info);
     }
@@ -50,14 +68,22 @@ class DoctrineCache implements StorageInterface {
         $info['calls'] = 1;
         $info['reset'] = time() + $period;
 
-        $this->client->save($key, $info, $period);
+        try {
+            $this->client->save($key, $info, $period);
+        } catch (\Throwable $e) {
+            throw new CreateRateRateLimitStorageException($e);
+        }
 
         return $this->createRateInfo($info);
     }
 
     public function resetRate($key)
     {
-        $this->client->delete($key);
+        try {
+            $this->client->delete($key);
+        } catch (\Throwable $e) {
+            throw new ResetRateRateLimitStorageException($e);
+        }
 
         return true;
     }

@@ -1,10 +1,15 @@
 <?php
+declare(strict_types=1);
 
 namespace Noxlogic\RateLimitBundle\Tests\Service\Storage;
 
-
+use Noxlogic\RateLimitBundle\Exception\Storage\CreateRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\GetRateInfoRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\LimitRateRateLimitStorageException;
+use Noxlogic\RateLimitBundle\Exception\Storage\ResetRateRateLimitStorageException;
 use Noxlogic\RateLimitBundle\Service\Storage\DoctrineCache;
 use Noxlogic\RateLimitBundle\Tests\TestCase;
+use Doctrine\Common\Cache\Cache;
 
 class DoctrineCacheTest extends TestCase
 {
@@ -25,9 +30,26 @@ class DoctrineCacheTest extends TestCase
         $this->assertEquals(1234, $rli->getResetTimestamp());
     }
 
-    public function testCreateRate()
+    public function testGetRateInfo_exception()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
+        $client = $this->getMockBuilder(Cache::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('fetch')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new DoctrineCache($client);
+
+        $this->expectException(GetRateInfoRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to get rate limit info: Storage error');
+
+        $storage->getRateInfo('foo');
+    }
+
+    public function testCreateRate(): void
+    {
+        $client = $this->getMockBuilder(Cache::class)
             ->getMock();
         $client->expects($this->once())
             ->method('save');
@@ -37,9 +59,25 @@ class DoctrineCacheTest extends TestCase
     }
 
 
-    public function testLimitRateNoKey()
+    public function testCreateRate_exception()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
+        $client = $this->getMockBuilder(Cache::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('save')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new DoctrineCache($client);
+
+        $this->expectException(CreateRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to create rate limit: Storage error');
+
+        $storage->createRate('foo', 100, 123);
+    }
+
+    public function testLimitRateNoKey(): void
+    {
+        $client = $this->getMockBuilder(Cache::class)
             ->getMock();
         $client->expects($this->once())
             ->method('fetch')
@@ -72,9 +110,26 @@ class DoctrineCacheTest extends TestCase
 
 
 
-    public function testResetRate()
+    public function testLimitRate_exception()
     {
-        $client = $this->getMockBuilder('Doctrine\\Common\\Cache\\Cache')
+        $client = $this->getMockBuilder(Cache::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('fetch')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new DoctrineCache($client);
+
+        $this->expectException(LimitRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to apply rate limit: Storage error');
+
+        $storage->limitRate('foo');
+    }
+
+    public function testResetRate(): void
+    {
+        $client = $this->getMockBuilder(Cache::class)
             ->getMock();
         $client->expects($this->once())
             ->method('delete')
@@ -82,5 +137,22 @@ class DoctrineCacheTest extends TestCase
 
         $storage = new DoctrineCache($client);
         $this->assertTrue($storage->resetRate('foo'));
+    }
+
+    public function testResetRate_exception(): void
+    {
+        $client = $this->getMockBuilder(Cache::class)
+            ->getMock();
+        $client->expects($this->once())
+            ->method('delete')
+            ->with('foo')
+            ->willThrowException(new \Exception('Storage error'));
+
+        $storage = new DoctrineCache($client);
+
+        $this->expectException(ResetRateRateLimitStorageException::class);
+        $this->expectExceptionMessage('Rate limit storage: Failed to reset rate: Storage error');
+
+        $storage->resetRate('foo');
     }
 } 

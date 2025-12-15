@@ -2,6 +2,7 @@
 
 namespace Noxlogic\RateLimitBundle\Tests\EventListener;
 
+use Noxlogic\RateLimitBundle\Exception\Storage\RateLimitStorageExceptionInterface;
 use Noxlogic\RateLimitBundle\Service\RateLimitInfo;
 use Noxlogic\RateLimitBundle\Service\Storage\StorageInterface;
 
@@ -18,6 +19,10 @@ class MockStorage implements StorageInterface
     public function getRateInfo($key)
     {
         $info = $this->rates[$key];
+
+        if ($info instanceof RateLimitStorageExceptionInterface) {
+            throw $info;
+        }
 
         $rateLimitInfo = new RateLimitInfo();
         $rateLimitInfo->setCalls($info['calls']);
@@ -36,6 +41,10 @@ class MockStorage implements StorageInterface
     {
         if (! isset($this->rates[$key])) {
             return null;
+        }
+
+        if ($this->rates[$key] instanceof RateLimitStorageExceptionInterface) {
+            throw $this->rates[$key];
         }
 
         $this->rates[$key]['calls']++;
@@ -66,9 +75,19 @@ class MockStorage implements StorageInterface
         unset($this->rates[$key]);
     }
 
-    public function createMockRate($key, $limit, $period, $calls)
+    public function resetAll(): void
+    {
+        $this->rates = [];
+    }
+
+    public function createMockRate($key, $limit, $period, $calls): RateLimitInfo
     {
         $this->rates[$key] = array('calls' => $calls, 'limit' => $limit, 'reset' => (time() + $period));
         return $this->getRateInfo($key);
+    }
+
+    public function createStorageErrorMockRate($key, RateLimitStorageExceptionInterface $exception): void
+    {
+        $this->rates[$key] = $exception;
     }
 }
